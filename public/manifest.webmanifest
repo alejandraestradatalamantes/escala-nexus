@@ -1,0 +1,14 @@
+{
+  "name": "ESCALA Nexus",
+  "short_name": "Nexus",
+  "description": "Gestión de talento de Escala",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F4F5F2",
+  "theme_color": "#17395B",
+  "lang": "es-MX",
+  "icons": [
+    { "src": "/favicon.ico", "sizes": "48x48", "type": "image/x-icon" }
+  ]
+}
