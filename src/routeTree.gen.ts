@@ -17,6 +17,7 @@ import { Route as AuthenticatedTableroRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedSeguridadRouteImport } from './routes/_authenticated/seguridad'
 import { Route as AuthenticatedDesempenoRouteImport } from './routes/_authenticated/desempeno'
 import { Route as AuthenticatedDesarrolloRouteImport } from './routes/_authenticated/desarrollo'
+import { Route as AuthenticatedConfiguracionRouteImport } from './routes/_authenticated/configuracion'
 import { Route as AuthenticatedComunicacionRouteImport } from './routes/_authenticated/comunicacion'
 import { Route as AuthenticatedBienestarRouteImport } from './routes/_authenticated/bienestar'
 import { Route as AuthenticatedAtraccionRouteImport } from './routes/_authenticated/atraccion'
@@ -63,6 +64,12 @@ const AuthenticatedDesarrolloRoute = AuthenticatedDesarrolloRouteImport.update({
   path: '/desarrollo',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedConfiguracionRoute =
+  AuthenticatedConfiguracionRouteImport.update({
+    id: '/configuracion',
+    path: '/configuracion',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedComunicacionRoute =
   AuthenticatedComunicacionRouteImport.update({
     id: '/comunicacion',
@@ -104,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/atraccion': typeof AuthenticatedAtraccionRoute
   '/bienestar': typeof AuthenticatedBienestarRoute
   '/comunicacion': typeof AuthenticatedComunicacionRoute
+  '/configuracion': typeof AuthenticatedConfiguracionRoute
   '/desarrollo': typeof AuthenticatedDesarrolloRoute
   '/desempeno': typeof AuthenticatedDesempenoRoute
   '/seguridad': typeof AuthenticatedSeguridadRoute
@@ -119,6 +127,7 @@ export interface FileRoutesByTo {
   '/atraccion': typeof AuthenticatedAtraccionRoute
   '/bienestar': typeof AuthenticatedBienestarRoute
   '/comunicacion': typeof AuthenticatedComunicacionRoute
+  '/configuracion': typeof AuthenticatedConfiguracionRoute
   '/desarrollo': typeof AuthenticatedDesarrolloRoute
   '/desempeno': typeof AuthenticatedDesempenoRoute
   '/seguridad': typeof AuthenticatedSeguridadRoute
@@ -136,6 +145,7 @@ export interface FileRoutesById {
   '/_authenticated/atraccion': typeof AuthenticatedAtraccionRoute
   '/_authenticated/bienestar': typeof AuthenticatedBienestarRoute
   '/_authenticated/comunicacion': typeof AuthenticatedComunicacionRoute
+  '/_authenticated/configuracion': typeof AuthenticatedConfiguracionRoute
   '/_authenticated/desarrollo': typeof AuthenticatedDesarrolloRoute
   '/_authenticated/desempeno': typeof AuthenticatedDesempenoRoute
   '/_authenticated/seguridad': typeof AuthenticatedSeguridadRoute
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/atraccion'
     | '/bienestar'
     | '/comunicacion'
+    | '/configuracion'
     | '/desarrollo'
     | '/desempeno'
     | '/seguridad'
@@ -168,6 +179,7 @@ export interface FileRouteTypes {
     | '/atraccion'
     | '/bienestar'
     | '/comunicacion'
+    | '/configuracion'
     | '/desarrollo'
     | '/desempeno'
     | '/seguridad'
@@ -184,6 +196,7 @@ export interface FileRouteTypes {
     | '/_authenticated/atraccion'
     | '/_authenticated/bienestar'
     | '/_authenticated/comunicacion'
+    | '/_authenticated/configuracion'
     | '/_authenticated/desarrollo'
     | '/_authenticated/desempeno'
     | '/_authenticated/seguridad'
@@ -257,6 +270,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDesarrolloRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/configuracion': {
+      id: '/_authenticated/configuracion'
+      path: '/configuracion'
+      fullPath: '/configuracion'
+      preLoaderRoute: typeof AuthenticatedConfiguracionRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/comunicacion': {
       id: '/_authenticated/comunicacion'
       path: '/comunicacion'
@@ -307,6 +327,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAtraccionRoute: typeof AuthenticatedAtraccionRoute
   AuthenticatedBienestarRoute: typeof AuthenticatedBienestarRoute
   AuthenticatedComunicacionRoute: typeof AuthenticatedComunicacionRoute
+  AuthenticatedConfiguracionRoute: typeof AuthenticatedConfiguracionRoute
   AuthenticatedDesarrolloRoute: typeof AuthenticatedDesarrolloRoute
   AuthenticatedDesempenoRoute: typeof AuthenticatedDesempenoRoute
   AuthenticatedSeguridadRoute: typeof AuthenticatedSeguridadRoute
@@ -321,6 +342,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAtraccionRoute: AuthenticatedAtraccionRoute,
   AuthenticatedBienestarRoute: AuthenticatedBienestarRoute,
   AuthenticatedComunicacionRoute: AuthenticatedComunicacionRoute,
+  AuthenticatedConfiguracionRoute: AuthenticatedConfiguracionRoute,
   AuthenticatedDesarrolloRoute: AuthenticatedDesarrolloRoute,
   AuthenticatedDesempenoRoute: AuthenticatedDesempenoRoute,
   AuthenticatedSeguridadRoute: AuthenticatedSeguridadRoute,

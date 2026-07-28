@@ -90,7 +90,7 @@ function Configuracion() {
             <table className="w-full min-w-[560px] text-left text-[13px]">
               <thead className="bg-grafito text-cal">
                 <tr>
-                  {["Clave", "Valor", "Fuente", "Vigencia"].map((h) => (
+                  {["Clave", "Valor", "Fuente", "Actualizado"].map((h) => (
                     <th key={h} className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide">{h}</th>
                   ))}
                 </tr>
@@ -99,9 +99,12 @@ function Configuracion() {
                 {supuestos.map((s) => (
                   <tr key={s.id} className="border-t border-border">
                     <td className="cifra h-10 px-3">{s.clave}</td>
-                    <td className="cifra px-3">{s.valor ?? "[Dato Requerido de Escala]"}</td>
+                    <td className="cifra px-3">
+                      {s.valor ?? "[Dato Requerido de Escala]"}
+                      {s.valor !== null && s.unidad ? ` ${s.unidad}` : ""}
+                    </td>
                     <td className="px-3 text-cota">{s.fuente ?? "—"}</td>
-                    <td className="cifra px-3 text-cota">{fechaCorta(s.vigencia_desde)}</td>
+                    <td className="cifra px-3 text-cota">{fechaCorta(s.fecha_actualizacion)}</td>
                   </tr>
                 ))}
               </tbody>
