@@ -12,7 +12,15 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedTiempoRouteImport } from './routes/_authenticated/tiempo'
 import { Route as AuthenticatedTableroRouteImport } from './routes/_authenticated/tablero'
+import { Route as AuthenticatedSeguridadRouteImport } from './routes/_authenticated/seguridad'
+import { Route as AuthenticatedDesempenoRouteImport } from './routes/_authenticated/desempeno'
+import { Route as AuthenticatedDesarrolloRouteImport } from './routes/_authenticated/desarrollo'
+import { Route as AuthenticatedComunicacionRouteImport } from './routes/_authenticated/comunicacion'
+import { Route as AuthenticatedBienestarRouteImport } from './routes/_authenticated/bienestar'
+import { Route as AuthenticatedAtraccionRouteImport } from './routes/_authenticated/atraccion'
+import { Route as AuthenticatedAnaliticaRouteImport } from './routes/_authenticated/analitica'
 import { Route as AuthenticatedColaboradoresIndexRouteImport } from './routes/_authenticated/colaboradores.index'
 import { Route as AuthenticatedColaboradoresIdRouteImport } from './routes/_authenticated/colaboradores.$id'
 
@@ -30,9 +38,50 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedTiempoRoute = AuthenticatedTiempoRouteImport.update({
+  id: '/tiempo',
+  path: '/tiempo',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTableroRoute = AuthenticatedTableroRouteImport.update({
   id: '/tablero',
   path: '/tablero',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSeguridadRoute = AuthenticatedSeguridadRouteImport.update({
+  id: '/seguridad',
+  path: '/seguridad',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDesempenoRoute = AuthenticatedDesempenoRouteImport.update({
+  id: '/desempeno',
+  path: '/desempeno',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDesarrolloRoute = AuthenticatedDesarrolloRouteImport.update({
+  id: '/desarrollo',
+  path: '/desarrollo',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedComunicacionRoute =
+  AuthenticatedComunicacionRouteImport.update({
+    id: '/comunicacion',
+    path: '/comunicacion',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedBienestarRoute = AuthenticatedBienestarRouteImport.update({
+  id: '/bienestar',
+  path: '/bienestar',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAtraccionRoute = AuthenticatedAtraccionRouteImport.update({
+  id: '/atraccion',
+  path: '/atraccion',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAnaliticaRoute = AuthenticatedAnaliticaRouteImport.update({
+  id: '/analitica',
+  path: '/analitica',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedColaboradoresIndexRoute =
@@ -51,14 +100,30 @@ const AuthenticatedColaboradoresIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/analitica': typeof AuthenticatedAnaliticaRoute
+  '/atraccion': typeof AuthenticatedAtraccionRoute
+  '/bienestar': typeof AuthenticatedBienestarRoute
+  '/comunicacion': typeof AuthenticatedComunicacionRoute
+  '/desarrollo': typeof AuthenticatedDesarrolloRoute
+  '/desempeno': typeof AuthenticatedDesempenoRoute
+  '/seguridad': typeof AuthenticatedSeguridadRoute
   '/tablero': typeof AuthenticatedTableroRoute
+  '/tiempo': typeof AuthenticatedTiempoRoute
   '/colaboradores/$id': typeof AuthenticatedColaboradoresIdRoute
   '/colaboradores/': typeof AuthenticatedColaboradoresIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/analitica': typeof AuthenticatedAnaliticaRoute
+  '/atraccion': typeof AuthenticatedAtraccionRoute
+  '/bienestar': typeof AuthenticatedBienestarRoute
+  '/comunicacion': typeof AuthenticatedComunicacionRoute
+  '/desarrollo': typeof AuthenticatedDesarrolloRoute
+  '/desempeno': typeof AuthenticatedDesempenoRoute
+  '/seguridad': typeof AuthenticatedSeguridadRoute
   '/tablero': typeof AuthenticatedTableroRoute
+  '/tiempo': typeof AuthenticatedTiempoRoute
   '/colaboradores/$id': typeof AuthenticatedColaboradoresIdRoute
   '/colaboradores': typeof AuthenticatedColaboradoresIndexRoute
 }
@@ -67,7 +132,15 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/analitica': typeof AuthenticatedAnaliticaRoute
+  '/_authenticated/atraccion': typeof AuthenticatedAtraccionRoute
+  '/_authenticated/bienestar': typeof AuthenticatedBienestarRoute
+  '/_authenticated/comunicacion': typeof AuthenticatedComunicacionRoute
+  '/_authenticated/desarrollo': typeof AuthenticatedDesarrolloRoute
+  '/_authenticated/desempeno': typeof AuthenticatedDesempenoRoute
+  '/_authenticated/seguridad': typeof AuthenticatedSeguridadRoute
   '/_authenticated/tablero': typeof AuthenticatedTableroRoute
+  '/_authenticated/tiempo': typeof AuthenticatedTiempoRoute
   '/_authenticated/colaboradores/$id': typeof AuthenticatedColaboradoresIdRoute
   '/_authenticated/colaboradores/': typeof AuthenticatedColaboradoresIndexRoute
 }
@@ -76,17 +149,46 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/analitica'
+    | '/atraccion'
+    | '/bienestar'
+    | '/comunicacion'
+    | '/desarrollo'
+    | '/desempeno'
+    | '/seguridad'
     | '/tablero'
+    | '/tiempo'
     | '/colaboradores/$id'
     | '/colaboradores/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/tablero' | '/colaboradores/$id' | '/colaboradores'
+  to:
+    | '/'
+    | '/auth'
+    | '/analitica'
+    | '/atraccion'
+    | '/bienestar'
+    | '/comunicacion'
+    | '/desarrollo'
+    | '/desempeno'
+    | '/seguridad'
+    | '/tablero'
+    | '/tiempo'
+    | '/colaboradores/$id'
+    | '/colaboradores'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/analitica'
+    | '/_authenticated/atraccion'
+    | '/_authenticated/bienestar'
+    | '/_authenticated/comunicacion'
+    | '/_authenticated/desarrollo'
+    | '/_authenticated/desempeno'
+    | '/_authenticated/seguridad'
     | '/_authenticated/tablero'
+    | '/_authenticated/tiempo'
     | '/_authenticated/colaboradores/$id'
     | '/_authenticated/colaboradores/'
   fileRoutesById: FileRoutesById
@@ -120,11 +222,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/tiempo': {
+      id: '/_authenticated/tiempo'
+      path: '/tiempo'
+      fullPath: '/tiempo'
+      preLoaderRoute: typeof AuthenticatedTiempoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/tablero': {
       id: '/_authenticated/tablero'
       path: '/tablero'
       fullPath: '/tablero'
       preLoaderRoute: typeof AuthenticatedTableroRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/seguridad': {
+      id: '/_authenticated/seguridad'
+      path: '/seguridad'
+      fullPath: '/seguridad'
+      preLoaderRoute: typeof AuthenticatedSeguridadRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/desempeno': {
+      id: '/_authenticated/desempeno'
+      path: '/desempeno'
+      fullPath: '/desempeno'
+      preLoaderRoute: typeof AuthenticatedDesempenoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/desarrollo': {
+      id: '/_authenticated/desarrollo'
+      path: '/desarrollo'
+      fullPath: '/desarrollo'
+      preLoaderRoute: typeof AuthenticatedDesarrolloRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/comunicacion': {
+      id: '/_authenticated/comunicacion'
+      path: '/comunicacion'
+      fullPath: '/comunicacion'
+      preLoaderRoute: typeof AuthenticatedComunicacionRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/bienestar': {
+      id: '/_authenticated/bienestar'
+      path: '/bienestar'
+      fullPath: '/bienestar'
+      preLoaderRoute: typeof AuthenticatedBienestarRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/atraccion': {
+      id: '/_authenticated/atraccion'
+      path: '/atraccion'
+      fullPath: '/atraccion'
+      preLoaderRoute: typeof AuthenticatedAtraccionRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/analitica': {
+      id: '/_authenticated/analitica'
+      path: '/analitica'
+      fullPath: '/analitica'
+      preLoaderRoute: typeof AuthenticatedAnaliticaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/colaboradores/': {
@@ -145,13 +303,29 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAnaliticaRoute: typeof AuthenticatedAnaliticaRoute
+  AuthenticatedAtraccionRoute: typeof AuthenticatedAtraccionRoute
+  AuthenticatedBienestarRoute: typeof AuthenticatedBienestarRoute
+  AuthenticatedComunicacionRoute: typeof AuthenticatedComunicacionRoute
+  AuthenticatedDesarrolloRoute: typeof AuthenticatedDesarrolloRoute
+  AuthenticatedDesempenoRoute: typeof AuthenticatedDesempenoRoute
+  AuthenticatedSeguridadRoute: typeof AuthenticatedSeguridadRoute
   AuthenticatedTableroRoute: typeof AuthenticatedTableroRoute
+  AuthenticatedTiempoRoute: typeof AuthenticatedTiempoRoute
   AuthenticatedColaboradoresIdRoute: typeof AuthenticatedColaboradoresIdRoute
   AuthenticatedColaboradoresIndexRoute: typeof AuthenticatedColaboradoresIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAnaliticaRoute: AuthenticatedAnaliticaRoute,
+  AuthenticatedAtraccionRoute: AuthenticatedAtraccionRoute,
+  AuthenticatedBienestarRoute: AuthenticatedBienestarRoute,
+  AuthenticatedComunicacionRoute: AuthenticatedComunicacionRoute,
+  AuthenticatedDesarrolloRoute: AuthenticatedDesarrolloRoute,
+  AuthenticatedDesempenoRoute: AuthenticatedDesempenoRoute,
+  AuthenticatedSeguridadRoute: AuthenticatedSeguridadRoute,
   AuthenticatedTableroRoute: AuthenticatedTableroRoute,
+  AuthenticatedTiempoRoute: AuthenticatedTiempoRoute,
   AuthenticatedColaboradoresIdRoute: AuthenticatedColaboradoresIdRoute,
   AuthenticatedColaboradoresIndexRoute: AuthenticatedColaboradoresIndexRoute,
 }
