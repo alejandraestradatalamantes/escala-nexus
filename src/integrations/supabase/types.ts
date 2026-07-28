@@ -2186,6 +2186,15 @@ export type Database = {
         Args: { _rol: Database["public"]["Enums"]["rol_usuario"] }
         Returns: boolean
       }
+      listar_usuarios: {
+        Args: never
+        Returns: {
+          correo: string
+          id: string
+          nombre: string
+          roles: Database["public"]["Enums"]["rol_usuario"][]
+        }[]
+      }
       mi_colaborador_id: { Args: never; Returns: string }
       mis_roles: {
         Args: never
