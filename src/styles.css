@@ -5,6 +5,37 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
+ * ESCALA Nexus — sistema visual derivado de instrumentos de medición.
+ * Paleta: grafito, plomada, cal, cota, casco, desviación, línea.
+ */
+
+@theme {
+  --color-grafito: oklch(0.204 0.014 258.4);
+  --color-plomada: oklch(0.351 0.072 250.6);
+  --color-cal: oklch(0.968 0.004 106.4);
+  --color-cota: oklch(0.601 0.017 256.9);
+  --color-casco: oklch(0.756 0.13 74.6);
+  --color-desviacion: oklch(0.545 0.145 30.5);
+  --color-linea: oklch(0.503 0.066 176.6);
+  --font-display: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+@utility cifra {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+@utility titulo {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/*
  * Design system definition.
  *
  * The @theme inline block maps CSS custom properties to Tailwind utility
