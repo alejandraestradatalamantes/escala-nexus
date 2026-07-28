@@ -20,7 +20,7 @@ export interface Modulo {
   movil?: boolean;
 }
 
-export const MODULOS: Modulo[] = [
+export const MODULOS = [
   { nombre: "Tablero", ruta: "/tablero", icono: LayoutDashboard, movil: true },
   { nombre: "Atracción", ruta: "/atraccion", icono: UserSearch },
   { nombre: "Colaboradores", ruta: "/colaboradores", icono: Users, movil: true },
@@ -32,4 +32,4 @@ export const MODULOS: Modulo[] = [
   { nombre: "Seguridad e Higiene", ruta: "/seguridad", icono: HardHat },
   { nombre: "Analítica", ruta: "/analitica", icono: BarChart3, movil: true },
   { nombre: "Configuración", ruta: "/configuracion", icono: Settings },
-];
+] as const satisfies readonly Modulo[];
