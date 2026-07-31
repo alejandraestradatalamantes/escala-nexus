@@ -25,7 +25,7 @@ export function useDatosTiempo() {
         supabase.from("saldos_vacaciones").select("colaborador_id, dias_disponibles"),
         supabase
           .from("solicitudes")
-          .select("id, tipo, estatus, fecha_inicio, fecha_fin, dias, fecha_solicitud"),
+          .select("id, colaborador_id, tipo, estatus, fecha_inicio, fecha_fin, dias, fecha_solicitud"),
         supabase.from("supuestos_financieros").select("clave, valor"),
       ]);
       const valorDe = (clave: string) =>
@@ -79,13 +79,9 @@ export function IndicadoresTiempo() {
   const ausentesHoy = new Set(
     solicitudes
       .filter((s) => s.estatus === "aprobada" && cubre(s, hoy))
-      .map((s) => s.id && s),
+      .map((s) => s.colaborador_id),
   );
-  const idsAusentes = new Set(
-    solicitudes.filter((s) => s.estatus === "aprobada" && cubre(s, hoy)).map((s) => s.id),
-  );
-  void ausentesHoy;
-  const disponibles = plantilla - idsAusentes.size;
+  const disponibles = Math.max(0, plantilla - ausentesHoy.size);
   const pctDisponible = plantilla > 0 ? (disponibles / plantilla) * 100 : null;
 
   return (
