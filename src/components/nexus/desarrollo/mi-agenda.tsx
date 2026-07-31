@@ -115,7 +115,12 @@ function Titulo({ children, nota }: { children: string; nota?: string }) {
 }
 
 /** Agenda de desarrollo de una persona: autorreflexión, prioridades, acciones, seguimiento y efectividad. */
-export function MiAgenda({ colaboradorId, miColaboradorId, esTalento, ciclo = CICLO_ACTUAL }: Props) {
+export function MiAgenda({
+  colaboradorId,
+  miColaboradorId,
+  esTalento,
+  ciclo = CICLO_ACTUAL,
+}: Props) {
   const queryClient = useQueryClient();
   const [reflexion, setReflexion] = useState<Autorreflexion>(AUTORREFLEXION_VACIA);
   const [reflexionCargada, setReflexionCargada] = useState<string | null>(null);
@@ -154,7 +159,15 @@ export function MiAgenda({ colaboradorId, miColaboradorId, esTalento, ciclo = CI
       ]);
 
       let autorreflexion = null;
-      let prioridades: { id: string; agenda_id: string; dimension: string | null; competencia_id: string | null; descripcion: string | null; nivel_actual: number | null; nivel_meta: number | null }[] = [];
+      let prioridades: {
+        id: string;
+        agenda_id: string;
+        dimension: string | null;
+        competencia_id: string | null;
+        descripcion: string | null;
+        nivel_actual: number | null;
+        nivel_meta: number | null;
+      }[] = [];
       let acciones: {
         id: string;
         prioridad_id: string;
@@ -167,7 +180,12 @@ export function MiAgenda({ colaboradorId, miColaboradorId, esTalento, ciclo = CI
         fecha_fin: string | null;
         estatus: string;
       }[] = [];
-      let sesiones: { id: string; fecha: string | null; tipo: string | null; acuerdos: string | null }[] = [];
+      let sesiones: {
+        id: string;
+        fecha: string | null;
+        tipo: string | null;
+        acuerdos: string | null;
+      }[] = [];
       let mediciones: {
         id: string;
         prioridad_id: string;
@@ -202,7 +220,8 @@ export function MiAgenda({ colaboradorId, miColaboradorId, esTalento, ciclo = CI
       }
 
       // Brechas del módulo Desempeño para precargar prioridades.
-      const brechas: { competenciaId: string; nombre: string; observado: number; meta: number }[] = [];
+      const brechas: { competenciaId: string; nombre: string; observado: number; meta: number }[] =
+        [];
       if (colaborador?.puesto_id) {
         const [{ data: puesto }, { data: evaluacion }] = await Promise.all([
           supabase
@@ -356,7 +375,13 @@ export function MiAgenda({ colaboradorId, miColaboradorId, esTalento, ciclo = CI
   });
 
   const agregarPrioridad = useMutation({
-    mutationFn: async (fila?: { competencia_id: string; descripcion: string; nivel_actual: number; nivel_meta: number; dimension: string }) => {
+    mutationFn: async (fila?: {
+      competencia_id: string;
+      descripcion: string;
+      nivel_actual: number;
+      nivel_meta: number;
+      dimension: string;
+    }) => {
       if (!agenda) throw new Error("sin agenda");
       if (prioridades.length >= MAX_PRIORIDADES) throw new Error("maximo");
       const p = fila ?? {
@@ -766,9 +791,7 @@ export function MiAgenda({ colaboradorId, miColaboradorId, esTalento, ciclo = CI
                 id="ar-ciudades"
                 disabled={!puedeEditar || !reflexion.movilidadDisponible}
                 value={reflexion.movilidadCiudades}
-                onChange={(e) =>
-                  setReflexion((r) => ({ ...r, movilidadCiudades: e.target.value }))
-                }
+                onChange={(e) => setReflexion((r) => ({ ...r, movilidadCiudades: e.target.value }))}
                 className="h-10 rounded-none text-[13px]"
               />
             </div>
@@ -821,7 +844,9 @@ export function MiAgenda({ colaboradorId, miColaboradorId, esTalento, ciclo = CI
 
       {/* Prioridades */}
       <section className="space-y-3 border border-border bg-card p-4">
-        <Titulo nota={`Máximo ${MAX_PRIORIDADES} prioridades por ciclo. Con más de tres no se avanza en ninguna.`}>
+        <Titulo
+          nota={`Máximo ${MAX_PRIORIDADES} prioridades por ciclo. Con más de tres no se avanza en ninguna.`}
+        >
           Prioridades de desarrollo
         </Titulo>
 
@@ -874,8 +899,8 @@ export function MiAgenda({ colaboradorId, miColaboradorId, esTalento, ciclo = CI
                       <p className="text-[13px] text-grafito">{p.descripcion}</p>
                       <p className="cifra mt-1 text-[11px] uppercase tracking-wide text-cota">
                         {p.dimension ?? "Sin dimensión"} ·{" "}
-                        {(data?.competencias ?? []).find((c) => c.id === p.competencia_id)?.nombre ??
-                          "Sin competencia ligada"}{" "}
+                        {(data?.competencias ?? []).find((c) => c.id === p.competencia_id)
+                          ?.nombre ?? "Sin competencia ligada"}{" "}
                         · nivel {p.nivel_actual ?? "—"} a {p.nivel_meta ?? "—"} · {suyas.length}{" "}
                         acciones
                       </p>
@@ -962,9 +987,7 @@ export function MiAgenda({ colaboradorId, miColaboradorId, esTalento, ciclo = CI
                 id="pr-descripcion"
                 rows={2}
                 value={nuevaPrioridad.descripcion}
-                onChange={(e) =>
-                  setNuevaPrioridad((p) => ({ ...p, descripcion: e.target.value }))
-                }
+                onChange={(e) => setNuevaPrioridad((p) => ({ ...p, descripcion: e.target.value }))}
                 className="rounded-none text-[13px]"
               />
             </div>
@@ -1385,7 +1408,9 @@ function MedicionFila({
           </Label>
         </div>
         {medicion?.fecha ? (
-          <span className="cifra text-[11px] text-cota">Última medición {fechaCorta(medicion.fecha)}</span>
+          <span className="cifra text-[11px] text-cota">
+            Última medición {fechaCorta(medicion.fecha)}
+          </span>
         ) : null}
       </div>
       <div className="mt-2 space-y-1.5">

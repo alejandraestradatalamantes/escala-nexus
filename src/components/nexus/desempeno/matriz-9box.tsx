@@ -260,56 +260,56 @@ export function Matriz9Box({
                           <span className="block truncate text-[11px] text-cota">{f.puesto}</span>
                         </span>
                         <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                aria-label={`Acciones para ${f.nombre}`}
-                                className="h-10 w-10 shrink-0 rounded-none p-0"
-                              >
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="rounded-none">
-                              <DropdownMenuItem
-                                onSelect={() =>
-                                  navigate({
-                                    to: "/desarrollo",
-                                    search: { colaborador: f.colaboradorId },
-                                  })
-                                }
-                                className="rounded-none text-[13px]"
-                              >
-                                Abrir agenda de desarrollo
-                              </DropdownMenuItem>
-                              {esTalento ? <DropdownMenuSeparator /> : null}
-                              {esTalento ? (
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              aria-label={`Acciones para ${f.nombre}`}
+                              className="h-10 w-10 shrink-0 rounded-none p-0"
+                            >
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="rounded-none">
+                            <DropdownMenuItem
+                              onSelect={() =>
+                                navigate({
+                                  to: "/desarrollo",
+                                  search: { colaborador: f.colaboradorId },
+                                })
+                              }
+                              className="rounded-none text-[13px]"
+                            >
+                              Abrir agenda de desarrollo
+                            </DropdownMenuItem>
+                            {esTalento ? <DropdownMenuSeparator /> : null}
+                            {esTalento ? (
                               <DropdownMenuLabel className="text-[11px] uppercase tracking-wide text-cota">
                                 Mover a…
                               </DropdownMenuLabel>
-                              ) : null}
-                              {(esTalento ? CASILLAS : []).map((c) => (
-                                <DropdownMenuItem
-                                  key={c.casilla}
-                                  disabled={
-                                    c.desempeno === f.desempeno && c.potencial === f.potencial
-                                  }
-                                  onSelect={() => {
-                                    setAcuerdo("");
-                                    setMovimiento({
-                                      ficha: f,
-                                      desempeno: c.desempeno,
-                                      potencial: c.potencial,
-                                    });
-                                  }}
-                                  className="rounded-none text-[13px]"
-                                >
-                                  {c.nombre}
-                                  <span className="cifra ml-2 text-[11px] text-cota">
-                                    D{c.desempeno}/P{c.potencial}
-                                  </span>
-                                </DropdownMenuItem>
-                              ))}
-                            </DropdownMenuContent>
+                            ) : null}
+                            {(esTalento ? CASILLAS : []).map((c) => (
+                              <DropdownMenuItem
+                                key={c.casilla}
+                                disabled={
+                                  c.desempeno === f.desempeno && c.potencial === f.potencial
+                                }
+                                onSelect={() => {
+                                  setAcuerdo("");
+                                  setMovimiento({
+                                    ficha: f,
+                                    desempeno: c.desempeno,
+                                    potencial: c.potencial,
+                                  });
+                                }}
+                                className="rounded-none text-[13px]"
+                              >
+                                {c.nombre}
+                                <span className="cifra ml-2 text-[11px] text-cota">
+                                  D{c.desempeno}/P{c.potencial}
+                                </span>
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuContent>
                         </DropdownMenu>
                       </li>
                     ))}

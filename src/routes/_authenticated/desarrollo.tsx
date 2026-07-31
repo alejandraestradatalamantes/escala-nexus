@@ -20,9 +20,17 @@ export const Route = createFileRoute("/_authenticated/desarrollo")({
   head: () => ({
     meta: [
       { title: "Desarrollo — ESCALA Nexus" },
-      { name: "description", content: "Planes de carrera, capacitación DC-3 y renovación de certificaciones patrocinadas por Escala." },
+      {
+        name: "description",
+        content:
+          "Planes de carrera, capacitación DC-3 y renovación de certificaciones patrocinadas por Escala.",
+      },
       { property: "og:title", content: "Desarrollo — ESCALA Nexus" },
-      { property: "og:description", content: "Planes de carrera, capacitación DC-3 y renovación de certificaciones patrocinadas por Escala." },
+      {
+        property: "og:description",
+        content:
+          "Planes de carrera, capacitación DC-3 y renovación de certificaciones patrocinadas por Escala.",
+      },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -89,11 +97,7 @@ function Desarrollo() {
           {viendoAOtro ? (
             <p className="flex flex-wrap items-center gap-2 border-l-2 border-casco bg-casco/10 px-3 py-2 text-[12px] text-grafito">
               Estás viendo la agenda de otra persona.
-              <button
-                type="button"
-                onClick={() => navigate({ search: {} })}
-                className="underline"
-              >
+              <button type="button" onClick={() => navigate({ search: {} })} className="underline">
                 Volver a mi agenda
               </button>
             </p>

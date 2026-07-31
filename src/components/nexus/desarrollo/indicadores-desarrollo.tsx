@@ -19,7 +19,10 @@ export function IndicadoresDesarrollo({ ciclo = CICLO_ACTUAL }: { ciclo?: string
     queryFn: async () => {
       const [colaboradores, agendas, acciones, certificaciones] = await Promise.all([
         supabase.from("colaboradores").select("id").eq("estatus", "activo"),
-        supabase.from("agendas_desarrollo").select("id, colaborador_id, estatus").eq("ciclo", ciclo),
+        supabase
+          .from("agendas_desarrollo")
+          .select("id, colaborador_id, estatus")
+          .eq("ciclo", ciclo),
         supabase
           .from("acciones_desarrollo")
           .select("id, estatus, monto_inversion, via_aprendizaje"),

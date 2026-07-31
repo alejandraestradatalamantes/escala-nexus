@@ -45,9 +45,7 @@ export function AgendasEquipo({
           .eq("ciclo", ciclo),
         supabase.from("colaboradores").select("id, nombre, area, puesto_id"),
         supabase.from("prioridades_desarrollo").select("id, agenda_id, descripcion"),
-        supabase
-          .from("acciones_desarrollo")
-          .select("id, prioridad_id, estatus, medicion_exito"),
+        supabase.from("acciones_desarrollo").select("id, prioridad_id, estatus, medicion_exito"),
         supabase.from("mapeo_talento").select("colaborador_id, casilla_9box"),
       ]);
       return {
@@ -201,9 +199,7 @@ export function AgendasEquipo({
                   </td>
                   <td className="px-3 py-2 text-[12px] text-cota">
                     {f.estatus === "autorizada" ? (
-                      <span className="cifra text-linea">
-                        {fechaCorta(f.fechaAutorizacion)}
-                      </span>
+                      <span className="cifra text-linea">{fechaCorta(f.fechaAutorizacion)}</span>
                     ) : f.bloqueos > 0 ? (
                       <span className="text-desviacion">{f.bloqueos} pendientes</span>
                     ) : (
