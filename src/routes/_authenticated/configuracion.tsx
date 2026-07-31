@@ -10,6 +10,7 @@ import { ETIQUETA_ROL, ROLES, fechaCorta } from "@/lib/nexus/formato";
 import { ImportarComportamientos } from "@/components/nexus/desempeno/importar-comportamientos";
 import { UsuariosAccesos } from "@/components/nexus/configuracion/usuarios-accesos";
 import { CatalogoVacaciones } from "@/components/nexus/configuracion/catalogo-vacaciones";
+import { CatalogoValores } from "@/components/nexus/configuracion/catalogo-valores";
 import { toast } from "sonner";
 
 const ETIQUETA_SUPUESTO: Record<string, string> = {
@@ -301,6 +302,8 @@ function Configuracion() {
       </section>
 
       <CatalogoVacaciones puedeEditar={admin} usuarioId={sesion?.userId ?? null} />
+
+      <CatalogoValores puedeEditar={esTalento} usuarioId={sesion?.userId ?? null} />
 
       <section className="border border-border bg-card p-4">
         <div className="flex flex-wrap items-start justify-between gap-3">

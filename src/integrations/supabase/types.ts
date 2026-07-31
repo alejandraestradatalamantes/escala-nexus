@@ -404,6 +404,45 @@ export type Database = {
         }
         Relationships: []
       }
+      catalogo_valores: {
+        Row: {
+          activo: boolean
+          clave: string
+          creado_por: string | null
+          created_at: string
+          descripcion: string | null
+          es_demo: boolean
+          id: string
+          nombre: string
+          orden: number
+          updated_at: string
+        }
+        Insert: {
+          activo?: boolean
+          clave: string
+          creado_por?: string | null
+          created_at?: string
+          descripcion?: string | null
+          es_demo?: boolean
+          id?: string
+          nombre: string
+          orden?: number
+          updated_at?: string
+        }
+        Update: {
+          activo?: boolean
+          clave?: string
+          creado_por?: string | null
+          created_at?: string
+          descripcion?: string | null
+          es_demo?: boolean
+          id?: string
+          nombre?: string
+          orden?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       certificaciones: {
         Row: {
           colaborador_id: string
@@ -749,10 +788,13 @@ export type Database = {
       }
       encuestas: {
         Row: {
+          cerrada_en: string | null
+          cerrada_por: string | null
           cobertura_objetivo: number | null
           creado_por: string | null
           created_at: string
           es_demo: boolean
+          estatus: string
           fecha_fin: string | null
           fecha_inicio: string | null
           id: string
@@ -761,10 +803,13 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          cerrada_en?: string | null
+          cerrada_por?: string | null
           cobertura_objetivo?: number | null
           creado_por?: string | null
           created_at?: string
           es_demo?: boolean
+          estatus?: string
           fecha_fin?: string | null
           fecha_inicio?: string | null
           id?: string
@@ -773,10 +818,13 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          cerrada_en?: string | null
+          cerrada_por?: string | null
           cobertura_objetivo?: number | null
           creado_por?: string | null
           created_at?: string
           es_demo?: boolean
+          estatus?: string
           fecha_fin?: string | null
           fecha_inicio?: string | null
           id?: string
@@ -1824,6 +1872,7 @@ export type Database = {
       }
       respuestas_encuesta: {
         Row: {
+          area: string | null
           colaborador_hash: string | null
           creado_por: string | null
           created_at: string
@@ -1831,10 +1880,12 @@ export type Database = {
           es_demo: boolean
           id: string
           reactivo_id: string | null
+          ubicacion: string | null
           updated_at: string
           valor: number | null
         }
         Insert: {
+          area?: string | null
           colaborador_hash?: string | null
           creado_por?: string | null
           created_at?: string
@@ -1842,10 +1893,12 @@ export type Database = {
           es_demo?: boolean
           id?: string
           reactivo_id?: string | null
+          ubicacion?: string | null
           updated_at?: string
           valor?: number | null
         }
         Update: {
+          area?: string | null
           colaborador_hash?: string | null
           creado_por?: string | null
           created_at?: string
@@ -1853,6 +1906,7 @@ export type Database = {
           es_demo?: boolean
           id?: string
           reactivo_id?: string | null
+          ubicacion?: string | null
           updated_at?: string
           valor?: number | null
         }
@@ -1865,6 +1919,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sal_bienestar: {
+        Row: {
+          created_at: string
+          id: number
+          sal: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          sal: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          sal?: string
+        }
+        Relationships: []
       }
       saldos_vacaciones: {
         Row: {
@@ -2240,13 +2312,80 @@ export type Database = {
     }
     Functions: {
       agenda_de_prioridad: { Args: { _prioridad: string }; Returns: string }
+      animo_comentarios: {
+        Args: { _desde: string; _hasta: string }
+        Returns: {
+          comentario: string
+          valor: number
+        }[]
+      }
+      animo_equipo: {
+        Args: { _desde: string; _hasta: string }
+        Returns: {
+          personas: number
+          promedio: number
+          suprimido: boolean
+        }[]
+      }
+      animo_firma: {
+        Args: { _desde: string; _hasta: string }
+        Returns: {
+          personas: number
+          promedio: number
+          registros: number
+          suprimido: boolean
+        }[]
+      }
+      animo_serie_firma: {
+        Args: { _desde: string; _hasta: string }
+        Returns: {
+          personas: number
+          promedio: number
+          semana: string
+        }[]
+      }
       aplicar_saldo_vacaciones: {
         Args: { _colaborador: string; _dias: number }
         Returns: undefined
       }
+      clima_enps: {
+        Args: { _corte?: string; _encuesta: string }
+        Returns: {
+          detractores: number
+          enps: number
+          grupo: string
+          pasivos: number
+          personas: number
+          promotores: number
+          suprimido: boolean
+        }[]
+      }
+      clima_grupos: {
+        Args: { _corte?: string; _encuesta: string }
+        Returns: {
+          grupo: string
+          personas: number
+          suprimido: boolean
+        }[]
+      }
+      clima_reactivos: {
+        Args: { _corte?: string; _encuesta: string }
+        Returns: {
+          grupo: string
+          personas: number
+          promedio: number
+          reactivo_id: string
+          respuestas: number
+        }[]
+      }
+      encuesta_avance: { Args: { _encuesta: string }; Returns: number }
       es: {
         Args: { _rol: Database["public"]["Enums"]["rol_usuario"] }
         Returns: boolean
+      }
+      hash_respuesta: {
+        Args: { _colab: string; _encuesta: string }
+        Returns: string
       }
       lidera: { Args: { _colab: string }; Returns: boolean }
       listar_usuarios: {
@@ -2264,8 +2403,19 @@ export type Database = {
         Args: never
         Returns: Database["public"]["Enums"]["rol_usuario"][]
       }
+      participacion_reconocimientos: {
+        Args: { _desde: string; _hasta: string }
+        Returns: {
+          personas: number
+          plantilla: number
+        }[]
+      }
       puede_editar_agenda: { Args: { _agenda: string }; Returns: boolean }
       puede_ver_agenda: { Args: { _agenda: string }; Returns: boolean }
+      responder_encuesta: {
+        Args: { _encuesta: string; _respuestas: Json }
+        Returns: undefined
+      }
       tiene_rol: {
         Args: {
           _rol: Database["public"]["Enums"]["rol_usuario"]
@@ -2273,6 +2423,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      ya_respondi: { Args: { _encuesta: string }; Returns: boolean }
     }
     Enums: {
       estatus_colaborador: "activo" | "baja" | "licencia"
