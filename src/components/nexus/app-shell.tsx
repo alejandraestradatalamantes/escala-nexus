@@ -10,11 +10,12 @@ import { ETIQUETA_ROL, iniciales } from "@/lib/nexus/formato";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const PERIODOS = ["2026 T3", "2026 T2", "2026 T1", "2025 Cierre"];
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { sesion, roles } = useSesion();
+  const { sesion, roles, cargando } = useSesion();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -23,30 +24,49 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const { data: hayDemo } = useQuery({
     queryKey: ["hay-demo"],
+    retry: 3,
+    retryDelay: (intento) => Math.min(1000 * 2 ** intento, 5000),
     queryFn: async () => {
-      const { count } = await supabase
+      const { count, error } = await supabase
         .from("colaboradores")
         .select("id", { count: "exact", head: true })
         .eq("es_demo", true);
+      if (error) throw error;
       return (count ?? 0) > 0;
     },
   });
 
-  const { data: resultados } = useQuery({
+  const { data: resultados, isFetching: buscando } = useQuery({
     queryKey: ["busqueda-global", busqueda],
     enabled: busqueda.trim().length >= 2,
     queryFn: async () => {
       const t = `%${busqueda.trim()}%`;
-      const [cols, proys] = await Promise.all([
+      // Cada consulta respeta las políticas del rol activo: si no hay permiso, no regresa filas.
+      const [cols, cands, vacs, proys] = await Promise.all([
         supabase.from("colaboradores").select("id, nombre").ilike("nombre", t).limit(5),
+        supabase.from("candidatos").select("id, nombre, estatus, vacante_id").ilike("nombre", t).limit(5),
+        supabase.from("vacantes").select("id, estatus, puesto_id, puestos(nombre)").limit(50),
         supabase.from("proyectos").select("id, nombre").ilike("nombre", t).limit(3),
       ]);
+      const termino = busqueda.trim().toLowerCase();
       return {
         colaboradores: cols.data ?? [],
+        candidatos: cands.data ?? [],
+        vacantes: (vacs.data ?? [])
+          .filter((v) =>
+            ((v as { puestos?: { nombre?: string } }).puestos?.nombre ?? "").toLowerCase().includes(termino),
+          )
+          .slice(0, 5),
         proyectos: proys.data ?? [],
       };
     },
   });
+
+  const totalResultados =
+    (resultados?.colaboradores.length ?? 0) +
+    (resultados?.candidatos.length ?? 0) +
+    (resultados?.vacantes.length ?? 0) +
+    (resultados?.proyectos.length ?? 0);
 
   async function cerrarSesion() {
     await queryClient.cancelQueries();
@@ -87,10 +107,19 @@ export function AppShell({ children }: { children: ReactNode }) {
           })}
         </nav>
         <div className="border-t border-sidebar-border p-4 text-[11px] text-cota">
-          <p className="truncate">{sesion?.nombre}</p>
-          <p className="cifra mt-1 truncate">
-            {roles.map((r) => ETIQUETA_ROL[r]).join(" · ") || "Sin rol asignado"}
-          </p>
+          {cargando ? (
+            <div className="space-y-2">
+              <Skeleton className="h-3 w-28 rounded-none bg-white/10" />
+              <Skeleton className="h-3 w-20 rounded-none bg-white/10" />
+            </div>
+          ) : (
+            <>
+              <p className="truncate">{sesion?.nombre}</p>
+              <p className="cifra mt-1 truncate">
+                {roles.map((r) => ETIQUETA_ROL[r]).join(" · ") || "Sin rol asignado"}
+              </p>
+            </>
+          )}
         </div>
       </aside>
 
@@ -108,26 +137,98 @@ export function AppShell({ children }: { children: ReactNode }) {
             />
             {busqueda.trim().length >= 2 && (
               <div className="absolute left-0 right-0 top-11 border border-border bg-popover p-2 shadow-md">
-                {resultados && (resultados.colaboradores.length || resultados.proyectos.length) ? (
-                  <ul className="space-y-1">
-                    {resultados.colaboradores.map((c) => (
-                      <li key={c.id}>
-                        <Link
-                          to="/colaboradores/$id"
-                          params={{ id: c.id }}
-                          onClick={() => setBusqueda("")}
-                          className="block px-2 py-1.5 text-[13px] hover:bg-accent"
-                        >
-                          {c.nombre} <span className="text-cota">· Colaborador</span>
-                        </Link>
-                      </li>
-                    ))}
-                    {resultados.proyectos.map((p) => (
-                      <li key={p.id} className="px-2 py-1.5 text-[13px] text-cota">
-                        {p.nombre} · Proyecto
-                      </li>
-                    ))}
-                  </ul>
+                {!resultados && buscando ? (
+                  <div className="space-y-2 p-2">
+                    <Skeleton className="h-3 w-40 rounded-none" />
+                    <Skeleton className="h-3 w-32 rounded-none" />
+                  </div>
+                ) : totalResultados > 0 ? (
+                  <div className="max-h-80 space-y-2 overflow-y-auto">
+                    {resultados!.colaboradores.length > 0 && (
+                      <section>
+                        <h2 className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-cota">
+                          Colaboradores
+                        </h2>
+                        <ul>
+                          {resultados!.colaboradores.map((c) => (
+                            <li key={c.id}>
+                              <Link
+                                to="/colaboradores/$id"
+                                params={{ id: c.id }}
+                                onClick={() => setBusqueda("")}
+                                className="block px-2 py-1.5 text-[13px] hover:bg-accent"
+                              >
+                                {c.nombre}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </section>
+                    )}
+                    {resultados!.candidatos.length > 0 && (
+                      <section>
+                        <h2 className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-cota">
+                          Candidatos
+                        </h2>
+                        <ul>
+                          {resultados!.candidatos.map((c) =>
+                            c.vacante_id ? (
+                              <li key={c.id}>
+                                <Link
+                                  to="/atraccion/$id"
+                                  params={{ id: c.vacante_id }}
+                                  onClick={() => setBusqueda("")}
+                                  className="block px-2 py-1.5 text-[13px] hover:bg-accent"
+                                >
+                                  {c.nombre} <span className="text-cota">· {c.estatus}</span>
+                                </Link>
+                              </li>
+                            ) : (
+                              <li key={c.id} className="px-2 py-1.5 text-[13px] text-cota">
+                                {c.nombre} · sin vacante asignada
+                              </li>
+                            ),
+                          )}
+                        </ul>
+                      </section>
+                    )}
+                    {resultados!.vacantes.length > 0 && (
+                      <section>
+                        <h2 className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-cota">
+                          Vacantes
+                        </h2>
+                        <ul>
+                          {resultados!.vacantes.map((v) => (
+                            <li key={v.id}>
+                              <Link
+                                to="/atraccion/$id"
+                                params={{ id: v.id }}
+                                onClick={() => setBusqueda("")}
+                                className="block px-2 py-1.5 text-[13px] hover:bg-accent"
+                              >
+                                {(v as { puestos?: { nombre?: string } }).puestos?.nombre ?? "Vacante"}{" "}
+                                <span className="text-cota">· {v.estatus}</span>
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </section>
+                    )}
+                    {resultados!.proyectos.length > 0 && (
+                      <section>
+                        <h2 className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-cota">
+                          Proyectos
+                        </h2>
+                        <ul>
+                          {resultados!.proyectos.map((p) => (
+                            <li key={p.id} className="px-2 py-1.5 text-[13px] text-cota">
+                              {p.nombre}
+                            </li>
+                          ))}
+                        </ul>
+                      </section>
+                    )}
+                  </div>
                 ) : (
                   <p className="px-2 py-1.5 text-[13px] text-cota">
                     Sin coincidencias. Ajusta el término y vuelve a buscar.
@@ -150,12 +251,16 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Button variant="ghost" size="icon" aria-label="Notificaciones" className="h-10 w-10 rounded-none">
               <Bell className="h-4 w-4" />
             </Button>
-            <span
-              className="cifra grid h-10 w-10 shrink-0 place-items-center bg-plomada text-[12px] text-primary-foreground"
-              title={sesion?.correo}
-            >
-              {iniciales(sesion?.nombre ?? "N N")}
-            </span>
+            {cargando ? (
+              <Skeleton className="h-10 w-10 shrink-0 rounded-none" />
+            ) : (
+              <span
+                className="cifra grid h-10 w-10 shrink-0 place-items-center bg-plomada text-[12px] text-primary-foreground"
+                title={sesion?.correo}
+              >
+                {iniciales(sesion?.nombre ?? "")}
+              </span>
+            )}
             <Button
               variant="ghost"
               size="icon"
