@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { MoreVertical } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -13,6 +14,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -50,6 +52,7 @@ export function Matriz9Box({
   cicloId: string;
 }) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [capas, setCapas] = useState({ riesgo: false, criticidad: false, cobertura: false });
   const [movimiento, setMovimiento] = useState<{
     ficha: Ficha;
@@ -256,22 +259,35 @@ export function Matriz9Box({
                           </span>
                           <span className="block truncate text-[11px] text-cota">{f.puesto}</span>
                         </span>
-                        {esTalento ? (
-                          <DropdownMenu>
+                        <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button
                                 variant="ghost"
-                                aria-label={`Mover a ${f.nombre}`}
+                                aria-label={`Acciones para ${f.nombre}`}
                                 className="h-10 w-10 shrink-0 rounded-none p-0"
                               >
                                 <MoreVertical className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="rounded-none">
+                              <DropdownMenuItem
+                                onSelect={() =>
+                                  navigate({
+                                    to: "/desarrollo",
+                                    search: { colaborador: f.colaboradorId },
+                                  })
+                                }
+                                className="rounded-none text-[13px]"
+                              >
+                                Abrir agenda de desarrollo
+                              </DropdownMenuItem>
+                              {esTalento ? <DropdownMenuSeparator /> : null}
+                              {esTalento ? (
                               <DropdownMenuLabel className="text-[11px] uppercase tracking-wide text-cota">
                                 Mover a…
                               </DropdownMenuLabel>
-                              {CASILLAS.map((c) => (
+                              ) : null}
+                              {(esTalento ? CASILLAS : []).map((c) => (
                                 <DropdownMenuItem
                                   key={c.casilla}
                                   disabled={
@@ -294,8 +310,7 @@ export function Matriz9Box({
                                 </DropdownMenuItem>
                               ))}
                             </DropdownMenuContent>
-                          </DropdownMenu>
-                        ) : null}
+                        </DropdownMenu>
                       </li>
                     ))}
                     {enCasilla.length === 0 ? (
