@@ -92,6 +92,10 @@ export type Database = {
           fecha_autorizacion: string | null
           id: string
           updated_at: string
+          vb_lider_en: string | null
+          vb_lider_por: string | null
+          vb_talento_en: string | null
+          vb_talento_por: string | null
         }
         Insert: {
           autorizada_por?: string | null
@@ -105,6 +109,10 @@ export type Database = {
           fecha_autorizacion?: string | null
           id?: string
           updated_at?: string
+          vb_lider_en?: string | null
+          vb_lider_por?: string | null
+          vb_talento_en?: string | null
+          vb_talento_por?: string | null
         }
         Update: {
           autorizada_por?: string | null
@@ -118,6 +126,10 @@ export type Database = {
           fecha_autorizacion?: string | null
           id?: string
           updated_at?: string
+          vb_lider_en?: string | null
+          vb_lider_por?: string | null
+          vb_talento_en?: string | null
+          vb_talento_por?: string | null
         }
         Relationships: [
           {
@@ -2182,10 +2194,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      agenda_de_prioridad: { Args: { _prioridad: string }; Returns: string }
       es: {
         Args: { _rol: Database["public"]["Enums"]["rol_usuario"] }
         Returns: boolean
       }
+      lidera: { Args: { _colab: string }; Returns: boolean }
       listar_usuarios: {
         Args: never
         Returns: {
@@ -2201,6 +2215,8 @@ export type Database = {
         Args: never
         Returns: Database["public"]["Enums"]["rol_usuario"][]
       }
+      puede_editar_agenda: { Args: { _agenda: string }; Returns: boolean }
+      puede_ver_agenda: { Args: { _agenda: string }; Returns: boolean }
       tiene_rol: {
         Args: {
           _rol: Database["public"]["Enums"]["rol_usuario"]
