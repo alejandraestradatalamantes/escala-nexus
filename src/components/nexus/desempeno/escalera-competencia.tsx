@@ -41,40 +41,39 @@ export function EscaleraCompetencia({
     <div className={cn("flex gap-4", className)}>
       {/* Banda de Línea Base vertical */}
       <div className="relative w-10 shrink-0">
-        <div className="absolute left-4 top-3 bottom-3 w-[3px] bg-cota/20" />
-        {hayMeta && hayObs ? (
-          <div
-            className={cn(
-              "absolute left-4 w-[3px] transition-all duration-150",
-              cumple ? "bg-linea" : "bg-desviacion",
-            )}
-            style={{
-              top: `calc(0.75rem + ${Math.min(pos(nivelMeta as number), pos(nivelObservado as number))}% * (100% - 1.5rem) / 100%)`,
-              height: `calc(${Math.abs(pos(nivelMeta as number) - pos(nivelObservado as number))}% * (100% - 1.5rem) / 100%)`,
-            }}
-            aria-hidden
-          />
-        ) : null}
-        {hayMeta ? (
-          <div
-            className="absolute left-1 h-px w-8 bg-grafito"
-            style={{ top: `calc(0.75rem + ${pos(nivelMeta as number)}% * (100% - 1.5rem) / 100%)` }}
-            aria-hidden
-          />
-        ) : null}
-        {hayObs ? (
-          <div
-            className={cn(
-              "absolute left-4 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 border-2 border-card",
-              cumple ? "bg-linea" : "bg-desviacion",
-            )}
-            style={{
-              top: `calc(0.75rem + ${pos(nivelObservado as number)}% * (100% - 1.5rem) / 100%)`,
-              marginLeft: "1.5px",
-            }}
-            aria-hidden
-          />
-        ) : null}
+        <div className="absolute inset-y-6 left-0 right-0">
+          <div className="absolute left-4 top-0 h-full w-[3px] bg-cota/20" />
+          {hayMeta && hayObs ? (
+            <div
+              className={cn(
+                "absolute left-4 w-[3px] transition-all duration-150",
+                cumple ? "bg-linea" : "bg-desviacion",
+              )}
+              style={{
+                top: `${Math.min(pos(nivelMeta as number), pos(nivelObservado as number))}%`,
+                height: `${Math.abs(pos(nivelMeta as number) - pos(nivelObservado as number))}%`,
+              }}
+              aria-hidden
+            />
+          ) : null}
+          {hayMeta ? (
+            <div
+              className="absolute left-1 h-px w-8 bg-grafito"
+              style={{ top: `${pos(nivelMeta as number)}%` }}
+              aria-hidden
+            />
+          ) : null}
+          {hayObs ? (
+            <div
+              className={cn(
+                "absolute left-[17.5px] h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 border-2 border-card",
+                cumple ? "bg-linea" : "bg-desviacion",
+              )}
+              style={{ top: `${pos(nivelObservado as number)}%` }}
+              aria-hidden
+            />
+          ) : null}
+        </div>
       </div>
 
       <div className="min-w-0 flex-1 space-y-3">
