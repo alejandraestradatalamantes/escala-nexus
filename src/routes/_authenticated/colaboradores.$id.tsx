@@ -1,10 +1,20 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { antiguedadAnios, fechaCorta, iniciales, numero } from "@/lib/nexus/formato";
 import { BandaLineaBase } from "@/components/nexus/banda-linea-base";
@@ -29,6 +39,7 @@ function Expediente() {
   const { tiene } = useSesion();
   const puedeEditar = tiene("direccion_talento");
   const queryClient = useQueryClient();
+  const [abrirDocumento, setAbrirDocumento] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["colaborador", id],
@@ -87,7 +98,38 @@ function Expediente() {
     onError: () => toast.error("No se registró la baja. Revisa tus permisos."),
   });
 
-  if (isLoading) return <p className="text-[13px] text-cota">Cargando expediente…</p>;
+  const adjuntar = useMutation({
+    mutationFn: async (form: FormData) => {
+      const { error } = await supabase.from("documentos").insert({
+        colaborador_id: id,
+        tipo: String(form.get("tipo")),
+        url: String(form.get("url")) || null,
+        vigencia: String(form.get("vigencia")) || null,
+        confidencial: form.get("confidencial") === "on",
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Documento adjuntado al expediente");
+      setAbrirDocumento(false);
+      queryClient.invalidateQueries({ queryKey: ["colaborador", id] });
+    },
+    onError: () => toast.error("No se adjuntó el documento. Revisa tus permisos y vuelve a intentar."),
+  });
+
+  if (isLoading)
+    return (
+      <div className="space-y-5">
+        <Skeleton className="h-4 w-28 rounded-none" />
+        <Skeleton className="h-20 w-full rounded-none" />
+        <div className="grid gap-4 md:grid-cols-3">
+          {[0, 1, 2].map((i) => (
+            <Skeleton key={i} className="h-36 rounded-none" />
+          ))}
+        </div>
+        <Skeleton className="h-64 w-full rounded-none" />
+      </div>
+    );
   const c = data?.colaborador;
   if (!c)
     return (
@@ -248,15 +290,97 @@ function Expediente() {
         </TabsContent>
 
         <TabsContent value="documentos" className="border border-border bg-card p-4">
+          {puedeEditar && (
+            <Dialog open={abrirDocumento} onOpenChange={setAbrirDocumento}>
+              <DialogTrigger asChild>
+                <Button className="mb-3 h-10 rounded-none">
+                  <Plus className="mr-1 h-4 w-4" /> Adjuntar documento
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="rounded-none">
+                <DialogHeader>
+                  <DialogTitle>Adjuntar documento</DialogTitle>
+                </DialogHeader>
+                <form
+                  id="form-documento"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    adjuntar.mutate(new FormData(e.currentTarget));
+                  }}
+                  className="grid gap-3 sm:grid-cols-2"
+                >
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <Label htmlFor="d_tipo">Tipo de documento</Label>
+                    <select id="d_tipo" name="tipo" required className={selectCls}>
+                      {[
+                        "Contrato individual de trabajo",
+                        "Identificación oficial",
+                        "CURP",
+                        "RFC",
+                        "Comprobante de domicilio",
+                        "Constancia DC-3",
+                        "Alta ante el IMSS",
+                        "Otro",
+                      ].map((t) => (
+                        <option key={t} value={t}>
+                          {t}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <Label htmlFor="d_url">Archivo (enlace al expediente digital)</Label>
+                    <Input
+                      id="d_url"
+                      name="url"
+                      type="url"
+                      placeholder="https://"
+                      className="h-10 rounded-none"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="d_vigencia">Fecha de vencimiento</Label>
+                    <Input id="d_vigencia" name="vigencia" type="date" className="h-10 rounded-none" />
+                  </div>
+                  <label className="flex items-center gap-2 self-end text-[13px] text-grafito">
+                    <input type="checkbox" name="confidencial" className="h-4 w-4" />
+                    Confidencial
+                  </label>
+                </form>
+                <DialogFooter>
+                  <Button
+                    form="form-documento"
+                    type="submit"
+                    disabled={adjuntar.isPending}
+                    className="h-10 rounded-none"
+                  >
+                    Adjuntar
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
           {data.documentos.length === 0 ? (
             <p className="text-[13px] text-cota">
-              Aún no hay documentos en este expediente. Agrega el primero desde Configuración › Catálogos.
+              Aún no hay documentos en este expediente.
+              {puedeEditar
+                ? " Usa Adjuntar documento para registrar el primero."
+                : " Dirección de Talento puede adjuntar el primero."}
             </p>
           ) : (
             <ul className="divide-y divide-border text-[13px]">
               {data.documentos.map((d) => (
                 <li key={d.id} className="flex h-10 items-center justify-between gap-3">
-                  <span className="truncate">{d.tipo}</span>
+                  <span className="truncate">
+                    {d.url ? (
+                      <a href={d.url} target="_blank" rel="noreferrer" className="text-plomada underline">
+                        {d.tipo}
+                      </a>
+                    ) : (
+                      d.tipo
+                    )}
+                    {d.confidencial ? <span className="ml-2 text-[11px] text-casco">Confidencial</span> : null}
+                  </span>
                   <span className="cifra text-cota">{fechaCorta(d.vigencia)}</span>
                 </li>
               ))}
