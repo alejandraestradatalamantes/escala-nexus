@@ -561,30 +561,33 @@ function Desempeno() {
                               return (
                                 <td key={c.id} className="px-2 py-2">
                                   {editando ? (
-                                    <select
-                                      autoFocus
-                                      aria-label={`Nivel meta de ${c.nombre} en ${p.nombre}`}
-                                      defaultValue={valor ?? ""}
-                                      disabled={guardarNivel.isPending}
-                                      onBlur={() => setCelda(null)}
-                                      onChange={(e) =>
+                                    <Select
+                                      open
+                                      value={valor ? String(valor) : undefined}
+                                      onValueChange={(v) =>
                                         guardarNivel.mutate({
                                           puestoId: p.id,
                                           competenciaId: c.id,
-                                          valor: Number(e.target.value),
+                                          valor: Number(v),
                                         })
                                       }
-                                      className="cifra h-10 w-14 border border-border bg-card px-1 text-[13px] text-grafito"
+                                      onOpenChange={(abierto) => !abierto && setCelda(null)}
                                     >
-                                      <option value="" disabled>
-                                        —
-                                      </option>
-                                      {NIVELES.map((n) => (
-                                        <option key={n} value={n}>
-                                          {n}
-                                        </option>
-                                      ))}
-                                    </select>
+                                      <SelectTrigger
+                                        aria-label={`Nivel meta de ${c.nombre} en ${p.nombre}`}
+                                        disabled={guardarNivel.isPending}
+                                        className="cifra h-10 w-16 rounded-none px-1 text-[13px]"
+                                      >
+                                        <SelectValue placeholder="—" />
+                                      </SelectTrigger>
+                                      <SelectContent className="rounded-none">
+                                        {NIVELES.map((n) => (
+                                          <SelectItem key={n} value={String(n)} className="rounded-none">
+                                            {n}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
                                   ) : (
                                     <button
                                       type="button"
@@ -634,7 +637,17 @@ function Desempeno() {
                     const perfil = leerPerfil(p.perfil_competencias);
                     return (
                       <article key={p.id} className="border border-border bg-card p-4">
-                        <h3 className="text-[14px] font-semibold text-grafito">{p.nombre}</h3>
+                        <div className="flex items-start gap-2">
+                          {esTalento && !perfil.validado ? (
+                            <Checkbox
+                              className="mt-1 rounded-none"
+                              aria-label={`Seleccionar el perfil de ${p.nombre}`}
+                              checked={seleccion.includes(p.id)}
+                              onCheckedChange={(v) => alternar(p.id, v === true)}
+                            />
+                          ) : null}
+                          <h3 className="text-[14px] font-semibold text-grafito">{p.nombre}</h3>
+                        </div>
                         <p className="cifra text-[11px] uppercase tracking-wide text-cota">
                           {p.nivel_organizacional ?? "—"} ·{" "}
                           {perfil.validado
