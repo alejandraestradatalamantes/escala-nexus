@@ -22,7 +22,7 @@ export interface Modulo {
 
 export const MODULOS = [
   { nombre: "Tablero", ruta: "/tablero", icono: LayoutDashboard, movil: true },
-  { nombre: "Atracción", ruta: "/atraccion", icono: UserSearch, movil: false },
+  { nombre: "Atracción", ruta: "/atraccion", icono: UserSearch, movil: true },
   { nombre: "Colaboradores", ruta: "/colaboradores", icono: Users, movil: true },
   { nombre: "Desempeño", ruta: "/desempeno", icono: Target, movil: false },
   { nombre: "Desarrollo", ruta: "/desarrollo", icono: GraduationCap, movil: false },
