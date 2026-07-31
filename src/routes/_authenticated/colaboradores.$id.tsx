@@ -18,6 +18,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { antiguedadAnios, fechaCorta, iniciales, numero } from "@/lib/nexus/formato";
 import { BandaLineaBase } from "@/components/nexus/banda-linea-base";
+import { HistorialDesempeno } from "@/components/nexus/desempeno/historial-desempeno";
 import { useSesion } from "@/hooks/use-sesion";
 import { toast } from "sonner";
 
@@ -210,6 +211,7 @@ function Expediente() {
           <TabsTrigger value="datos" className="rounded-none">Datos</TabsTrigger>
           <TabsTrigger value="documentos" className="rounded-none">Documentos</TabsTrigger>
           <TabsTrigger value="certificaciones" className="rounded-none">Certificaciones</TabsTrigger>
+          <TabsTrigger value="desempeno" className="rounded-none">Desempeño</TabsTrigger>
         </TabsList>
 
         <TabsContent value="datos" className="border border-border bg-card p-4">
@@ -414,6 +416,10 @@ function Expediente() {
               })}
             </ul>
           )}
+        </TabsContent>
+
+        <TabsContent value="desempeno" className="border border-border bg-card p-4">
+          <HistorialDesempeno colaboradorId={id} puestoId={c.puesto_id} />
         </TabsContent>
       </Tabs>
     </div>

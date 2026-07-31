@@ -21,6 +21,11 @@ import {
   EscaleraCompetencia,
   type NivelEscalera,
 } from "@/components/nexus/desempeno/escalera-competencia";
+import { IndicadoresDesempeno } from "@/components/nexus/desempeno/indicadores-desempeno";
+import { PanelCiclos } from "@/components/nexus/desempeno/panel-ciclos";
+import { MiEvaluacion } from "@/components/nexus/desempeno/mi-evaluacion";
+import { PanelObjetivos } from "@/components/nexus/desempeno/panel-objetivos";
+import { Matriz9Box } from "@/components/nexus/desempeno/matriz-9box";
 import { useSesion } from "@/hooks/use-sesion";
 import { fechaCorta } from "@/lib/nexus/formato";
 import {
@@ -64,6 +69,8 @@ function Desempeno() {
   const { sesion, tiene } = useSesion();
   const esTalento = tiene("direccion_talento");
   const vePerfiles = tiene("direccion_talento", "direccion_general", "ti_sistema");
+  const veCiclos = tiene("direccion_talento", "direccion_general");
+  const veMapeo = tiene("direccion_talento", "direccion_general", "lider_proyecto");
   const queryClient = useQueryClient();
   const hoy = fechaCorta(new Date());
 
@@ -247,17 +254,55 @@ function Desempeno() {
         <span className="cifra text-[12px] text-cota">Corte {hoy}</span>
       </header>
 
+      <IndicadoresDesempeno />
+
       <Tabs defaultValue="modelo">
         <TabsList className="rounded-none">
+          <TabsTrigger value="mi-evaluacion" className="rounded-none text-[13px]">
+            Mi evaluación
+          </TabsTrigger>
           <TabsTrigger value="modelo" className="rounded-none text-[13px]">
             Modelo de liderazgo
           </TabsTrigger>
+          {veCiclos ? (
+            <TabsTrigger value="ciclos" className="rounded-none text-[13px]">
+              Ciclos
+            </TabsTrigger>
+          ) : null}
+          <TabsTrigger value="objetivos" className="rounded-none text-[13px]">
+            Objetivos
+          </TabsTrigger>
+          {veMapeo ? (
+            <TabsTrigger value="mapeo" className="rounded-none text-[13px]">
+              Mapeo de talento
+            </TabsTrigger>
+          ) : null}
           {vePerfiles ? (
             <TabsTrigger value="perfiles" className="rounded-none text-[13px]">
               Perfiles por puesto
             </TabsTrigger>
           ) : null}
         </TabsList>
+
+        <TabsContent value="mi-evaluacion" className="mt-4">
+          <MiEvaluacion colaboradorId={sesion?.colaboradorId ?? null} />
+        </TabsContent>
+
+        {veCiclos ? (
+          <TabsContent value="ciclos" className="mt-4">
+            <PanelCiclos esTalento={esTalento} />
+          </TabsContent>
+        ) : null}
+
+        <TabsContent value="objetivos" className="mt-4">
+          <PanelObjetivos esTalento={esTalento} colaboradorId={sesion?.colaboradorId ?? null} />
+        </TabsContent>
+
+        {veMapeo ? (
+          <TabsContent value="mapeo" className="mt-4">
+            <Matriz9Box esTalento={esTalento} usuarioId={sesion?.userId ?? null} />
+          </TabsContent>
+        ) : null}
 
         <TabsContent value="modelo" className="mt-4">
           {isLoading ? (

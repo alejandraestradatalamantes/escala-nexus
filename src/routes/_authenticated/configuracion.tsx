@@ -34,6 +34,7 @@ export const Route = createFileRoute("/_authenticated/configuracion")({
 function Configuracion() {
   const { sesion, roles, tiene } = useSesion();
   const admin = tiene("direccion_talento", "ti_sistema");
+  const esTalento = tiene("direccion_talento");
   const puedeCapturar = tiene("direccion_talento", "direccion_general", "finanzas_auditoria");
   const queryClient = useQueryClient();
   const [edicion, setEdicion] = useState<Record<string, { valor: string; fuente: string }>>({});
@@ -279,7 +280,30 @@ function Configuracion() {
         )}
       </section>
 
-      {admin ? <ImportarComportamientos /> : null}
+      <section className="border border-border bg-card p-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h2 className="text-[13px] font-semibold uppercase tracking-wide text-cota">
+              Control de confidencialidad de evaluaciones
+            </h2>
+            <p className="mt-1 max-w-2xl text-[13px] text-cota">
+              Los resultados individuales de evaluación solo son accesibles para el colaborador, su
+              líder directo y Dirección de Talento. Las vistas agregadas requieren un mínimo de cinco
+              personas para desplegarse.
+            </p>
+          </div>
+          <div className="flex shrink-0 flex-col items-start gap-1">
+            <span className="cifra bg-casco/15 px-2 py-1 text-[11px] uppercase tracking-wide text-grafito">
+              Requiere visto bueno de Jurídico
+            </span>
+            <span className="cifra text-[11px] uppercase tracking-wide text-cota">
+              Estatus pendiente
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {esTalento ? <ImportarComportamientos /> : null}
     </div>
   );
 }
