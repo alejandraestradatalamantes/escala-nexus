@@ -21,10 +21,11 @@ import { Route as AuthenticatedDesarrolloRouteImport } from './routes/_authentic
 import { Route as AuthenticatedConfiguracionRouteImport } from './routes/_authenticated/configuracion'
 import { Route as AuthenticatedComunicacionRouteImport } from './routes/_authenticated/comunicacion'
 import { Route as AuthenticatedBienestarRouteImport } from './routes/_authenticated/bienestar'
-import { Route as AuthenticatedAtraccionRouteImport } from './routes/_authenticated/atraccion'
 import { Route as AuthenticatedAnaliticaRouteImport } from './routes/_authenticated/analitica'
 import { Route as AuthenticatedColaboradoresIndexRouteImport } from './routes/_authenticated/colaboradores.index'
+import { Route as AuthenticatedAtraccionIndexRouteImport } from './routes/_authenticated/atraccion.index'
 import { Route as AuthenticatedColaboradoresIdRouteImport } from './routes/_authenticated/colaboradores.$id'
+import { Route as AuthenticatedAtraccionIdRouteImport } from './routes/_authenticated/atraccion.$id'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -87,11 +88,6 @@ const AuthenticatedBienestarRoute = AuthenticatedBienestarRouteImport.update({
   path: '/bienestar',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedAtraccionRoute = AuthenticatedAtraccionRouteImport.update({
-  id: '/atraccion',
-  path: '/atraccion',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedAnaliticaRoute = AuthenticatedAnaliticaRouteImport.update({
   id: '/analitica',
   path: '/analitica',
@@ -103,10 +99,22 @@ const AuthenticatedColaboradoresIndexRoute =
     path: '/colaboradores/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAtraccionIndexRoute =
+  AuthenticatedAtraccionIndexRouteImport.update({
+    id: '/atraccion/',
+    path: '/atraccion/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedColaboradoresIdRoute =
   AuthenticatedColaboradoresIdRouteImport.update({
     id: '/colaboradores/$id',
     path: '/colaboradores/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAtraccionIdRoute =
+  AuthenticatedAtraccionIdRouteImport.update({
+    id: '/atraccion/$id',
+    path: '/atraccion/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
@@ -115,7 +123,6 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/analitica': typeof AuthenticatedAnaliticaRoute
-  '/atraccion': typeof AuthenticatedAtraccionRoute
   '/bienestar': typeof AuthenticatedBienestarRoute
   '/comunicacion': typeof AuthenticatedComunicacionRoute
   '/configuracion': typeof AuthenticatedConfiguracionRoute
@@ -124,7 +131,9 @@ export interface FileRoutesByFullPath {
   '/seguridad': typeof AuthenticatedSeguridadRoute
   '/tablero': typeof AuthenticatedTableroRoute
   '/tiempo': typeof AuthenticatedTiempoRoute
+  '/atraccion/$id': typeof AuthenticatedAtraccionIdRoute
   '/colaboradores/$id': typeof AuthenticatedColaboradoresIdRoute
+  '/atraccion/': typeof AuthenticatedAtraccionIndexRoute
   '/colaboradores/': typeof AuthenticatedColaboradoresIndexRoute
 }
 export interface FileRoutesByTo {
@@ -132,7 +141,6 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/analitica': typeof AuthenticatedAnaliticaRoute
-  '/atraccion': typeof AuthenticatedAtraccionRoute
   '/bienestar': typeof AuthenticatedBienestarRoute
   '/comunicacion': typeof AuthenticatedComunicacionRoute
   '/configuracion': typeof AuthenticatedConfiguracionRoute
@@ -141,7 +149,9 @@ export interface FileRoutesByTo {
   '/seguridad': typeof AuthenticatedSeguridadRoute
   '/tablero': typeof AuthenticatedTableroRoute
   '/tiempo': typeof AuthenticatedTiempoRoute
+  '/atraccion/$id': typeof AuthenticatedAtraccionIdRoute
   '/colaboradores/$id': typeof AuthenticatedColaboradoresIdRoute
+  '/atraccion': typeof AuthenticatedAtraccionIndexRoute
   '/colaboradores': typeof AuthenticatedColaboradoresIndexRoute
 }
 export interface FileRoutesById {
@@ -151,7 +161,6 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/analitica': typeof AuthenticatedAnaliticaRoute
-  '/_authenticated/atraccion': typeof AuthenticatedAtraccionRoute
   '/_authenticated/bienestar': typeof AuthenticatedBienestarRoute
   '/_authenticated/comunicacion': typeof AuthenticatedComunicacionRoute
   '/_authenticated/configuracion': typeof AuthenticatedConfiguracionRoute
@@ -160,7 +169,9 @@ export interface FileRoutesById {
   '/_authenticated/seguridad': typeof AuthenticatedSeguridadRoute
   '/_authenticated/tablero': typeof AuthenticatedTableroRoute
   '/_authenticated/tiempo': typeof AuthenticatedTiempoRoute
+  '/_authenticated/atraccion/$id': typeof AuthenticatedAtraccionIdRoute
   '/_authenticated/colaboradores/$id': typeof AuthenticatedColaboradoresIdRoute
+  '/_authenticated/atraccion/': typeof AuthenticatedAtraccionIndexRoute
   '/_authenticated/colaboradores/': typeof AuthenticatedColaboradoresIndexRoute
 }
 export interface FileRouteTypes {
@@ -170,7 +181,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/analitica'
-    | '/atraccion'
     | '/bienestar'
     | '/comunicacion'
     | '/configuracion'
@@ -179,7 +189,9 @@ export interface FileRouteTypes {
     | '/seguridad'
     | '/tablero'
     | '/tiempo'
+    | '/atraccion/$id'
     | '/colaboradores/$id'
+    | '/atraccion/'
     | '/colaboradores/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -187,7 +199,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/analitica'
-    | '/atraccion'
     | '/bienestar'
     | '/comunicacion'
     | '/configuracion'
@@ -196,7 +207,9 @@ export interface FileRouteTypes {
     | '/seguridad'
     | '/tablero'
     | '/tiempo'
+    | '/atraccion/$id'
     | '/colaboradores/$id'
+    | '/atraccion'
     | '/colaboradores'
   id:
     | '__root__'
@@ -205,7 +218,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/_authenticated/analitica'
-    | '/_authenticated/atraccion'
     | '/_authenticated/bienestar'
     | '/_authenticated/comunicacion'
     | '/_authenticated/configuracion'
@@ -214,7 +226,9 @@ export interface FileRouteTypes {
     | '/_authenticated/seguridad'
     | '/_authenticated/tablero'
     | '/_authenticated/tiempo'
+    | '/_authenticated/atraccion/$id'
     | '/_authenticated/colaboradores/$id'
+    | '/_authenticated/atraccion/'
     | '/_authenticated/colaboradores/'
   fileRoutesById: FileRoutesById
 }
@@ -311,13 +325,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBienestarRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/atraccion': {
-      id: '/_authenticated/atraccion'
-      path: '/atraccion'
-      fullPath: '/atraccion'
-      preLoaderRoute: typeof AuthenticatedAtraccionRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/analitica': {
       id: '/_authenticated/analitica'
       path: '/analitica'
@@ -332,6 +339,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedColaboradoresIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/atraccion/': {
+      id: '/_authenticated/atraccion/'
+      path: '/atraccion'
+      fullPath: '/atraccion/'
+      preLoaderRoute: typeof AuthenticatedAtraccionIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/colaboradores/$id': {
       id: '/_authenticated/colaboradores/$id'
       path: '/colaboradores/$id'
@@ -339,12 +353,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedColaboradoresIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/atraccion/$id': {
+      id: '/_authenticated/atraccion/$id'
+      path: '/atraccion/$id'
+      fullPath: '/atraccion/$id'
+      preLoaderRoute: typeof AuthenticatedAtraccionIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAnaliticaRoute: typeof AuthenticatedAnaliticaRoute
-  AuthenticatedAtraccionRoute: typeof AuthenticatedAtraccionRoute
   AuthenticatedBienestarRoute: typeof AuthenticatedBienestarRoute
   AuthenticatedComunicacionRoute: typeof AuthenticatedComunicacionRoute
   AuthenticatedConfiguracionRoute: typeof AuthenticatedConfiguracionRoute
@@ -353,13 +373,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSeguridadRoute: typeof AuthenticatedSeguridadRoute
   AuthenticatedTableroRoute: typeof AuthenticatedTableroRoute
   AuthenticatedTiempoRoute: typeof AuthenticatedTiempoRoute
+  AuthenticatedAtraccionIdRoute: typeof AuthenticatedAtraccionIdRoute
   AuthenticatedColaboradoresIdRoute: typeof AuthenticatedColaboradoresIdRoute
+  AuthenticatedAtraccionIndexRoute: typeof AuthenticatedAtraccionIndexRoute
   AuthenticatedColaboradoresIndexRoute: typeof AuthenticatedColaboradoresIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAnaliticaRoute: AuthenticatedAnaliticaRoute,
-  AuthenticatedAtraccionRoute: AuthenticatedAtraccionRoute,
   AuthenticatedBienestarRoute: AuthenticatedBienestarRoute,
   AuthenticatedComunicacionRoute: AuthenticatedComunicacionRoute,
   AuthenticatedConfiguracionRoute: AuthenticatedConfiguracionRoute,
@@ -368,7 +389,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSeguridadRoute: AuthenticatedSeguridadRoute,
   AuthenticatedTableroRoute: AuthenticatedTableroRoute,
   AuthenticatedTiempoRoute: AuthenticatedTiempoRoute,
+  AuthenticatedAtraccionIdRoute: AuthenticatedAtraccionIdRoute,
   AuthenticatedColaboradoresIdRoute: AuthenticatedColaboradoresIdRoute,
+  AuthenticatedAtraccionIndexRoute: AuthenticatedAtraccionIndexRoute,
   AuthenticatedColaboradoresIndexRoute: AuthenticatedColaboradoresIndexRoute,
 }
 
