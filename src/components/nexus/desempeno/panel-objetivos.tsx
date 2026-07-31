@@ -31,32 +31,31 @@ const selectCls = "h-10 w-full border border-border bg-card px-2 text-[13px] tex
 export function PanelObjetivos({
   esTalento,
   colaboradorId,
+  cicloId,
 }: {
   esTalento: boolean;
   colaboradorId: string | null;
+  cicloId: string;
 }) {
   const queryClient = useQueryClient();
-  const [cicloId, setCicloId] = useState<string>("");
   const [abrir, setAbrir] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["objetivos-panel"],
     retry: 3,
     queryFn: async () => {
-      const [ciclos, objetivos, colaboradores] = await Promise.all([
-        supabase.from("ciclos_evaluacion").select("id, nombre, estatus, fecha_inicio").order("fecha_inicio", { ascending: false }),
+      const [objetivos, colaboradores] = await Promise.all([
         supabase.from("objetivos").select("*"),
         supabase.from("colaboradores").select("id, nombre, lider_id, estatus").order("nombre"),
       ]);
       return {
-        ciclos: ciclos.data ?? [],
         objetivos: objetivos.data ?? [],
         colaboradores: colaboradores.data ?? [],
       };
     },
   });
 
-  const cicloActivo = cicloId || data?.ciclos[0]?.id || "";
+  const cicloActivo = cicloId;
   const objetivos = useMemo(
     () => (data?.objetivos ?? []).filter((o) => o.ciclo_id === cicloActivo),
     [data?.objetivos, cicloActivo],
@@ -114,7 +113,9 @@ export function PanelObjetivos({
       queryClient.invalidateQueries({ queryKey: ["desempeno-indicadores"] });
     },
     onError: () =>
-      toast.error("No se capturó el objetivo. Solo el líder directo o Dirección de Talento pueden."),
+      toast.error(
+        "No se capturó el objetivo. Solo el líder directo o Dirección de Talento pueden.",
+      ),
   });
 
   const actualizarReal = useMutation({
@@ -144,21 +145,6 @@ export function PanelObjetivos({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-end gap-3">
-        <div className="space-y-1.5">
-          <Label htmlFor="ciclo-obj">Ciclo</Label>
-          <select
-            id="ciclo-obj"
-            className={selectCls}
-            value={cicloActivo}
-            onChange={(e) => setCicloId(e.target.value)}
-          >
-            {(data?.ciclos ?? []).map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.nombre}
-              </option>
-            ))}
-          </select>
-        </div>
         {capturables.length > 0 ? (
           <Dialog open={abrir} onOpenChange={setAbrir}>
             <DialogTrigger asChild>
@@ -204,23 +190,54 @@ export function PanelObjetivos({
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="o_peso">Peso (%)</Label>
-                  <Input id="o_peso" name="peso" type="number" min="1" max="100" required className="cifra h-10 rounded-none" />
+                  <Input
+                    id="o_peso"
+                    name="peso"
+                    type="number"
+                    min="1"
+                    max="100"
+                    required
+                    className="cifra h-10 rounded-none"
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="o_meta">Meta</Label>
-                  <Input id="o_meta" name="meta" type="number" step="0.1" required className="cifra h-10 rounded-none" />
+                  <Input
+                    id="o_meta"
+                    name="meta"
+                    type="number"
+                    step="0.1"
+                    required
+                    className="cifra h-10 rounded-none"
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="o_real">Real</Label>
-                  <Input id="o_real" name="real" type="number" step="0.1" className="cifra h-10 rounded-none" />
+                  <Input
+                    id="o_real"
+                    name="real"
+                    type="number"
+                    step="0.1"
+                    className="cifra h-10 rounded-none"
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="o_unidad">Unidad</Label>
-                  <Input id="o_unidad" name="unidad" placeholder="días / % de avance / horas" className="h-10 rounded-none" />
+                  <Input
+                    id="o_unidad"
+                    name="unidad"
+                    placeholder="días / % de avance / horas"
+                    className="h-10 rounded-none"
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="o_estatus">Estatus</Label>
-                  <select id="o_estatus" name="estatus" className={selectCls} defaultValue="en_curso">
+                  <select
+                    id="o_estatus"
+                    name="estatus"
+                    className={selectCls}
+                    defaultValue="en_curso"
+                  >
                     <option value="en_curso">En curso</option>
                     <option value="parcial">Parcial</option>
                     <option value="cumplido">Cumplido</option>
@@ -228,7 +245,12 @@ export function PanelObjetivos({
                 </div>
               </form>
               <DialogFooter>
-                <Button form="form-objetivo" type="submit" disabled={crear.isPending} className="h-10 rounded-none">
+                <Button
+                  form="form-objetivo"
+                  type="submit"
+                  disabled={crear.isPending}
+                  className="h-10 rounded-none"
+                >
                   Guardar objetivo
                 </Button>
               </DialogFooter>
@@ -286,7 +308,9 @@ export function PanelObjetivos({
                     </p>
                   </div>
                   <div className="w-full sm:w-56">
-                    <p className="cifra text-[11px] uppercase tracking-wide text-cota">Cumplimiento</p>
+                    <p className="cifra text-[11px] uppercase tracking-wide text-cota">
+                      Cumplimiento
+                    </p>
                     {cumpl === null ? (
                       <p className="text-[13px] text-cota">Sin metas capturadas</p>
                     ) : (
@@ -312,7 +336,10 @@ export function PanelObjetivos({
                     <thead className="bg-grafito text-cal">
                       <tr>
                         {["Objetivo", "Tipo", "Peso", "Meta", "Real", "Estatus"].map((h) => (
-                          <th key={h} className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide">
+                          <th
+                            key={h}
+                            className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide"
+                          >
                             {h}
                           </th>
                         ))}
@@ -345,7 +372,8 @@ export function PanelObjetivos({
                                   const v = e.target.value.trim();
                                   const num = v === "" ? null : Number(v);
                                   if (num !== null && Number.isNaN(num)) return;
-                                  if (num !== o.real) actualizarReal.mutate({ id: o.id, real: num });
+                                  if (num !== o.real)
+                                    actualizarReal.mutate({ id: o.id, real: num });
                                 }}
                                 className="cifra h-10 w-24 rounded-none"
                               />

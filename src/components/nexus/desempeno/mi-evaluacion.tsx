@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { ChevronLeft, ChevronRight, MessageSquareText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GuiaSbi } from "@/components/nexus/desempeno/guia-sbi";
+import { useSesion } from "@/hooks/use-sesion";
 import { leerPerfil } from "@/lib/nexus/desempeno";
 import {
   AVISO_CONFIDENCIAL,
@@ -25,6 +27,8 @@ interface Respuesta {
 
 export function MiEvaluacion({ colaboradorId }: { colaboradorId: string | null }) {
   const queryClient = useQueryClient();
+  const { tiene } = useSesion();
+  const puedeVincular = tiene("direccion_talento", "direccion_general", "ti_sistema");
   const [evaluacionId, setEvaluacionId] = useState<string | null>(null);
   const [paso, setPaso] = useState(0);
   const [borrador, setBorrador] = useState<Record<string, Respuesta>>({});
@@ -42,12 +46,18 @@ export function MiEvaluacion({ colaboradorId }: { colaboradorId: string | null }
             "id, ciclo_id, colaborador_id, relacion, estatus, ciclos_evaluacion(nombre, estatus, fecha_fin), colaboradores!evaluaciones_colaborador_id_fkey(nombre, puesto_id)",
           )
           .eq("evaluador_id", colaboradorId as string),
-        supabase.from("competencias").select("id, nombre, descripcion, grupo, orden").order("orden"),
+        supabase
+          .from("competencias")
+          .select("id, nombre, descripcion, grupo, orden")
+          .order("orden"),
         supabase
           .from("niveles_competencia")
           .select("id, competencia_id, nivel, etiqueta, descripcion, resumen")
           .order("nivel"),
-        supabase.from("comportamientos").select("id, nivel_competencia_id, texto, orden").order("orden"),
+        supabase
+          .from("comportamientos")
+          .select("id, nivel_competencia_id, texto, orden")
+          .order("orden"),
       ]);
       const puestoIds = Array.from(
         new Set(
@@ -57,8 +67,12 @@ export function MiEvaluacion({ colaboradorId }: { colaboradorId: string | null }
         ),
       );
       const puestos = puestoIds.length
-        ? (await supabase.from("puestos").select("id, nombre, perfil_competencias").in("id", puestoIds))
-            .data ?? []
+        ? ((
+            await supabase
+              .from("puestos")
+              .select("id, nombre, perfil_competencias")
+              .in("id", puestoIds)
+          ).data ?? [])
         : [];
       return {
         evaluaciones: evaluaciones.data ?? [],
@@ -178,10 +192,32 @@ export function MiEvaluacion({ colaboradorId }: { colaboradorId: string | null }
 
   if (!colaboradorId) {
     return (
-      <p className="border border-dashed border-border p-6 text-center text-[13px] text-cota">
-        Tu usuario aún no está ligado a un expediente de colaborador. Pide a Dirección de Talento que
-        lo vincule para poder evaluar.
-      </p>
+      <div className="space-y-2 border border-dashed border-border p-6 text-center text-[13px] text-cota">
+        <p className="text-grafito">
+          Tu cuenta todavía no está vinculada a un expediente de colaborador.
+        </p>
+        <p>
+          Intentamos vincularla automáticamente por correo y no encontramos una sola coincidencia
+          exacta en el directorio activo.
+        </p>
+        {puedeVincular ? (
+          <p>
+            Vincúlala en{" "}
+            <Link
+              to="/configuracion"
+              hash="usuarios-accesos"
+              className="text-grafito underline underline-offset-2"
+            >
+              Configuración → Usuarios y accesos
+            </Link>
+            .
+          </p>
+        ) : (
+          <p>
+            Solicita a Dirección de Talento que la vincule desde Configuración → Usuarios y accesos.
+          </p>
+        )}
+      </div>
     );
   }
 
@@ -209,13 +245,16 @@ export function MiEvaluacion({ colaboradorId }: { colaboradorId: string | null }
           </h3>
           {pendientes.length === 0 ? (
             <p className="border border-dashed border-border p-6 text-center text-[13px] text-cota">
-              No tienes evaluaciones pendientes. Cuando Dirección de Talento abra un ciclo aparecerán
-              aquí.
+              No tienes evaluaciones pendientes. Cuando Dirección de Talento abra un ciclo
+              aparecerán aquí.
             </p>
           ) : (
             <ul className="divide-y divide-border border border-border bg-card">
               {pendientes.map((e) => (
-                <li key={e.id} className="grid gap-2 p-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+                <li
+                  key={e.id}
+                  className="grid gap-2 p-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+                >
                   <div className="min-w-0">
                     <p className="truncate text-[13px] text-grafito">
                       {e.relacion === "auto" ? "Autoevaluación" : e.colaboradores?.nombre}
@@ -247,7 +286,10 @@ export function MiEvaluacion({ colaboradorId }: { colaboradorId: string | null }
             </h3>
             <ul className="divide-y divide-border border border-border bg-card">
               {completadas.map((e) => (
-                <li key={e.id} className="grid gap-2 p-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+                <li
+                  key={e.id}
+                  className="grid gap-2 p-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+                >
                   <div className="min-w-0">
                     <p className="truncate text-[13px] text-grafito">
                       {e.relacion === "auto" ? "Autoevaluación" : e.colaboradores?.nombre}

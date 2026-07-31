@@ -19,6 +19,14 @@ import { EsqueletoTabla } from "@/components/nexus/esqueletos";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSesion } from "@/hooks/use-sesion";
 import { toast } from "sonner";
+import { SelectorBuscador } from "@/components/nexus/selector-buscador";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/colaboradores/")({
   head: () => ({
@@ -42,6 +50,10 @@ function Directorio() {
   const [ubicacion, setUbicacion] = useState("todas");
   const [proyecto, setProyecto] = useState("todos");
   const [abierto, setAbierto] = useState(false);
+  const [puestoAlta, setPuestoAlta] = useState("__ninguno");
+  const [ubicacionAlta, setUbicacionAlta] = useState("corporativo");
+  const [proyectoAlta, setProyectoAlta] = useState("__ninguno");
+  const [tipoContratoAlta, setTipoContratoAlta] = useState("indeterminado");
 
   const { data: proyectos } = useQuery({
     queryKey: ["proyectos"],
@@ -84,24 +96,26 @@ function Directorio() {
         nombre: String(form.get("nombre")),
         correo: String(form.get("correo")) || null,
         area: String(form.get("area")) || null,
-        ubicacion: String(form.get("ubicacion")) as "corporativo" | "campo",
+        ubicacion: ubicacionAlta as "corporativo" | "campo",
         fecha_ingreso: String(form.get("fecha_ingreso")) || null,
-        puesto_id: (form.get("puesto_id") as string) || null,
-        proyecto_actual_id: (form.get("proyecto_id") as string) || null,
-        tipo_contrato: String(form.get("tipo_contrato")) || null,
+        puesto_id: puestoAlta === "__ninguno" ? null : puestoAlta,
+        proyecto_actual_id: proyectoAlta === "__ninguno" ? null : proyectoAlta,
+        tipo_contrato: tipoContratoAlta || null,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success("Colaborador dado de alta");
       setAbierto(false);
+      setPuestoAlta("__ninguno");
+      setUbicacionAlta("corporativo");
+      setProyectoAlta("__ninguno");
+      setTipoContratoAlta("indeterminado");
       queryClient.invalidateQueries({ queryKey: ["colaboradores"] });
     },
     onError: () =>
       toast.error("No se guardó el alta. Verifica el nombre y que tengas el rol de Dirección de Talento."),
   });
-
-  const selectCls = "h-10 w-full border border-border bg-card px-2 text-[13px] text-grafito";
 
   return (
     <div className="space-y-5">
@@ -149,12 +163,16 @@ function Directorio() {
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="puesto_id">Puesto</Label>
-                  <select id="puesto_id" name="puesto_id" className={selectCls}>
-                    <option value="">Sin asignar</option>
-                    {puestos?.map((p) => (
-                      <option key={p.id} value={p.id}>{p.nombre}</option>
-                    ))}
-                  </select>
+                  <SelectorBuscador
+                    id="puesto_id"
+                    ariaLabel="Puesto"
+                    valor={puestoAlta}
+                    onCambio={setPuestoAlta}
+                    opciones={[
+                      { valor: "__ninguno", etiqueta: "Sin asignar" },
+                      ...(puestos ?? []).map((p) => ({ valor: p.id, etiqueta: p.nombre })),
+                    ]}
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="area">Área</Label>
@@ -162,27 +180,41 @@ function Directorio() {
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="ubicacion">Ubicación</Label>
-                  <select id="ubicacion" name="ubicacion" className={selectCls}>
-                    <option value="corporativo">Corporativo</option>
-                    <option value="campo">Campo</option>
-                  </select>
+                  <Select value={ubicacionAlta} onValueChange={setUbicacionAlta}>
+                    <SelectTrigger id="ubicacion" className="h-10 rounded-none border-border text-[13px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-none">
+                      <SelectItem value="corporativo" className="rounded-none">Corporativo</SelectItem>
+                      <SelectItem value="campo" className="rounded-none">Campo</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="proyecto_id">Proyecto</Label>
-                  <select id="proyecto_id" name="proyecto_id" className={selectCls}>
-                    <option value="">Sin proyecto</option>
-                    {proyectos?.map((p) => (
-                      <option key={p.id} value={p.id}>{p.nombre}</option>
-                    ))}
-                  </select>
+                  <SelectorBuscador
+                    id="proyecto_id"
+                    ariaLabel="Proyecto"
+                    valor={proyectoAlta}
+                    onCambio={setProyectoAlta}
+                    opciones={[
+                      { valor: "__ninguno", etiqueta: "Sin proyecto" },
+                      ...(proyectos ?? []).map((p) => ({ valor: p.id, etiqueta: p.nombre })),
+                    ]}
+                  />
                 </div>
                 <div className="space-y-1.5 sm:col-span-2">
                   <Label htmlFor="tipo_contrato">Tipo de contrato</Label>
-                  <select id="tipo_contrato" name="tipo_contrato" className={selectCls}>
-                    <option value="indeterminado">Indeterminado</option>
-                    <option value="determinado">Determinado</option>
-                    <option value="obra_determinada">Por obra determinada</option>
-                  </select>
+                  <Select value={tipoContratoAlta} onValueChange={setTipoContratoAlta}>
+                    <SelectTrigger id="tipo_contrato" className="h-10 rounded-none border-border text-[13px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-none">
+                      <SelectItem value="indeterminado" className="rounded-none">Indeterminado</SelectItem>
+                      <SelectItem value="determinado" className="rounded-none">Determinado</SelectItem>
+                      <SelectItem value="obra_determinada" className="rounded-none">Por obra determinada</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </form>
               <DialogFooter>
@@ -203,23 +235,34 @@ function Directorio() {
           aria-label="Buscar colaborador"
           className="h-10 rounded-none"
         />
-        <select value={area} onChange={(e) => setArea(e.target.value)} aria-label="Filtrar por área" className={selectCls}>
-          <option value="todas">Todas las áreas</option>
-          {areas.map((a) => (
-            <option key={a} value={a}>{a}</option>
-          ))}
-        </select>
-        <select value={ubicacion} onChange={(e) => setUbicacion(e.target.value)} aria-label="Filtrar por ubicación" className={selectCls}>
-          <option value="todas">Corporativo y campo</option>
-          <option value="corporativo">Corporativo</option>
-          <option value="campo">Campo</option>
-        </select>
-        <select value={proyecto} onChange={(e) => setProyecto(e.target.value)} aria-label="Filtrar por proyecto" className={selectCls}>
-          <option value="todos">Todos los proyectos</option>
-          {proyectos?.map((p) => (
-            <option key={p.id} value={p.id}>{p.nombre}</option>
-          ))}
-        </select>
+        <SelectorBuscador
+          ariaLabel="Filtrar por área"
+          valor={area}
+          onCambio={setArea}
+          opciones={[
+            { valor: "todas", etiqueta: "Todas las áreas" },
+            ...areas.map((a) => ({ valor: a, etiqueta: a })),
+          ]}
+        />
+        <Select value={ubicacion} onValueChange={setUbicacion}>
+          <SelectTrigger aria-label="Filtrar por ubicación" className="h-10 rounded-none border-border text-[13px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="rounded-none">
+            <SelectItem value="todas" className="rounded-none">Corporativo y campo</SelectItem>
+            <SelectItem value="corporativo" className="rounded-none">Corporativo</SelectItem>
+            <SelectItem value="campo" className="rounded-none">Campo</SelectItem>
+          </SelectContent>
+        </Select>
+        <SelectorBuscador
+          ariaLabel="Filtrar por proyecto"
+          valor={proyecto}
+          onCambio={setProyecto}
+          opciones={[
+            { valor: "todos", etiqueta: "Todos los proyectos" },
+            ...(proyectos ?? []).map((p) => ({ valor: p.id, etiqueta: p.nombre })),
+          ]}
+        />
       </div>
 
       {isLoading ? (
@@ -244,7 +287,7 @@ function Directorio() {
             </thead>
             <tbody>
               {filtrados.map((c) => (
-                <tr key={c.id} className="border-t border-border hover:bg-accent/40">
+                <tr key={c.id} className="fila-tabla border-t border-border">
                   <td className="h-10 px-3">
                     <Link to="/colaboradores/$id" params={{ id: c.id }} className="flex items-center gap-2">
                       <span className="cifra grid h-6 w-6 shrink-0 place-items-center bg-plomada text-[10px] text-primary-foreground">

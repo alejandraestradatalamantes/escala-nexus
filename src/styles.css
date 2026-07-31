@@ -168,6 +168,14 @@
     border-color: var(--color-border);
   }
 
+  /* Anillo de foco consistente en todo elemento interactivo (B7). */
+  :where(a[href], button, [role="button"], [role="option"], input, textarea, select, [tabindex]:not([tabindex="-1"])):focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px var(--color-background),
+      0 0 0 4px var(--color-casco);
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -191,5 +199,34 @@
       animation-duration: 0.01ms !important;
       transition-duration: 0.01ms !important;
     }
+  }
+}
+
+@layer components {
+  /* Renglón de tabla / tarjeta clicable: realce al pasar el cursor (B6). */
+  .fila-tabla {
+    border-left: 2px solid transparent;
+    transition:
+      background-color 150ms ease,
+      border-left-color 150ms ease;
+  }
+
+  .fila-tabla:hover {
+    background-color: color-mix(in oklab, var(--muted) 60%, transparent);
+    border-left-color: var(--color-casco);
+  }
+
+  /* Fundido de esqueleto a contenido (B5). */
+  .aparece {
+    animation: nexus-aparece 200ms ease-out both;
+  }
+}
+
+@keyframes nexus-aparece {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }

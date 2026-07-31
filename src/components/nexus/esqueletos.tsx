@@ -1,4 +1,6 @@
+import type { ReactNode } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 /** Esqueletos que respetan el layout final; nunca mostramos ceros mientras se consulta. */
 
@@ -67,4 +69,9 @@ export function EsqueletoAplicacion() {
       </div>
     </div>
   );
+}
+
+/** Envuelve contenido ya cargado con un fundido breve (B5). */
+export function Fundido({ children, className }: { children: ReactNode; className?: string }) {
+  return <div className={cn("aparece", className)}>{children}</div>;
 }

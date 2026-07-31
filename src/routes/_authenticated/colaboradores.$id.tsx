@@ -21,6 +21,14 @@ import { BandaLineaBase } from "@/components/nexus/banda-linea-base";
 import { HistorialDesempeno } from "@/components/nexus/desempeno/historial-desempeno";
 import { useSesion } from "@/hooks/use-sesion";
 import { toast } from "sonner";
+import { SelectorBuscador } from "@/components/nexus/selector-buscador";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/colaboradores/$id")({
   head: () => ({
@@ -41,6 +49,13 @@ function Expediente() {
   const puedeEditar = tiene("direccion_talento");
   const queryClient = useQueryClient();
   const [abrirDocumento, setAbrirDocumento] = useState(false);
+  const [puestoEdit, setPuestoEdit] = useState<string | null>(null);
+  const [ubicacionEdit, setUbicacionEdit] = useState<string | null>(null);
+  const [proyectoEdit, setProyectoEdit] = useState<string | null>(null);
+  const [tipoContratoEdit, setTipoContratoEdit] = useState<string | null>(null);
+  const [tipoDocumento, setTipoDocumento] = useState(
+    "Contrato individual de trabajo",
+  );
 
   const { data, isLoading } = useQuery({
     queryKey: ["colaborador", id],
@@ -70,10 +85,10 @@ function Expediente() {
           nombre: String(form.get("nombre")),
           correo: String(form.get("correo")) || null,
           area: String(form.get("area")) || null,
-          ubicacion: String(form.get("ubicacion")) as "corporativo" | "campo",
-          proyecto_actual_id: (form.get("proyecto_id") as string) || null,
-          puesto_id: (form.get("puesto_id") as string) || null,
-          tipo_contrato: String(form.get("tipo_contrato")) || null,
+          ubicacion: (ubicacionEdit ?? c?.ubicacion ?? "corporativo") as "corporativo" | "campo",
+          proyecto_actual_id: proyectoEdit === "__ninguno" ? null : (proyectoEdit ?? c?.proyecto_actual_id ?? null),
+          puesto_id: puestoEdit === "__ninguno" ? null : (puestoEdit ?? c?.puesto_id ?? null),
+          tipo_contrato: tipoContratoEdit ?? c?.tipo_contrato ?? null,
         })
         .eq("id", id);
       if (error) throw error;
@@ -103,7 +118,7 @@ function Expediente() {
     mutationFn: async (form: FormData) => {
       const { error } = await supabase.from("documentos").insert({
         colaborador_id: id,
-        tipo: String(form.get("tipo")),
+        tipo: tipoDocumento,
         url: String(form.get("url")) || null,
         vigencia: String(form.get("vigencia")) || null,
         confidencial: form.get("confidencial") === "on",
@@ -113,6 +128,7 @@ function Expediente() {
     onSuccess: () => {
       toast.success("Documento adjuntado al expediente");
       setAbrirDocumento(false);
+      setTipoDocumento("Contrato individual de trabajo");
       queryClient.invalidateQueries({ queryKey: ["colaborador", id] });
     },
     onError: () => toast.error("No se adjuntó el documento. Revisa tus permisos y vuelve a intentar."),
@@ -146,8 +162,6 @@ function Expediente() {
   const vigentes = data.certificaciones.filter(
     (x) => x.fecha_vencimiento && new Date(x.fecha_vencimiento) >= new Date(),
   ).length;
-  const selectCls = "h-10 w-full border border-border bg-card px-2 text-[13px] text-grafito";
-
   return (
     <div className="space-y-5">
       <Link to="/colaboradores" className="inline-flex items-center gap-1 text-[13px] text-cota hover:text-plomada">
@@ -236,36 +250,60 @@ function Expediente() {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="puesto_id">Puesto</Label>
-              <select id="puesto_id" name="puesto_id" defaultValue={c.puesto_id ?? ""} disabled={!puedeEditar} className={selectCls}>
-                <option value="">Sin asignar</option>
-                {data.puestos.map((p) => (
-                  <option key={p.id} value={p.id}>{p.nombre}</option>
-                ))}
-              </select>
+              <SelectorBuscador
+                id="puesto_id"
+                ariaLabel="Puesto"
+                disabled={!puedeEditar}
+                valor={puestoEdit ?? c.puesto_id ?? "__ninguno"}
+                onCambio={setPuestoEdit}
+                opciones={[
+                  { valor: "__ninguno", etiqueta: "Sin asignar" },
+                  ...data.puestos.map((p) => ({ valor: p.id, etiqueta: p.nombre })),
+                ]}
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="ubicacion">Ubicación</Label>
-              <select id="ubicacion" name="ubicacion" defaultValue={c.ubicacion} disabled={!puedeEditar} className={selectCls}>
-                <option value="corporativo">Corporativo</option>
-                <option value="campo">Campo</option>
-              </select>
+              <Select value={ubicacionEdit ?? c.ubicacion} onValueChange={setUbicacionEdit} disabled={!puedeEditar}>
+                <SelectTrigger id="ubicacion" className="h-10 rounded-none border-border text-[13px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="rounded-none">
+                  <SelectItem value="corporativo" className="rounded-none">Corporativo</SelectItem>
+                  <SelectItem value="campo" className="rounded-none">Campo</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="proyecto_id">Proyecto</Label>
-              <select id="proyecto_id" name="proyecto_id" defaultValue={c.proyecto_actual_id ?? ""} disabled={!puedeEditar} className={selectCls}>
-                <option value="">Sin proyecto</option>
-                {data.proyectos.map((p) => (
-                  <option key={p.id} value={p.id}>{p.nombre}</option>
-                ))}
-              </select>
+              <SelectorBuscador
+                id="proyecto_id"
+                ariaLabel="Proyecto"
+                disabled={!puedeEditar}
+                valor={proyectoEdit ?? c.proyecto_actual_id ?? "__ninguno"}
+                onCambio={setProyectoEdit}
+                opciones={[
+                  { valor: "__ninguno", etiqueta: "Sin proyecto" },
+                  ...data.proyectos.map((p) => ({ valor: p.id, etiqueta: p.nombre })),
+                ]}
+              />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor="tipo_contrato">Tipo de contrato</Label>
-              <select id="tipo_contrato" name="tipo_contrato" defaultValue={c.tipo_contrato ?? "indeterminado"} disabled={!puedeEditar} className={selectCls}>
-                <option value="indeterminado">Indeterminado</option>
-                <option value="determinado">Determinado</option>
-                <option value="obra_determinada">Por obra determinada</option>
-              </select>
+              <Select
+                value={tipoContratoEdit ?? c.tipo_contrato ?? "indeterminado"}
+                onValueChange={setTipoContratoEdit}
+                disabled={!puedeEditar}
+              >
+                <SelectTrigger id="tipo_contrato" className="h-10 rounded-none border-border text-[13px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="rounded-none">
+                  <SelectItem value="indeterminado" className="rounded-none">Indeterminado</SelectItem>
+                  <SelectItem value="determinado" className="rounded-none">Determinado</SelectItem>
+                  <SelectItem value="obra_determinada" className="rounded-none">Por obra determinada</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             {puedeEditar && (
               <div className="flex flex-wrap gap-2 sm:col-span-2">
@@ -313,22 +351,27 @@ function Expediente() {
                 >
                   <div className="space-y-1.5 sm:col-span-2">
                     <Label htmlFor="d_tipo">Tipo de documento</Label>
-                    <select id="d_tipo" name="tipo" required className={selectCls}>
-                      {[
-                        "Contrato individual de trabajo",
-                        "Identificación oficial",
-                        "CURP",
-                        "RFC",
-                        "Comprobante de domicilio",
-                        "Constancia DC-3",
-                        "Alta ante el IMSS",
-                        "Otro",
-                      ].map((t) => (
-                        <option key={t} value={t}>
-                          {t}
-                        </option>
-                      ))}
-                    </select>
+                    <Select value={tipoDocumento} onValueChange={setTipoDocumento}>
+                      <SelectTrigger id="d_tipo" className="h-10 rounded-none border-border text-[13px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-none">
+                        {[
+                          "Contrato individual de trabajo",
+                          "Identificación oficial",
+                          "CURP",
+                          "RFC",
+                          "Comprobante de domicilio",
+                          "Constancia DC-3",
+                          "Alta ante el IMSS",
+                          "Otro",
+                        ].map((t) => (
+                          <SelectItem key={t} value={t} className="rounded-none">
+                            {t}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-1.5 sm:col-span-2">
                     <Label htmlFor="d_url">Archivo (enlace al expediente digital)</Label>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
@@ -18,6 +18,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { TarjetaIndicador } from "@/components/nexus/tarjeta-indicador";
+import { SelectorBuscador } from "@/components/nexus/selector-buscador";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   TableroFlujo,
   type CandidatoFlujo,
@@ -54,8 +62,6 @@ export const Route = createFileRoute("/_authenticated/atraccion/")({
   component: Atraccion,
 });
 
-const selectCls = "h-10 w-full border border-border bg-card px-2 text-[13px] text-grafito";
-
 function Atraccion() {
   const { tiene } = useSesion();
   const puedeEditar = tiene("direccion_talento", "reclutamiento");
@@ -67,6 +73,11 @@ function Atraccion() {
   const [estatus, setEstatus] = useState("todos");
   const [abrirVacante, setAbrirVacante] = useState(false);
   const [abrirCandidato, setAbrirCandidato] = useState(false);
+  const [vacanteCandidato, setVacanteCandidato] = useState("__ninguna");
+  const [fuenteCandidato, setFuenteCandidato] = useState<string>(FUENTES[0]);
+  const [puestoVacante, setPuestoVacante] = useState("");
+  const [proyectoVacante, setProyectoVacante] = useState("__corporativo");
+  const [hmVacante, setHmVacante] = useState("__ninguno");
 
   const { data, isLoading } = useQuery({
     queryKey: ["atraccion"],
@@ -101,6 +112,10 @@ function Atraccion() {
   const vacantes = data?.vacantes ?? [];
   const candidatos = data?.candidatos ?? [];
   const fases: FaseFlujo[] = data?.fases ?? [];
+
+  useEffect(() => {
+    if (!puestoVacante && data?.puestos.length) setPuestoVacante(data.puestos[0].id);
+  }, [data?.puestos, puestoVacante]);
 
   const nombrePuesto = (id: string | null) => data?.puestos.find((p) => p.id === id)?.nombre ?? "—";
   const nombreProyecto = (id: string | null) =>
@@ -204,9 +219,9 @@ function Atraccion() {
       const min = String(form.get("salario_min"));
       const max = String(form.get("salario_max"));
       const { error } = await supabase.from("vacantes").insert({
-        puesto_id: (form.get("puesto_id") as string) || null,
-        proyecto_id: (form.get("proyecto_id") as string) || null,
-        hiring_manager_id: (form.get("hiring_manager_id") as string) || null,
+        puesto_id: puestoVacante || null,
+        proyecto_id: proyectoVacante === "__corporativo" ? null : proyectoVacante,
+        hiring_manager_id: hmVacante === "__ninguno" ? null : hmVacante,
         motivo: String(form.get("motivo")) || null,
         salario_min: min ? Number(min) : null,
         salario_max: max ? Number(max) : null,
@@ -220,6 +235,9 @@ function Atraccion() {
     onSuccess: () => {
       toast.success("Vacante abierta");
       setAbrirVacante(false);
+      setPuestoVacante("");
+      setProyectoVacante("__corporativo");
+      setHmVacante("__ninguno");
       refrescar();
     },
     onError: () => toast.error("No se abrió la vacante. Verifica los datos y tus permisos."),
@@ -232,8 +250,8 @@ function Atraccion() {
         nombre: String(form.get("nombre")),
         correo: String(form.get("correo")) || null,
         telefono: String(form.get("telefono")) || null,
-        vacante_id: (form.get("vacante_id") as string) || null,
-        fuente: String(form.get("fuente")) || null,
+        vacante_id: vacanteCandidato === "__ninguna" ? null : vacanteCandidato,
+        fuente: fuenteCandidato || null,
         fase_id: primera?.id ?? null,
         fecha_ingreso_fase: new Date().toISOString().slice(0, 10),
         estatus: "activo",
@@ -243,6 +261,8 @@ function Atraccion() {
     onSuccess: () => {
       toast.success("Candidato registrado en la primera fase");
       setAbrirCandidato(false);
+      setVacanteCandidato("__ninguna");
+      setFuenteCandidato(FUENTES[0]);
       refrescar();
     },
     onError: () => toast.error("No se registró al candidato. Verifica los datos y tus permisos."),
@@ -382,24 +402,34 @@ function Atraccion() {
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="c_vacante">Vacante</Label>
-                      <select id="c_vacante" name="vacante_id" className={selectCls}>
-                        <option value="">Sin vacante</option>
-                        {abiertas.map((v) => (
-                          <option key={v.id} value={v.id}>
-                            {nombrePuesto(v.puesto_id)} · {nombreProyecto(v.proyecto_id)}
-                          </option>
-                        ))}
-                      </select>
+                      <SelectorBuscador
+                        id="c_vacante"
+                        ariaLabel="Vacante"
+                        valor={vacanteCandidato}
+                        onCambio={setVacanteCandidato}
+                        opciones={[
+                          { valor: "__ninguna", etiqueta: "Sin vacante" },
+                          ...abiertas.map((v) => ({
+                            valor: v.id,
+                            etiqueta: `${nombrePuesto(v.puesto_id)} · ${nombreProyecto(v.proyecto_id)}`,
+                          })),
+                        ]}
+                      />
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="c_fuente">Fuente</Label>
-                      <select id="c_fuente" name="fuente" className={selectCls}>
-                        {FUENTES.map((f) => (
-                          <option key={f} value={f}>
-                            {f}
-                          </option>
-                        ))}
-                      </select>
+                      <Select value={fuenteCandidato} onValueChange={setFuenteCandidato}>
+                        <SelectTrigger id="c_fuente" className="h-10 rounded-none border-border text-[13px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-none">
+                          {FUENTES.map((f) => (
+                            <SelectItem key={f} value={f} className="rounded-none">
+                              {f}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </form>
                   <DialogFooter>
@@ -435,35 +465,39 @@ function Atraccion() {
                   >
                     <div className="space-y-1.5">
                       <Label htmlFor="v_puesto">Puesto</Label>
-                      <select id="v_puesto" name="puesto_id" className={selectCls} required>
-                        {data?.puestos.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.nombre}
-                          </option>
-                        ))}
-                      </select>
+                      <SelectorBuscador
+                        id="v_puesto"
+                        ariaLabel="Puesto"
+                        valor={puestoVacante}
+                        onCambio={setPuestoVacante}
+                        opciones={(data?.puestos ?? []).map((p) => ({ valor: p.id, etiqueta: p.nombre }))}
+                      />
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="v_proyecto">Proyecto</Label>
-                      <select id="v_proyecto" name="proyecto_id" className={selectCls}>
-                        <option value="">Corporativo</option>
-                        {data?.proyectos.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.nombre}
-                          </option>
-                        ))}
-                      </select>
+                      <SelectorBuscador
+                        id="v_proyecto"
+                        ariaLabel="Proyecto"
+                        valor={proyectoVacante}
+                        onCambio={setProyectoVacante}
+                        opciones={[
+                          { valor: "__corporativo", etiqueta: "Corporativo" },
+                          ...(data?.proyectos ?? []).map((p) => ({ valor: p.id, etiqueta: p.nombre })),
+                        ]}
+                      />
                     </div>
                     <div className="space-y-1.5 sm:col-span-2">
                       <Label htmlFor="v_hm">Hiring manager</Label>
-                      <select id="v_hm" name="hiring_manager_id" className={selectCls}>
-                        <option value="">Sin asignar</option>
-                        {data?.colaboradores.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.nombre}
-                          </option>
-                        ))}
-                      </select>
+                      <SelectorBuscador
+                        id="v_hm"
+                        ariaLabel="Hiring manager"
+                        valor={hmVacante}
+                        onCambio={setHmVacante}
+                        opciones={[
+                          { valor: "__ninguno", etiqueta: "Sin asignar" },
+                          ...(data?.colaboradores ?? []).map((c) => ({ valor: c.id, etiqueta: c.nombre })),
+                        ]}
+                      />
                     </div>
                     <div className="space-y-1.5 sm:col-span-2">
                       <Label htmlFor="v_motivo">Motivo</Label>
@@ -522,30 +556,26 @@ function Atraccion() {
               aria-label="Buscar vacante por puesto"
               className="h-10 rounded-none"
             />
-            <select
-              value={proyecto}
-              onChange={(e) => setProyecto(e.target.value)}
-              aria-label="Filtrar por proyecto"
-              className={selectCls}
-            >
-              <option value="todos">Todos los proyectos</option>
-              {data?.proyectos.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.nombre}
-                </option>
-              ))}
-            </select>
-            <select
-              value={estatus}
-              onChange={(e) => setEstatus(e.target.value)}
-              aria-label="Filtrar por estatus"
-              className={selectCls}
-            >
-              <option value="todos">Todos los estatus</option>
-              <option value="abierta">Abiertas</option>
-              <option value="cerrada">Cerradas</option>
-              <option value="cancelada">Canceladas</option>
-            </select>
+            <SelectorBuscador
+              ariaLabel="Filtrar por proyecto"
+              valor={proyecto}
+              onCambio={setProyecto}
+              opciones={[
+                { valor: "todos", etiqueta: "Todos los proyectos" },
+                ...(data?.proyectos ?? []).map((p) => ({ valor: p.id, etiqueta: p.nombre })),
+              ]}
+            />
+            <Select value={estatus} onValueChange={setEstatus}>
+              <SelectTrigger aria-label="Filtrar por estatus" className="h-10 rounded-none border-border text-[13px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="rounded-none">
+                <SelectItem value="todos" className="rounded-none">Todos los estatus</SelectItem>
+                <SelectItem value="abierta" className="rounded-none">Abiertas</SelectItem>
+                <SelectItem value="cerrada" className="rounded-none">Cerradas</SelectItem>
+                <SelectItem value="cancelada" className="rounded-none">Canceladas</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {filtradas.length === 0 ? (
@@ -581,7 +611,7 @@ function Atraccion() {
                     {filtradas.map((v) => {
                       const dias = diasAbierta(v);
                       return (
-                        <tr key={v.id} className="border-t border-border hover:bg-accent/40">
+                        <tr key={v.id} className="fila-tabla border-t border-border">
                           <td className="h-10 px-3">
                             <Link
                               to="/atraccion/$id"

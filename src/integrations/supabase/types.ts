@@ -2189,6 +2189,7 @@ export type Database = {
       listar_usuarios: {
         Args: never
         Returns: {
+          colaborador_id: string
           correo: string
           id: string
           nombre: string

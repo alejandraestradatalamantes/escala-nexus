@@ -19,7 +19,9 @@ interface Props {
  * evidencias ya capturadas. Sin IA: es composición de datos.
  */
 export function GuiaSbi({ evaluacionId, nombreEvaluado, onOpenChange }: Props) {
-  const [notas, setNotas] = useState<Record<string, { comportamiento: string; impacto: string }>>({});
+  const [notas, setNotas] = useState<Record<string, { comportamiento: string; impacto: string }>>(
+    {},
+  );
 
   const { data, isLoading } = useQuery({
     queryKey: ["guia-sbi", evaluacionId],
@@ -75,8 +77,8 @@ export function GuiaSbi({ evaluacionId, nombreEvaluado, onOpenChange }: Props) {
           <DialogTitle>Guía de conversación SBI — {nombreEvaluado}</DialogTitle>
         </DialogHeader>
         <p className="text-[13px] text-cota">
-          Armada con las evidencias capturadas. La situación viene de la evidencia; el comportamiento y
-          el impacto los escribe el líder antes de la sesión.
+          Armada con las evidencias capturadas. La situación viene de la evidencia; el
+          comportamiento y el impacto los escribe el líder antes de la sesión.
         </p>
         {isLoading ? (
           <div className="space-y-2">

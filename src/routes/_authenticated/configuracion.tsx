@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useSesion, type Rol } from "@/hooks/use-sesion";
 import { ETIQUETA_ROL, ROLES, fechaCorta } from "@/lib/nexus/formato";
 import { ImportarComportamientos } from "@/components/nexus/desempeno/importar-comportamientos";
+import { UsuariosAccesos } from "@/components/nexus/configuracion/usuarios-accesos";
 import { toast } from "sonner";
 
 const ETIQUETA_SUPUESTO: Record<string, string> = {
@@ -22,7 +23,10 @@ export const Route = createFileRoute("/_authenticated/configuracion")({
   head: () => ({
     meta: [
       { title: "Configuración — ESCALA Nexus" },
-      { name: "description", content: "Roles, permisos y supuestos financieros del sistema de talento de Escala." },
+      {
+        name: "description",
+        content: "Roles, permisos y supuestos financieros del sistema de talento de Escala.",
+      },
       { property: "og:title", content: "Configuración — ESCALA Nexus" },
       { property: "og:description", content: "Administración de roles y supuestos en Nexus." },
       { name: "robots", content: "noindex" },
@@ -35,6 +39,7 @@ function Configuracion() {
   const { sesion, roles, tiene } = useSesion();
   const admin = tiene("direccion_talento", "ti_sistema");
   const esTalento = tiene("direccion_talento");
+  const veAccesos = tiene("direccion_talento", "direccion_general", "ti_sistema");
   const puedeCapturar = tiene("direccion_talento", "direccion_general", "finanzas_auditoria");
   const queryClient = useQueryClient();
   const [edicion, setEdicion] = useState<Record<string, { valor: string; fuente: string }>>({});
@@ -108,7 +113,8 @@ function Configuracion() {
       toast.success("Roles actualizados");
       queryClient.invalidateQueries({ queryKey: ["sesion"] });
     },
-    onError: () => toast.error("No se pudo cambiar el rol. Solo Dirección de Talento o TI pueden hacerlo."),
+    onError: () =>
+      toast.error("No se pudo cambiar el rol. Solo Dirección de Talento o TI pueden hacerlo."),
   });
 
   return (
@@ -132,7 +138,9 @@ function Configuracion() {
             const activo = roles.includes(rol as Rol);
             return (
               <li key={rol} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-2">
-                <span className="min-w-0 truncate text-[13px] text-grafito">{ETIQUETA_ROL[rol]}</span>
+                <span className="min-w-0 truncate text-[13px] text-grafito">
+                  {ETIQUETA_ROL[rol]}
+                </span>
                 <Button
                   variant={activo ? "default" : "outline"}
                   disabled={!admin || alternar.isPending}
@@ -148,7 +156,9 @@ function Configuracion() {
       </section>
 
       <section className="border border-border bg-card p-4">
-        <h2 className="text-[13px] font-semibold uppercase tracking-wide text-cota">Supuestos financieros</h2>
+        <h2 className="text-[13px] font-semibold uppercase tracking-wide text-cota">
+          Supuestos financieros
+        </h2>
         <p className="mt-1 text-[13px] text-cota">
           {puedeCapturar
             ? "Captura el valor y la fuente. Cada cambio queda registrado en la bitácora de auditoría."
@@ -168,7 +178,12 @@ function Configuracion() {
               <thead className="bg-grafito text-cal">
                 <tr>
                   {["Supuesto", "Valor", "Fuente", "Actualizado", ""].map((h) => (
-                    <th key={h} className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide">{h}</th>
+                    <th
+                      key={h}
+                      className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide"
+                    >
+                      {h}
+                    </th>
                   ))}
                 </tr>
               </thead>
@@ -179,7 +194,9 @@ function Configuracion() {
                   return (
                     <tr key={s.id} className="border-t border-border align-top">
                       <td className="h-10 px-3 py-2">
-                        <span className="text-grafito">{ETIQUETA_SUPUESTO[s.clave] ?? s.clave}</span>
+                        <span className="text-grafito">
+                          {ETIQUETA_SUPUESTO[s.clave] ?? s.clave}
+                        </span>
                         <span className="cifra block text-[11px] text-cota">{s.clave}</span>
                       </td>
                       <td className="px-3 py-2">
@@ -220,7 +237,9 @@ function Configuracion() {
                           <span className="text-cota">{s.fuente ?? "—"}</span>
                         )}
                       </td>
-                      <td className="cifra px-3 py-2 text-cota">{fechaCorta(s.fecha_actualizacion)}</td>
+                      <td className="cifra px-3 py-2 text-cota">
+                        {fechaCorta(s.fecha_actualizacion)}
+                      </td>
                       <td className="px-3 py-2 text-right">
                         {!puedeCapturar ? null : editando ? (
                           <div className="flex justify-end gap-2">
@@ -288,8 +307,8 @@ function Configuracion() {
             </h2>
             <p className="mt-1 max-w-2xl text-[13px] text-cota">
               Los resultados individuales de evaluación solo son accesibles para el colaborador, su
-              líder directo y Dirección de Talento. Las vistas agregadas requieren un mínimo de cinco
-              personas para desplegarse.
+              líder directo y Dirección de Talento. Las vistas agregadas requieren un mínimo de
+              cinco personas para desplegarse.
             </p>
           </div>
           <div className="flex shrink-0 flex-col items-start gap-1">
@@ -302,6 +321,8 @@ function Configuracion() {
           </div>
         </div>
       </section>
+
+      {veAccesos ? <UsuariosAccesos usuarioId={sesion?.userId ?? null} /> : null}
 
       {esTalento ? <ImportarComportamientos /> : null}
     </div>

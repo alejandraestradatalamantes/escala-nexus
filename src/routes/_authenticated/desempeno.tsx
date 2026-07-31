@@ -4,9 +4,24 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,9 +56,17 @@ export const Route = createFileRoute("/_authenticated/desempeno")({
   head: () => ({
     meta: [
       { title: "Desempeño — ESCALA Nexus" },
-      { name: "description", content: "Evaluaciones por competencias, objetivos por proyecto y calibración. Cada resultado se leerá como desviación contra la meta acordada." },
+      {
+        name: "description",
+        content:
+          "Evaluaciones por competencias, objetivos por proyecto y calibración. Cada resultado se leerá como desviación contra la meta acordada.",
+      },
       { property: "og:title", content: "Desempeño — ESCALA Nexus" },
-      { property: "og:description", content: "Evaluaciones por competencias, objetivos por proyecto y calibración. Cada resultado se leerá como desviación contra la meta acordada." },
+      {
+        property: "og:description",
+        content:
+          "Evaluaciones por competencias, objetivos por proyecto y calibración. Cada resultado se leerá como desviación contra la meta acordada.",
+      },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -77,18 +100,46 @@ function Desempeno() {
   const [abierta, setAbierta] = useState<string | null>(null);
   const [celda, setCelda] = useState<{ puesto: string; competencia: string } | null>(null);
   const [porValidar, setPorValidar] = useState<string | null>(null);
+  const [cicloId, setCicloId] = useState("");
+  const [seleccion, setSeleccion] = useState<string[]>([]);
+  const [validandoLote, setValidandoLote] = useState(false);
+
+  const { data: ciclos, isLoading: cargandoCiclos } = useQuery({
+    queryKey: ["ciclos-desempeno"],
+    retry: 3,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("ciclos_evaluacion")
+        .select("id, nombre, estatus, fecha_inicio")
+        .order("fecha_inicio", { ascending: false });
+      return data ?? [];
+    },
+  });
+
+  const cicloActivo =
+    cicloId ||
+    (ciclos ?? []).find((c) => c.estatus !== "cerrado")?.id ||
+    (ciclos ?? [])[0]?.id ||
+    "";
+  const cicloElegido = (ciclos ?? []).find((c) => c.id === cicloActivo) ?? null;
 
   const { data, isLoading } = useQuery({
     queryKey: ["modelo-liderazgo"],
     retry: 3,
     queryFn: async () => {
       const [competencias, niveles, comportamientos, puestos] = await Promise.all([
-        supabase.from("competencias").select("id, grupo, nombre, descripcion, orden").order("orden"),
+        supabase
+          .from("competencias")
+          .select("id, grupo, nombre, descripcion, orden")
+          .order("orden"),
         supabase
           .from("niveles_competencia")
           .select("id, competencia_id, nivel, etiqueta, descripcion, resumen")
           .order("nivel"),
-        supabase.from("comportamientos").select("id, nivel_competencia_id, texto, orden").order("orden"),
+        supabase
+          .from("comportamientos")
+          .select("id, nivel_competencia_id, texto, orden")
+          .order("orden"),
         supabase
           .from("puestos")
           .select("id, nombre, nivel_organizacional, perfil_competencias")
@@ -229,18 +280,49 @@ function Desempeno() {
         .update({ perfil_competencias: perfilAJson(despues) })
         .eq("id", puestoId);
       if (error) throw error;
-      await registrarBitacora(`Validó el perfil de competencias de ${puesto.nombre}`, puestoId, antes, despues);
+      await registrarBitacora(
+        `Validó el perfil de competencias de ${puesto.nombre}`,
+        puestoId,
+        antes,
+        despues,
+      );
     },
     onSuccess: () => {
       toast.success("Perfil validado. Ya funciona como línea base de evaluaciones.");
       setPorValidar(null);
       queryClient.invalidateQueries({ queryKey: ["modelo-liderazgo"] });
     },
-    onError: () => toast.error("No se pudo validar el perfil. Requiere rol de Dirección de Talento."),
+    onError: () =>
+      toast.error("No se pudo validar el perfil. Requiere rol de Dirección de Talento."),
   });
 
   const competenciaAbierta = competencias.find((c) => c.id === abierta) ?? null;
   const puestoAValidar = puestos.find((p) => p.id === porValidar) ?? null;
+  const pendientes = puestos.filter((p) => !leerPerfil(p.perfil_competencias).validado);
+  const seleccionados = seleccion.filter((id) => pendientes.some((p) => p.id === id));
+
+  const alternar = (id: string, marcado: boolean) =>
+    setSeleccion((prev) => (marcado ? [...new Set([...prev, id])] : prev.filter((x) => x !== id)));
+
+  const validarLote = async () => {
+    setValidandoLote(true);
+    let ok = 0;
+    for (const id of seleccionados) {
+      try {
+        await validarPerfil.mutateAsync(id);
+        ok += 1;
+      } catch {
+        // se reporta al final; un fallo no detiene el resto del lote
+      }
+    }
+    setValidandoLote(false);
+    setSeleccion([]);
+    if (ok === seleccionados.length) {
+      toast.success(`${ok} perfiles validados y registrados en la bitácora`);
+    } else {
+      toast.error(`Se validaron ${ok} de ${seleccionados.length} perfiles. Revisa tus permisos.`);
+    }
+  };
 
   return (
     <div className="space-y-5">
@@ -251,10 +333,37 @@ function Desempeno() {
             Modelo de liderazgo · 8 competencias · 5 niveles de dominio
           </p>
         </div>
-        <span className="cifra text-[12px] text-cota">Corte {hoy}</span>
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="ciclo-modulo">Ciclo</Label>
+            {cargandoCiclos ? (
+              <Skeleton className="h-10 w-52 rounded-none" />
+            ) : (
+              <Select value={cicloActivo} onValueChange={setCicloId}>
+                <SelectTrigger id="ciclo-modulo" className="h-10 w-52 rounded-none">
+                  <SelectValue placeholder="Sin ciclos" />
+                </SelectTrigger>
+                <SelectContent className="rounded-none">
+                  {(ciclos ?? []).map((c) => (
+                    <SelectItem key={c.id} value={c.id} className="rounded-none">
+                      {c.nombre} · {c.estatus}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+          <span className="cifra pb-2.5 text-[12px] text-cota">Corte {hoy}</span>
+        </div>
       </header>
 
-      <IndicadoresDesempeno />
+      {!cargandoCiclos && cicloElegido ? (
+        <p className="cifra text-[11px] uppercase tracking-wide text-cota">
+          Todo lo que sigue corresponde al ciclo {cicloElegido.nombre} ({cicloElegido.estatus}).
+        </p>
+      ) : null}
+
+      <IndicadoresDesempeno cicloId={cicloActivo} />
 
       <Tabs defaultValue="modelo">
         <TabsList className="rounded-none">
@@ -295,12 +404,20 @@ function Desempeno() {
         ) : null}
 
         <TabsContent value="objetivos" className="mt-4">
-          <PanelObjetivos esTalento={esTalento} colaboradorId={sesion?.colaboradorId ?? null} />
+          <PanelObjetivos
+            esTalento={esTalento}
+            colaboradorId={sesion?.colaboradorId ?? null}
+            cicloId={cicloActivo}
+          />
         </TabsContent>
 
         {veMapeo ? (
           <TabsContent value="mapeo" className="mt-4">
-            <Matriz9Box esTalento={esTalento} usuarioId={sesion?.userId ?? null} />
+            <Matriz9Box
+              esTalento={esTalento}
+              usuarioId={sesion?.userId ?? null}
+              cicloId={cicloActivo}
+            />
           </TabsContent>
         ) : null}
 
@@ -374,6 +491,33 @@ function Desempeno() {
                 ? "Haz clic en una celda para ajustarlo; cada cambio queda en la bitácora."
                 : "Solo Dirección de Talento puede editar estos niveles."}
             </p>
+            {esTalento && pendientes.length > 0 ? (
+              <div className="flex flex-wrap items-center gap-3 border border-border bg-card px-3 py-2">
+                <Checkbox
+                  id="seleccionar-pendientes"
+                  className="rounded-none"
+                  checked={seleccionados.length === pendientes.length && pendientes.length > 0}
+                  onCheckedChange={(v) =>
+                    setSeleccion(v === true ? pendientes.map((p) => p.id) : [])
+                  }
+                />
+                <Label htmlFor="seleccionar-pendientes" className="text-[13px] text-grafito">
+                  Seleccionar los {pendientes.length} perfiles propuestos
+                </Label>
+                <span className="cifra text-[12px] text-cota">
+                  {seleccionados.length} seleccionados
+                </span>
+                <Button
+                  className="ml-auto h-10 rounded-none"
+                  disabled={seleccionados.length === 0 || validandoLote}
+                  onClick={validarLote}
+                >
+                  {validandoLote
+                    ? "Validando…"
+                    : `Validar ${seleccionados.length || ""} perfiles`.trim()}
+                </Button>
+              </div>
+            ) : null}
             {isLoading ? (
               <div className="space-y-2">
                 {Array.from({ length: 8 }).map((_, i) => (
@@ -391,6 +535,11 @@ function Desempeno() {
                   <table className="w-full min-w-[900px] text-left text-[13px]">
                     <thead className="bg-grafito text-cal">
                       <tr>
+                        {esTalento ? (
+                          <th className="w-10 px-3 py-2">
+                            <span className="sr-only">Seleccionar</span>
+                          </th>
+                        ) : null}
                         <th className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide">
                           Puesto
                         </th>
@@ -412,7 +561,19 @@ function Desempeno() {
                       {puestos.map((p) => {
                         const perfil = leerPerfil(p.perfil_competencias);
                         return (
-                          <tr key={p.id} className="border-t border-border">
+                          <tr key={p.id} className="fila-tabla border-t border-border">
+                            {esTalento ? (
+                              <td className="px-3 py-2">
+                                {perfil.validado ? null : (
+                                  <Checkbox
+                                    className="rounded-none"
+                                    aria-label={`Seleccionar el perfil de ${p.nombre}`}
+                                    checked={seleccion.includes(p.id)}
+                                    onCheckedChange={(v) => alternar(p.id, v === true)}
+                                  />
+                                )}
+                              </td>
+                            ) : null}
                             <td className="px-3 py-2">
                               <span className="text-grafito">{p.nombre}</span>
                               <span className="cifra block text-[11px] text-cota">
@@ -426,30 +587,37 @@ function Desempeno() {
                               return (
                                 <td key={c.id} className="px-2 py-2">
                                   {editando ? (
-                                    <select
-                                      autoFocus
-                                      aria-label={`Nivel meta de ${c.nombre} en ${p.nombre}`}
-                                      defaultValue={valor ?? ""}
-                                      disabled={guardarNivel.isPending}
-                                      onBlur={() => setCelda(null)}
-                                      onChange={(e) =>
+                                    <Select
+                                      open
+                                      value={valor ? String(valor) : undefined}
+                                      onValueChange={(v) =>
                                         guardarNivel.mutate({
                                           puestoId: p.id,
                                           competenciaId: c.id,
-                                          valor: Number(e.target.value),
+                                          valor: Number(v),
                                         })
                                       }
-                                      className="cifra h-10 w-14 border border-border bg-card px-1 text-[13px] text-grafito"
+                                      onOpenChange={(abierto) => !abierto && setCelda(null)}
                                     >
-                                      <option value="" disabled>
-                                        —
-                                      </option>
-                                      {NIVELES.map((n) => (
-                                        <option key={n} value={n}>
-                                          {n}
-                                        </option>
-                                      ))}
-                                    </select>
+                                      <SelectTrigger
+                                        aria-label={`Nivel meta de ${c.nombre} en ${p.nombre}`}
+                                        disabled={guardarNivel.isPending}
+                                        className="cifra h-10 w-16 rounded-none px-1 text-[13px]"
+                                      >
+                                        <SelectValue placeholder="—" />
+                                      </SelectTrigger>
+                                      <SelectContent className="rounded-none">
+                                        {NIVELES.map((n) => (
+                                          <SelectItem
+                                            key={n}
+                                            value={String(n)}
+                                            className="rounded-none"
+                                          >
+                                            {n}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
                                   ) : (
                                     <button
                                       type="button"
@@ -499,7 +667,17 @@ function Desempeno() {
                     const perfil = leerPerfil(p.perfil_competencias);
                     return (
                       <article key={p.id} className="border border-border bg-card p-4">
-                        <h3 className="text-[14px] font-semibold text-grafito">{p.nombre}</h3>
+                        <div className="flex items-start gap-2">
+                          {esTalento && !perfil.validado ? (
+                            <Checkbox
+                              className="mt-1 rounded-none"
+                              aria-label={`Seleccionar el perfil de ${p.nombre}`}
+                              checked={seleccion.includes(p.id)}
+                              onCheckedChange={(v) => alternar(p.id, v === true)}
+                            />
+                          ) : null}
+                          <h3 className="text-[14px] font-semibold text-grafito">{p.nombre}</h3>
+                        </div>
                         <p className="cifra text-[11px] uppercase tracking-wide text-cota">
                           {p.nivel_organizacional ?? "—"} ·{" "}
                           {perfil.validado
@@ -509,7 +687,10 @@ function Desempeno() {
                         {!perfil.validado ? <AvisoPropuesto className="mt-2" /> : null}
                         <dl className="mt-3 divide-y divide-border text-[13px]">
                           {competencias.map((c) => (
-                            <div key={c.id} className="flex items-center justify-between gap-3 py-1.5">
+                            <div
+                              key={c.id}
+                              className="flex items-center justify-between gap-3 py-1.5"
+                            >
                               <dt className="min-w-0 truncate text-cota">{c.nombre}</dt>
                               <dd className="cifra text-grafito">{perfil.niveles[c.id] ?? "—"}</dd>
                             </div>
@@ -564,9 +745,10 @@ function Desempeno() {
           <AlertDialogHeader>
             <AlertDialogTitle>Validar el perfil de {puestoAValidar?.nombre}</AlertDialogTitle>
             <AlertDialogDescription>
-              A partir de este momento los niveles meta de este puesto dejan de ser una propuesta y se
-              usarán como línea base de las evaluaciones de desempeño y de los scorecards de selección.
-              Podrás seguir ajustando niveles, pero cada cambio quedará registrado en la bitácora.
+              A partir de este momento los niveles meta de este puesto dejan de ser una propuesta y
+              se usarán como línea base de las evaluaciones de desempeño y de los scorecards de
+              selección. Podrás seguir ajustando niveles, pero cada cambio quedará registrado en la
+              bitácora.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
