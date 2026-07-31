@@ -359,6 +359,51 @@ export type Database = {
           },
         ]
       }
+      catalogo_vacaciones_lft: {
+        Row: {
+          anios_max: number | null
+          anios_min: number
+          creado_por: string | null
+          created_at: string
+          dias_ley: number
+          es_demo: boolean
+          fuente: string
+          id: string
+          nota: string | null
+          requiere_vb_juridico: boolean
+          updated_at: string
+          vigente_desde: string
+        }
+        Insert: {
+          anios_max?: number | null
+          anios_min: number
+          creado_por?: string | null
+          created_at?: string
+          dias_ley: number
+          es_demo?: boolean
+          fuente?: string
+          id?: string
+          nota?: string | null
+          requiere_vb_juridico?: boolean
+          updated_at?: string
+          vigente_desde?: string
+        }
+        Update: {
+          anios_max?: number | null
+          anios_min?: number
+          creado_por?: string | null
+          created_at?: string
+          dias_ley?: number
+          es_demo?: boolean
+          fuente?: string
+          id?: string
+          nota?: string | null
+          requiere_vb_juridico?: boolean
+          updated_at?: string
+          vigente_desde?: string
+        }
+        Relationships: []
+      }
       certificaciones: {
         Row: {
           colaborador_id: string
