@@ -25,6 +25,7 @@ import { Route as AuthenticatedAnaliticaRouteImport } from './routes/_authentica
 import { Route as AuthenticatedColaboradoresIndexRouteImport } from './routes/_authenticated/colaboradores.index'
 import { Route as AuthenticatedAtraccionIndexRouteImport } from './routes/_authenticated/atraccion.index'
 import { Route as AuthenticatedColaboradoresIdRouteImport } from './routes/_authenticated/colaboradores.$id'
+import { Route as AuthenticatedAtraccionIdRouteImport } from './routes/_authenticated/atraccion.$id'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -110,6 +111,12 @@ const AuthenticatedColaboradoresIdRoute =
     path: '/colaboradores/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAtraccionIdRoute =
+  AuthenticatedAtraccionIdRouteImport.update({
+    id: '/atraccion/$id',
+    path: '/atraccion/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -124,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/seguridad': typeof AuthenticatedSeguridadRoute
   '/tablero': typeof AuthenticatedTableroRoute
   '/tiempo': typeof AuthenticatedTiempoRoute
+  '/atraccion/$id': typeof AuthenticatedAtraccionIdRoute
   '/colaboradores/$id': typeof AuthenticatedColaboradoresIdRoute
   '/atraccion/': typeof AuthenticatedAtraccionIndexRoute
   '/colaboradores/': typeof AuthenticatedColaboradoresIndexRoute
@@ -141,6 +149,7 @@ export interface FileRoutesByTo {
   '/seguridad': typeof AuthenticatedSeguridadRoute
   '/tablero': typeof AuthenticatedTableroRoute
   '/tiempo': typeof AuthenticatedTiempoRoute
+  '/atraccion/$id': typeof AuthenticatedAtraccionIdRoute
   '/colaboradores/$id': typeof AuthenticatedColaboradoresIdRoute
   '/atraccion': typeof AuthenticatedAtraccionIndexRoute
   '/colaboradores': typeof AuthenticatedColaboradoresIndexRoute
@@ -160,6 +169,7 @@ export interface FileRoutesById {
   '/_authenticated/seguridad': typeof AuthenticatedSeguridadRoute
   '/_authenticated/tablero': typeof AuthenticatedTableroRoute
   '/_authenticated/tiempo': typeof AuthenticatedTiempoRoute
+  '/_authenticated/atraccion/$id': typeof AuthenticatedAtraccionIdRoute
   '/_authenticated/colaboradores/$id': typeof AuthenticatedColaboradoresIdRoute
   '/_authenticated/atraccion/': typeof AuthenticatedAtraccionIndexRoute
   '/_authenticated/colaboradores/': typeof AuthenticatedColaboradoresIndexRoute
@@ -179,6 +189,7 @@ export interface FileRouteTypes {
     | '/seguridad'
     | '/tablero'
     | '/tiempo'
+    | '/atraccion/$id'
     | '/colaboradores/$id'
     | '/atraccion/'
     | '/colaboradores/'
@@ -196,6 +207,7 @@ export interface FileRouteTypes {
     | '/seguridad'
     | '/tablero'
     | '/tiempo'
+    | '/atraccion/$id'
     | '/colaboradores/$id'
     | '/atraccion'
     | '/colaboradores'
@@ -214,6 +226,7 @@ export interface FileRouteTypes {
     | '/_authenticated/seguridad'
     | '/_authenticated/tablero'
     | '/_authenticated/tiempo'
+    | '/_authenticated/atraccion/$id'
     | '/_authenticated/colaboradores/$id'
     | '/_authenticated/atraccion/'
     | '/_authenticated/colaboradores/'
@@ -340,6 +353,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedColaboradoresIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/atraccion/$id': {
+      id: '/_authenticated/atraccion/$id'
+      path: '/atraccion/$id'
+      fullPath: '/atraccion/$id'
+      preLoaderRoute: typeof AuthenticatedAtraccionIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -353,6 +373,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSeguridadRoute: typeof AuthenticatedSeguridadRoute
   AuthenticatedTableroRoute: typeof AuthenticatedTableroRoute
   AuthenticatedTiempoRoute: typeof AuthenticatedTiempoRoute
+  AuthenticatedAtraccionIdRoute: typeof AuthenticatedAtraccionIdRoute
   AuthenticatedColaboradoresIdRoute: typeof AuthenticatedColaboradoresIdRoute
   AuthenticatedAtraccionIndexRoute: typeof AuthenticatedAtraccionIndexRoute
   AuthenticatedColaboradoresIndexRoute: typeof AuthenticatedColaboradoresIndexRoute
@@ -368,6 +389,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSeguridadRoute: AuthenticatedSeguridadRoute,
   AuthenticatedTableroRoute: AuthenticatedTableroRoute,
   AuthenticatedTiempoRoute: AuthenticatedTiempoRoute,
+  AuthenticatedAtraccionIdRoute: AuthenticatedAtraccionIdRoute,
   AuthenticatedColaboradoresIdRoute: AuthenticatedColaboradoresIdRoute,
   AuthenticatedAtraccionIndexRoute: AuthenticatedAtraccionIndexRoute,
   AuthenticatedColaboradoresIndexRoute: AuthenticatedColaboradoresIndexRoute,
