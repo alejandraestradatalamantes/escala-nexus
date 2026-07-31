@@ -24,7 +24,7 @@ export const MODULOS = [
   { nombre: "Tablero", ruta: "/tablero", icono: LayoutDashboard, movil: true },
   { nombre: "Atracción", ruta: "/atraccion", icono: UserSearch, movil: true },
   { nombre: "Colaboradores", ruta: "/colaboradores", icono: Users, movil: true },
-  { nombre: "Desempeño", ruta: "/desempeno", icono: Target, movil: false },
+  { nombre: "Desempeño", ruta: "/desempeno", icono: Target, movil: true },
   { nombre: "Desarrollo", ruta: "/desarrollo", icono: GraduationCap, movil: false },
   { nombre: "Tiempo", ruta: "/tiempo", icono: CalendarClock, movil: true },
   { nombre: "Bienestar", ruta: "/bienestar", icono: HeartPulse, movil: true },
