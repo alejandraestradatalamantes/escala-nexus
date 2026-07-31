@@ -6,6 +6,7 @@ import { EsqueletoIndicadores } from "@/components/nexus/esqueletos";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSesion } from "@/hooks/use-sesion";
 import { antiguedadAnios, ETIQUETA_ROL, fechaCorta } from "@/lib/nexus/formato";
+import { esCertificacionVigente } from "@/lib/nexus/desarrollo";
 
 export const Route = createFileRoute("/_authenticated/tablero")({
   head: () => ({
