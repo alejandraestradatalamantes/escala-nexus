@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSesion, type Rol } from "@/hooks/use-sesion";
 import { ETIQUETA_ROL, ROLES, fechaCorta } from "@/lib/nexus/formato";
+import { ImportarComportamientos } from "@/components/nexus/desempeno/importar-comportamientos";
 import { toast } from "sonner";
 
 const ETIQUETA_SUPUESTO: Record<string, string> = {
@@ -277,6 +278,8 @@ function Configuracion() {
           </div>
         )}
       </section>
+
+      {admin ? <ImportarComportamientos /> : null}
     </div>
   );
 }
