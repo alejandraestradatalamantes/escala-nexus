@@ -51,7 +51,11 @@ export function useSesion() {
       if (!user) return null;
       const [{ data: roles }, { data: perfil }] = await Promise.all([
         supabase.from("user_roles").select("rol").eq("user_id", user.id),
-        supabase.from("profiles").select("nombre, correo, colaborador_id").eq("id", user.id).maybeSingle(),
+        supabase
+          .from("profiles")
+          .select("nombre, correo, colaborador_id")
+          .eq("id", user.id)
+          .maybeSingle(),
       ]);
       let colaboradorId = perfil?.colaborador_id ?? null;
       if (!colaboradorId) {

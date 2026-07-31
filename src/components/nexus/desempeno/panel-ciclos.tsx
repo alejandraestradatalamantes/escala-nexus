@@ -64,7 +64,9 @@ export function PanelCiclos({ esTalento }: { esTalento: boolean }) {
 
   const areas = useMemo(
     () =>
-      Array.from(new Set((data?.colaboradores ?? []).map((c) => c.area).filter(Boolean))) as string[],
+      Array.from(
+        new Set((data?.colaboradores ?? []).map((c) => c.area).filter(Boolean)),
+      ) as string[],
     [data?.colaboradores],
   );
 
@@ -101,9 +103,21 @@ export function PanelCiclos({ esTalento }: { esTalento: boolean }) {
       }[] = [];
       const todos = data?.colaboradores ?? [];
       for (const c of poblacion) {
-        filas.push({ ciclo_id: ciclo.id, colaborador_id: c.id, evaluador_id: c.id, relacion: "auto", estatus: "pendiente" });
+        filas.push({
+          ciclo_id: ciclo.id,
+          colaborador_id: c.id,
+          evaluador_id: c.id,
+          relacion: "auto",
+          estatus: "pendiente",
+        });
         if (c.lider_id) {
-          filas.push({ ciclo_id: ciclo.id, colaborador_id: c.id, evaluador_id: c.lider_id, relacion: "jefe", estatus: "pendiente" });
+          filas.push({
+            ciclo_id: ciclo.id,
+            colaborador_id: c.id,
+            evaluador_id: c.lider_id,
+            relacion: "jefe",
+            estatus: "pendiente",
+          });
         }
         if (tipo === "360") {
           const pares = todos
@@ -116,7 +130,13 @@ export function PanelCiclos({ esTalento }: { esTalento: boolean }) {
             )
             .slice(0, 3);
           for (const p of pares) {
-            filas.push({ ciclo_id: ciclo.id, colaborador_id: c.id, evaluador_id: p.id, relacion: "par", estatus: "pendiente" });
+            filas.push({
+              ciclo_id: ciclo.id,
+              colaborador_id: c.id,
+              evaluador_id: p.id,
+              relacion: "par",
+              estatus: "pendiente",
+            });
           }
         }
       }
@@ -139,7 +159,9 @@ export function PanelCiclos({ esTalento }: { esTalento: boolean }) {
   const cerrar = useMutation({
     mutationFn: async (cicloId: string) => {
       const evs = (data?.evaluaciones ?? []).filter((e) => e.ciclo_id === cicloId);
-      const pobl = Array.from(new Set(evs.map((e) => e.colaborador_id).filter(Boolean))) as string[];
+      const pobl = Array.from(
+        new Set(evs.map((e) => e.colaborador_id).filter(Boolean)),
+      ) as string[];
       const conEsg = new Set(
         (data?.objetivos ?? [])
           .filter((o) => o.ciclo_id === cicloId && o.tipo === "esg")
@@ -222,11 +244,23 @@ export function PanelCiclos({ esTalento }: { esTalento: boolean }) {
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="c_inicio">Inicio</Label>
-                <Input id="c_inicio" name="fecha_inicio" type="date" required className="h-10 rounded-none" />
+                <Input
+                  id="c_inicio"
+                  name="fecha_inicio"
+                  type="date"
+                  required
+                  className="h-10 rounded-none"
+                />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="c_fin">Cierre</Label>
-                <Input id="c_fin" name="fecha_fin" type="date" required className="h-10 rounded-none" />
+                <Input
+                  id="c_fin"
+                  name="fecha_fin"
+                  type="date"
+                  required
+                  className="h-10 rounded-none"
+                />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="c_criterio">Población por</Label>
@@ -299,8 +333,9 @@ export function PanelCiclos({ esTalento }: { esTalento: boolean }) {
             Cierre bloqueado — {faltantes.ciclo}
           </h3>
           <p className="mt-1 text-[13px] text-grafito">
-            {faltantes.nombres.length} personas de la población incluida no tienen un objetivo de tipo
-            ESG ligado. El estándar de objetivos ASG ligados a desempeño es una regla del sistema.
+            {faltantes.nombres.length} personas de la población incluida no tienen un objetivo de
+            tipo ESG ligado. El estándar de objetivos ASG ligados a desempeño es una regla del
+            sistema.
           </p>
           <ul className="cifra mt-2 grid gap-1 text-[12px] text-grafito sm:grid-cols-2">
             {faltantes.nombres.map((n) => (

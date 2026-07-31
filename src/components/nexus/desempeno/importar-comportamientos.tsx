@@ -158,7 +158,10 @@ export function ImportarComportamientos() {
                 <thead className="bg-grafito text-cal">
                   <tr>
                     {["Competencia", "Nivel", "Comportamiento", "Orden"].map((h) => (
-                      <th key={h} className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide">
+                      <th
+                        key={h}
+                        className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide"
+                      >
                         {h}
                       </th>
                     ))}

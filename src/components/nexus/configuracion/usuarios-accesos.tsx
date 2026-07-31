@@ -121,7 +121,10 @@ export function UsuariosAccesos({ usuarioId }: Props) {
             <thead className="bg-grafito text-cal">
               <tr>
                 {["Usuario", "Correo", "Roles", "Expediente vinculado", ""].map((h) => (
-                  <th key={h} className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide">
+                  <th
+                    key={h}
+                    className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide"
+                  >
                     {h}
                   </th>
                 ))}
@@ -162,7 +165,11 @@ export function UsuariosAccesos({ usuarioId }: Props) {
                           className="w-56"
                           onCambio={(valor) =>
                             valor && valor !== vinculado
-                              ? vincular.mutate({ perfilId: u.id, antes: vinculado, despues: valor })
+                              ? vincular.mutate({
+                                  perfilId: u.id,
+                                  antes: vinculado,
+                                  despues: valor,
+                                })
                               : undefined
                           }
                         />

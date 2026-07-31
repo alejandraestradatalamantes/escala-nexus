@@ -46,12 +46,18 @@ export function MiEvaluacion({ colaboradorId }: { colaboradorId: string | null }
             "id, ciclo_id, colaborador_id, relacion, estatus, ciclos_evaluacion(nombre, estatus, fecha_fin), colaboradores!evaluaciones_colaborador_id_fkey(nombre, puesto_id)",
           )
           .eq("evaluador_id", colaboradorId as string),
-        supabase.from("competencias").select("id, nombre, descripcion, grupo, orden").order("orden"),
+        supabase
+          .from("competencias")
+          .select("id, nombre, descripcion, grupo, orden")
+          .order("orden"),
         supabase
           .from("niveles_competencia")
           .select("id, competencia_id, nivel, etiqueta, descripcion, resumen")
           .order("nivel"),
-        supabase.from("comportamientos").select("id, nivel_competencia_id, texto, orden").order("orden"),
+        supabase
+          .from("comportamientos")
+          .select("id, nivel_competencia_id, texto, orden")
+          .order("orden"),
       ]);
       const puestoIds = Array.from(
         new Set(
@@ -61,8 +67,12 @@ export function MiEvaluacion({ colaboradorId }: { colaboradorId: string | null }
         ),
       );
       const puestos = puestoIds.length
-        ? (await supabase.from("puestos").select("id, nombre, perfil_competencias").in("id", puestoIds))
-            .data ?? []
+        ? ((
+            await supabase
+              .from("puestos")
+              .select("id, nombre, perfil_competencias")
+              .in("id", puestoIds)
+          ).data ?? [])
         : [];
       return {
         evaluaciones: evaluaciones.data ?? [],
@@ -235,13 +245,16 @@ export function MiEvaluacion({ colaboradorId }: { colaboradorId: string | null }
           </h3>
           {pendientes.length === 0 ? (
             <p className="border border-dashed border-border p-6 text-center text-[13px] text-cota">
-              No tienes evaluaciones pendientes. Cuando Dirección de Talento abra un ciclo aparecerán
-              aquí.
+              No tienes evaluaciones pendientes. Cuando Dirección de Talento abra un ciclo
+              aparecerán aquí.
             </p>
           ) : (
             <ul className="divide-y divide-border border border-border bg-card">
               {pendientes.map((e) => (
-                <li key={e.id} className="grid gap-2 p-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+                <li
+                  key={e.id}
+                  className="grid gap-2 p-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+                >
                   <div className="min-w-0">
                     <p className="truncate text-[13px] text-grafito">
                       {e.relacion === "auto" ? "Autoevaluación" : e.colaboradores?.nombre}
@@ -273,7 +286,10 @@ export function MiEvaluacion({ colaboradorId }: { colaboradorId: string | null }
             </h3>
             <ul className="divide-y divide-border border border-border bg-card">
               {completadas.map((e) => (
-                <li key={e.id} className="grid gap-2 p-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+                <li
+                  key={e.id}
+                  className="grid gap-2 p-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center"
+                >
                   <div className="min-w-0">
                     <p className="truncate text-[13px] text-grafito">
                       {e.relacion === "auto" ? "Autoevaluación" : e.colaboradores?.nombre}

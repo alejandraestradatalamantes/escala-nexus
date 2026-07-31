@@ -26,7 +26,10 @@ export function IndicadoresDesempeno({ cicloId }: { cicloId: string }) {
     queryFn: async () => {
       const [ciclos, evaluaciones, objetivos, mapeo, colaboradores, puestos, proyectos] =
         await Promise.all([
-          supabase.from("ciclos_evaluacion").select("id, nombre, estatus, fecha_inicio").order("fecha_inicio"),
+          supabase
+            .from("ciclos_evaluacion")
+            .select("id, nombre, estatus, fecha_inicio")
+            .order("fecha_inicio"),
           supabase.from("evaluaciones").select("id, ciclo_id, colaborador_id, estatus"),
           supabase.from("objetivos").select("colaborador_id, ciclo_id, tipo"),
           supabase.from("mapeo_talento").select("colaborador_id, ciclo_id"),
@@ -39,12 +42,12 @@ export function IndicadoresDesempeno({ cicloId }: { cicloId: string }) {
         ]);
       const evalIds = (evaluaciones.data ?? []).map((e) => e.id);
       const respuestas = evalIds.length
-        ? (
+        ? ((
             await supabase
               .from("evaluacion_competencias")
               .select("evaluacion_id, competencia_id, nivel_observado")
               .in("evaluacion_id", evalIds)
-          ).data ?? []
+          ).data ?? [])
         : [];
       return {
         ciclos: ciclos.data ?? [],
@@ -60,7 +63,10 @@ export function IndicadoresDesempeno({ cicloId }: { cicloId: string }) {
   });
 
   const areas = useMemo(
-    () => Array.from(new Set((data?.colaboradores ?? []).map((c) => c.area).filter(Boolean))) as string[],
+    () =>
+      Array.from(
+        new Set((data?.colaboradores ?? []).map((c) => c.area).filter(Boolean)),
+      ) as string[],
     [data?.colaboradores],
   );
 
@@ -142,7 +148,12 @@ export function IndicadoresDesempeno({ cicloId }: { cicloId: string }) {
       <div className="flex flex-wrap items-end gap-3">
         <div className="space-y-1.5">
           <Label htmlFor="filtro-area">Área</Label>
-          <select id="filtro-area" className={selectCls} value={area} onChange={(e) => setArea(e.target.value)}>
+          <select
+            id="filtro-area"
+            className={selectCls}
+            value={area}
+            onChange={(e) => setArea(e.target.value)}
+          >
             <option value="">Todas</option>
             {areas.map((a) => (
               <option key={a} value={a}>

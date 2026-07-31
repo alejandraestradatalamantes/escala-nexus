@@ -15,7 +15,13 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -50,9 +56,17 @@ export const Route = createFileRoute("/_authenticated/desempeno")({
   head: () => ({
     meta: [
       { title: "Desempeño — ESCALA Nexus" },
-      { name: "description", content: "Evaluaciones por competencias, objetivos por proyecto y calibración. Cada resultado se leerá como desviación contra la meta acordada." },
+      {
+        name: "description",
+        content:
+          "Evaluaciones por competencias, objetivos por proyecto y calibración. Cada resultado se leerá como desviación contra la meta acordada.",
+      },
       { property: "og:title", content: "Desempeño — ESCALA Nexus" },
-      { property: "og:description", content: "Evaluaciones por competencias, objetivos por proyecto y calibración. Cada resultado se leerá como desviación contra la meta acordada." },
+      {
+        property: "og:description",
+        content:
+          "Evaluaciones por competencias, objetivos por proyecto y calibración. Cada resultado se leerá como desviación contra la meta acordada.",
+      },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -114,12 +128,18 @@ function Desempeno() {
     retry: 3,
     queryFn: async () => {
       const [competencias, niveles, comportamientos, puestos] = await Promise.all([
-        supabase.from("competencias").select("id, grupo, nombre, descripcion, orden").order("orden"),
+        supabase
+          .from("competencias")
+          .select("id, grupo, nombre, descripcion, orden")
+          .order("orden"),
         supabase
           .from("niveles_competencia")
           .select("id, competencia_id, nivel, etiqueta, descripcion, resumen")
           .order("nivel"),
-        supabase.from("comportamientos").select("id, nivel_competencia_id, texto, orden").order("orden"),
+        supabase
+          .from("comportamientos")
+          .select("id, nivel_competencia_id, texto, orden")
+          .order("orden"),
         supabase
           .from("puestos")
           .select("id, nombre, nivel_organizacional, perfil_competencias")
@@ -260,14 +280,20 @@ function Desempeno() {
         .update({ perfil_competencias: perfilAJson(despues) })
         .eq("id", puestoId);
       if (error) throw error;
-      await registrarBitacora(`Validó el perfil de competencias de ${puesto.nombre}`, puestoId, antes, despues);
+      await registrarBitacora(
+        `Validó el perfil de competencias de ${puesto.nombre}`,
+        puestoId,
+        antes,
+        despues,
+      );
     },
     onSuccess: () => {
       toast.success("Perfil validado. Ya funciona como línea base de evaluaciones.");
       setPorValidar(null);
       queryClient.invalidateQueries({ queryKey: ["modelo-liderazgo"] });
     },
-    onError: () => toast.error("No se pudo validar el perfil. Requiere rol de Dirección de Talento."),
+    onError: () =>
+      toast.error("No se pudo validar el perfil. Requiere rol de Dirección de Talento."),
   });
 
   const competenciaAbierta = competencias.find((c) => c.id === abierta) ?? null;
@@ -582,7 +608,11 @@ function Desempeno() {
                                       </SelectTrigger>
                                       <SelectContent className="rounded-none">
                                         {NIVELES.map((n) => (
-                                          <SelectItem key={n} value={String(n)} className="rounded-none">
+                                          <SelectItem
+                                            key={n}
+                                            value={String(n)}
+                                            className="rounded-none"
+                                          >
                                             {n}
                                           </SelectItem>
                                         ))}
@@ -657,7 +687,10 @@ function Desempeno() {
                         {!perfil.validado ? <AvisoPropuesto className="mt-2" /> : null}
                         <dl className="mt-3 divide-y divide-border text-[13px]">
                           {competencias.map((c) => (
-                            <div key={c.id} className="flex items-center justify-between gap-3 py-1.5">
+                            <div
+                              key={c.id}
+                              className="flex items-center justify-between gap-3 py-1.5"
+                            >
                               <dt className="min-w-0 truncate text-cota">{c.nombre}</dt>
                               <dd className="cifra text-grafito">{perfil.niveles[c.id] ?? "—"}</dd>
                             </div>
@@ -712,9 +745,10 @@ function Desempeno() {
           <AlertDialogHeader>
             <AlertDialogTitle>Validar el perfil de {puestoAValidar?.nombre}</AlertDialogTitle>
             <AlertDialogDescription>
-              A partir de este momento los niveles meta de este puesto dejan de ser una propuesta y se
-              usarán como línea base de las evaluaciones de desempeño y de los scorecards de selección.
-              Podrás seguir ajustando niveles, pero cada cambio quedará registrado en la bitácora.
+              A partir de este momento los niveles meta de este puesto dejan de ser una propuesta y
+              se usarán como línea base de las evaluaciones de desempeño y de los scorecards de
+              selección. Podrás seguir ajustando niveles, pero cada cambio quedará registrado en la
+              bitácora.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

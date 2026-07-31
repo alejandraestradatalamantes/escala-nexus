@@ -120,7 +120,10 @@ export function Matriz9Box({
         casilla_9box: casillaDe(movimiento.desempeno, movimiento.potencial),
         acuerdos: texto,
       };
-      const { error } = await supabase.from("mapeo_talento").update(despues).eq("id", movimiento.ficha.id);
+      const { error } = await supabase
+        .from("mapeo_talento")
+        .update(despues)
+        .eq("id", movimiento.ficha.id);
       if (error) throw error;
       await supabase.from("bitacora_auditoria").insert({
         usuario_id: usuarioId,
@@ -163,7 +166,8 @@ export function Matriz9Box({
     if (capas.riesgo && f.riesgo === "alto") return "border-l-2 border-l-desviacion";
     if (capas.riesgo && f.riesgo === "medio") return "border-l-2 border-l-casco";
     if (capas.criticidad && f.criticidad === "alta") return "border-l-2 border-l-grafito";
-    if (capas.cobertura) return f.cobertura ? "border-l-2 border-l-linea" : "border-l-2 border-l-casco";
+    if (capas.cobertura)
+      return f.cobertura ? "border-l-2 border-l-linea" : "border-l-2 border-l-casco";
     return "";
   };
 
@@ -202,8 +206,8 @@ export function Matriz9Box({
             Ruta crítica en riesgo — {rutaCritica.length} casos
           </h3>
           <p className="mt-1 text-[13px] text-grafito">
-            Alto potencial con riesgo de salida alto en puesto crítico. Si se van, el frente se detiene:
-            trátalo como una actividad de ruta crítica sin holgura.
+            Alto potencial con riesgo de salida alto en puesto crítico. Si se van, el frente se
+            detiene: trátalo como una actividad de ruta crítica sin holgura.
           </p>
           <ul className="mt-2 space-y-1 text-[13px] text-grafito">
             {rutaCritica.map((f) => (
@@ -247,7 +251,9 @@ export function Matriz9Box({
                           {iniciales(f.nombre)}
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className="block truncate text-[13px] text-grafito">{f.nombre}</span>
+                          <span className="block truncate text-[13px] text-grafito">
+                            {f.nombre}
+                          </span>
                           <span className="block truncate text-[11px] text-cota">{f.puesto}</span>
                         </span>
                         {esTalento ? (
@@ -268,7 +274,9 @@ export function Matriz9Box({
                               {CASILLAS.map((c) => (
                                 <DropdownMenuItem
                                   key={c.casilla}
-                                  disabled={c.desempeno === f.desempeno && c.potencial === f.potencial}
+                                  disabled={
+                                    c.desempeno === f.desempeno && c.potencial === f.potencial
+                                  }
                                   onSelect={() => {
                                     setAcuerdo("");
                                     setMovimiento({
@@ -314,7 +322,8 @@ export function Matriz9Box({
           </DialogHeader>
           <div className="space-y-2">
             <p className="text-[13px] text-cota">
-              Sin acuerdo escrito no se mueve a nadie. Registra lo que acordó el comité de calibración.
+              Sin acuerdo escrito no se mueve a nadie. Registra lo que acordó el comité de
+              calibración.
             </p>
             <Textarea
               rows={5}
@@ -323,7 +332,9 @@ export function Matriz9Box({
               onChange={(e) => setAcuerdo(e.target.value)}
               className="rounded-none text-[13px]"
             />
-            <p className="cifra text-[11px] text-cota">{acuerdo.trim().length} de 20 caracteres mínimos</p>
+            <p className="cifra text-[11px] text-cota">
+              {acuerdo.trim().length} de 20 caracteres mínimos
+            </p>
           </div>
           <DialogFooter>
             <Button

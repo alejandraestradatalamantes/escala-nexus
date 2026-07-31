@@ -37,22 +37,32 @@ export function HistorialDesempeno({
     queryFn: async () => {
       const [competencias, ciclos, evaluaciones, mapeo, objetivos, puesto] = await Promise.all([
         supabase.from("competencias").select("id, nombre, orden").order("orden"),
-        supabase.from("ciclos_evaluacion").select("id, nombre, estatus, fecha_inicio").order("fecha_inicio"),
-        supabase.from("evaluaciones").select("id, ciclo_id, relacion, estatus").eq("colaborador_id", colaboradorId),
+        supabase
+          .from("ciclos_evaluacion")
+          .select("id, nombre, estatus, fecha_inicio")
+          .order("fecha_inicio"),
+        supabase
+          .from("evaluaciones")
+          .select("id, ciclo_id, relacion, estatus")
+          .eq("colaborador_id", colaboradorId),
         supabase.from("mapeo_talento").select("*").eq("colaborador_id", colaboradorId),
         supabase.from("objetivos").select("*").eq("colaborador_id", colaboradorId),
         puestoId
-          ? supabase.from("puestos").select("id, nombre, perfil_competencias").eq("id", puestoId).maybeSingle()
+          ? supabase
+              .from("puestos")
+              .select("id, nombre, perfil_competencias")
+              .eq("id", puestoId)
+              .maybeSingle()
           : Promise.resolve({ data: null }),
       ]);
       const evalIds = (evaluaciones.data ?? []).map((e) => e.id);
       const respuestas = evalIds.length
-        ? (
+        ? ((
             await supabase
               .from("evaluacion_competencias")
               .select("evaluacion_id, competencia_id, nivel_observado")
               .in("evaluacion_id", evalIds)
-          ).data ?? []
+          ).data ?? [])
         : [];
       return {
         competencias: competencias.data ?? [],
@@ -148,7 +158,11 @@ export function HistorialDesempeno({
           <div className="mt-2 h-80 border border-border bg-card p-3">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={serie} margin={{ top: 8, right: 8, bottom: 8, left: -20 }}>
-                <CartesianGrid strokeDasharray="2 4" stroke="currentColor" className="text-cota/20" />
+                <CartesianGrid
+                  strokeDasharray="2 4"
+                  stroke="currentColor"
+                  className="text-cota/20"
+                />
                 <XAxis dataKey="ciclo" tick={{ fontSize: 11 }} />
                 <YAxis domain={[1, 5]} ticks={[1, 2, 3, 4, 5]} tick={{ fontSize: 11 }} />
                 <Tooltip contentStyle={{ borderRadius: 0, fontSize: 12 }} />
@@ -239,7 +253,8 @@ export function HistorialDesempeno({
                   <span className="min-w-0 text-grafito">{o.descripcion}</span>
                   <span className="cifra text-[11px] uppercase tracking-wide text-cota">
                     {ETIQUETA_TIPO_OBJETIVO[o.tipo ?? ""] ?? o.tipo ?? "—"} · peso{" "}
-                    {numero(o.peso, 0)}% · {numero(o.real, 1)} de {numero(o.meta, 1)} {o.unidad ?? ""}
+                    {numero(o.peso, 0)}% · {numero(o.real, 1)} de {numero(o.meta, 1)}{" "}
+                    {o.unidad ?? ""}
                   </span>
                 </li>
               ))}
