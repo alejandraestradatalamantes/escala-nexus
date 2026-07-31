@@ -43,12 +43,13 @@ interface Ficha {
 export function Matriz9Box({
   esTalento,
   usuarioId,
+  cicloId,
 }: {
   esTalento: boolean;
   usuarioId: string | null;
+  cicloId: string;
 }) {
   const queryClient = useQueryClient();
-  const [cicloId, setCicloId] = useState("");
   const [capas, setCapas] = useState({ riesgo: false, criticidad: false, cobertura: false });
   const [movimiento, setMovimiento] = useState<{
     ficha: Ficha;
@@ -61,17 +62,12 @@ export function Matriz9Box({
     queryKey: ["mapeo-talento"],
     retry: 3,
     queryFn: async () => {
-      const [ciclos, mapeo, colaboradores, puestos] = await Promise.all([
-        supabase
-          .from("ciclos_evaluacion")
-          .select("id, nombre, fecha_inicio")
-          .order("fecha_inicio", { ascending: false }),
+      const [mapeo, colaboradores, puestos] = await Promise.all([
         supabase.from("mapeo_talento").select("*"),
         supabase.from("colaboradores").select("id, nombre, puesto_id, lider_id"),
         supabase.from("puestos").select("id, nombre"),
       ]);
       return {
-        ciclos: ciclos.data ?? [],
         mapeo: mapeo.data ?? [],
         colaboradores: colaboradores.data ?? [],
         puestos: puestos.data ?? [],
@@ -79,7 +75,7 @@ export function Matriz9Box({
     },
   });
 
-  const cicloActivo = cicloId || data?.ciclos[0]?.id || "";
+  const cicloActivo = cicloId;
 
   const fichas: Ficha[] = useMemo(() => {
     const conSucesor = new Set(
@@ -178,21 +174,6 @@ export function Matriz9Box({
       </p>
 
       <div className="flex flex-wrap items-end gap-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="ciclo-9box">Ciclo</Label>
-          <select
-            id="ciclo-9box"
-            className={selectCls}
-            value={cicloActivo}
-            onChange={(e) => setCicloId(e.target.value)}
-          >
-            {(data?.ciclos ?? []).map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.nombre}
-              </option>
-            ))}
-          </select>
-        </div>
         <div className="flex flex-wrap items-center gap-4">
           {(
             [

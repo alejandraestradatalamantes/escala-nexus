@@ -31,32 +31,31 @@ const selectCls = "h-10 w-full border border-border bg-card px-2 text-[13px] tex
 export function PanelObjetivos({
   esTalento,
   colaboradorId,
+  cicloId,
 }: {
   esTalento: boolean;
   colaboradorId: string | null;
+  cicloId: string;
 }) {
   const queryClient = useQueryClient();
-  const [cicloId, setCicloId] = useState<string>("");
   const [abrir, setAbrir] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["objetivos-panel"],
     retry: 3,
     queryFn: async () => {
-      const [ciclos, objetivos, colaboradores] = await Promise.all([
-        supabase.from("ciclos_evaluacion").select("id, nombre, estatus, fecha_inicio").order("fecha_inicio", { ascending: false }),
+      const [objetivos, colaboradores] = await Promise.all([
         supabase.from("objetivos").select("*"),
         supabase.from("colaboradores").select("id, nombre, lider_id, estatus").order("nombre"),
       ]);
       return {
-        ciclos: ciclos.data ?? [],
         objetivos: objetivos.data ?? [],
         colaboradores: colaboradores.data ?? [],
       };
     },
   });
 
-  const cicloActivo = cicloId || data?.ciclos[0]?.id || "";
+  const cicloActivo = cicloId;
   const objetivos = useMemo(
     () => (data?.objetivos ?? []).filter((o) => o.ciclo_id === cicloActivo),
     [data?.objetivos, cicloActivo],
@@ -144,21 +143,6 @@ export function PanelObjetivos({
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-end gap-3">
-        <div className="space-y-1.5">
-          <Label htmlFor="ciclo-obj">Ciclo</Label>
-          <select
-            id="ciclo-obj"
-            className={selectCls}
-            value={cicloActivo}
-            onChange={(e) => setCicloId(e.target.value)}
-          >
-            {(data?.ciclos ?? []).map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.nombre}
-              </option>
-            ))}
-          </select>
-        </div>
         {capturables.length > 0 ? (
           <Dialog open={abrir} onOpenChange={setAbrir}>
             <DialogTrigger asChild>

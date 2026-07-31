@@ -17,6 +17,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { iniciales } from "@/lib/nexus/formato";
 import { colorSla, diasDesde, MOTIVOS_DESCARTE } from "@/lib/nexus/atraccion";
 import { cn } from "@/lib/utils";
@@ -82,7 +89,7 @@ export function TableroFlujo({ fases, candidatos, puedeMover, onMover, onDescart
                       <article
                         key={c.id}
                         className={cn(
-                          "border border-border border-l-4 bg-card p-2.5",
+                          "fila-tabla border border-border border-l-4 bg-card p-2.5",
                           colorSla(dias, fase.sla_dias),
                         )}
                       >
@@ -101,7 +108,7 @@ export function TableroFlujo({ fases, candidatos, puedeMover, onMover, onDescart
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  className="h-7 w-7 shrink-0 rounded-none"
+                                  className="h-11 w-11 shrink-0 rounded-none sm:h-7 sm:w-7"
                                   aria-label={`Acciones para ${c.nombre}`}
                                 >
                                   <MoreHorizontal className="h-4 w-4" />
@@ -153,18 +160,18 @@ export function TableroFlujo({ fases, candidatos, puedeMover, onMover, onDescart
           </DialogHeader>
           <div className="space-y-1.5">
             <Label htmlFor="motivo_descarte">Motivo del descarte</Label>
-            <select
-              id="motivo_descarte"
-              value={motivo}
-              onChange={(e) => setMotivo(e.target.value)}
-              className="h-10 w-full border border-border bg-card px-2 text-[13px] text-grafito"
-            >
-              {MOTIVOS_DESCARTE.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
+            <Select value={motivo} onValueChange={setMotivo}>
+              <SelectTrigger id="motivo_descarte" className="h-10 rounded-none border-border text-[13px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="rounded-none">
+                {MOTIVOS_DESCARTE.map((m) => (
+                  <SelectItem key={m} value={m} className="rounded-none">
+                    {m}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <DialogFooter>
             <Button

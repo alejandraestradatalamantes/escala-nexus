@@ -4,6 +4,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
@@ -77,6 +86,28 @@ function Desempeno() {
   const [abierta, setAbierta] = useState<string | null>(null);
   const [celda, setCelda] = useState<{ puesto: string; competencia: string } | null>(null);
   const [porValidar, setPorValidar] = useState<string | null>(null);
+  const [cicloId, setCicloId] = useState("");
+  const [seleccion, setSeleccion] = useState<string[]>([]);
+  const [validandoLote, setValidandoLote] = useState(false);
+
+  const { data: ciclos, isLoading: cargandoCiclos } = useQuery({
+    queryKey: ["ciclos-desempeno"],
+    retry: 3,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("ciclos_evaluacion")
+        .select("id, nombre, estatus, fecha_inicio")
+        .order("fecha_inicio", { ascending: false });
+      return data ?? [];
+    },
+  });
+
+  const cicloActivo =
+    cicloId ||
+    (ciclos ?? []).find((c) => c.estatus !== "cerrado")?.id ||
+    (ciclos ?? [])[0]?.id ||
+    "";
+  const cicloElegido = (ciclos ?? []).find((c) => c.id === cicloActivo) ?? null;
 
   const { data, isLoading } = useQuery({
     queryKey: ["modelo-liderazgo"],
@@ -241,6 +272,31 @@ function Desempeno() {
 
   const competenciaAbierta = competencias.find((c) => c.id === abierta) ?? null;
   const puestoAValidar = puestos.find((p) => p.id === porValidar) ?? null;
+  const pendientes = puestos.filter((p) => !leerPerfil(p.perfil_competencias).validado);
+  const seleccionados = seleccion.filter((id) => pendientes.some((p) => p.id === id));
+
+  const alternar = (id: string, marcado: boolean) =>
+    setSeleccion((prev) => (marcado ? [...new Set([...prev, id])] : prev.filter((x) => x !== id)));
+
+  const validarLote = async () => {
+    setValidandoLote(true);
+    let ok = 0;
+    for (const id of seleccionados) {
+      try {
+        await validarPerfil.mutateAsync(id);
+        ok += 1;
+      } catch {
+        // se reporta al final; un fallo no detiene el resto del lote
+      }
+    }
+    setValidandoLote(false);
+    setSeleccion([]);
+    if (ok === seleccionados.length) {
+      toast.success(`${ok} perfiles validados y registrados en la bitácora`);
+    } else {
+      toast.error(`Se validaron ${ok} de ${seleccionados.length} perfiles. Revisa tus permisos.`);
+    }
+  };
 
   return (
     <div className="space-y-5">
@@ -251,10 +307,37 @@ function Desempeno() {
             Modelo de liderazgo · 8 competencias · 5 niveles de dominio
           </p>
         </div>
-        <span className="cifra text-[12px] text-cota">Corte {hoy}</span>
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="ciclo-modulo">Ciclo</Label>
+            {cargandoCiclos ? (
+              <Skeleton className="h-10 w-52 rounded-none" />
+            ) : (
+              <Select value={cicloActivo} onValueChange={setCicloId}>
+                <SelectTrigger id="ciclo-modulo" className="h-10 w-52 rounded-none">
+                  <SelectValue placeholder="Sin ciclos" />
+                </SelectTrigger>
+                <SelectContent className="rounded-none">
+                  {(ciclos ?? []).map((c) => (
+                    <SelectItem key={c.id} value={c.id} className="rounded-none">
+                      {c.nombre} · {c.estatus}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+          <span className="cifra pb-2.5 text-[12px] text-cota">Corte {hoy}</span>
+        </div>
       </header>
 
-      <IndicadoresDesempeno />
+      {!cargandoCiclos && cicloElegido ? (
+        <p className="cifra text-[11px] uppercase tracking-wide text-cota">
+          Todo lo que sigue corresponde al ciclo {cicloElegido.nombre} ({cicloElegido.estatus}).
+        </p>
+      ) : null}
+
+      <IndicadoresDesempeno cicloId={cicloActivo} />
 
       <Tabs defaultValue="modelo">
         <TabsList className="rounded-none">
@@ -295,12 +378,20 @@ function Desempeno() {
         ) : null}
 
         <TabsContent value="objetivos" className="mt-4">
-          <PanelObjetivos esTalento={esTalento} colaboradorId={sesion?.colaboradorId ?? null} />
+          <PanelObjetivos
+            esTalento={esTalento}
+            colaboradorId={sesion?.colaboradorId ?? null}
+            cicloId={cicloActivo}
+          />
         </TabsContent>
 
         {veMapeo ? (
           <TabsContent value="mapeo" className="mt-4">
-            <Matriz9Box esTalento={esTalento} usuarioId={sesion?.userId ?? null} />
+            <Matriz9Box
+              esTalento={esTalento}
+              usuarioId={sesion?.userId ?? null}
+              cicloId={cicloActivo}
+            />
           </TabsContent>
         ) : null}
 

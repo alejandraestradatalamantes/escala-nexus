@@ -15,7 +15,7 @@ import { fechaCorta } from "@/lib/nexus/formato";
 
 const selectCls = "h-10 w-full border border-border bg-card px-2 text-[13px] text-grafito";
 
-export function IndicadoresDesempeno() {
+export function IndicadoresDesempeno({ cicloId }: { cicloId: string }) {
   const [area, setArea] = useState("");
   const [proyecto, setProyecto] = useState("");
   const hoy = fechaCorta(new Date());
@@ -75,22 +75,19 @@ export function IndicadoresDesempeno() {
     const ids = new Set(pob.map((c) => c.id));
     if (pob.length < MINIMO_AGREGADO) return { insuficiente: true as const, n: pob.length };
 
-    const vigente = [...data.ciclos].reverse().find((c) => c.estatus !== "cerrado") ?? null;
-    const cerrado = [...data.ciclos].reverse().find((c) => c.estatus === "cerrado") ?? null;
+    // Todo se lee contra el ciclo seleccionado en el módulo; nunca se cruzan ciclos.
+    const ciclo = data.ciclos.find((c) => c.id === cicloId) ?? null;
 
-    const evsVigente = data.evaluaciones.filter(
-      (e) => e.ciclo_id === vigente?.id && e.colaborador_id && ids.has(e.colaborador_id),
+    const evsCiclo = data.evaluaciones.filter(
+      (e) => e.ciclo_id === ciclo?.id && e.colaborador_id && ids.has(e.colaborador_id),
     );
     const cobertura =
-      evsVigente.length > 0
-        ? (evsVigente.filter((e) => e.estatus === "completado").length / evsVigente.length) * 100
+      evsCiclo.length > 0
+        ? (evsCiclo.filter((e) => e.estatus === "completado").length / evsCiclo.length) * 100
         : null;
 
     // Brecha solo con perfiles validados
-    const evsCerrado = data.evaluaciones.filter(
-      (e) => e.ciclo_id === cerrado?.id && e.colaborador_id && ids.has(e.colaborador_id),
-    );
-    const mapaEval = new Map(evsCerrado.map((e) => [e.id, e.colaborador_id]));
+    const mapaEval = new Map(evsCiclo.map((e) => [e.id, e.colaborador_id]));
     let suma = 0;
     let n = 0;
     let sinValidar = 0;
@@ -114,27 +111,22 @@ export function IndicadoresDesempeno() {
     }
     const brecha = n > 0 ? suma / n : null;
 
-    const cicloObjetivos =
-      [...data.ciclos].reverse().find((c) => data.objetivos.some((o) => o.ciclo_id === c.id)) ?? null;
     const conEsg = new Set(
       data.objetivos
-        .filter((o) => o.ciclo_id === cicloObjetivos?.id && o.tipo === "esg" && o.colaborador_id)
+        .filter((o) => o.ciclo_id === ciclo?.id && o.tipo === "esg" && o.colaborador_id)
         .map((o) => o.colaborador_id as string),
     );
     const pctEsg = (pob.filter((c) => conEsg.has(c.id)).length / pob.length) * 100;
 
-    const cicloMapeo =
-      [...data.ciclos].reverse().find((c) => data.mapeo.some((m) => m.ciclo_id === c.id)) ?? null;
     const conMapeo = new Set(
-      data.mapeo.filter((m) => m.ciclo_id === cicloMapeo?.id).map((m) => m.colaborador_id as string),
+      data.mapeo.filter((m) => m.ciclo_id === ciclo?.id).map((m) => m.colaborador_id as string),
     );
     const pctMapeo = (pob.filter((c) => conMapeo.has(c.id)).length / pob.length) * 100;
 
     return {
       insuficiente: false as const,
       n: pob.length,
-      vigente,
-      cerrado,
+      ciclo,
       cobertura,
       brecha,
       brechaMuestra: n,
@@ -142,10 +134,8 @@ export function IndicadoresDesempeno() {
       puestosSinValidar: puestosSinValidar.size,
       pctEsg,
       pctMapeo,
-      cicloObjetivos,
-      cicloMapeo,
     };
-  }, [data, area, proyecto]);
+  }, [data, area, proyecto, cicloId]);
 
   return (
     <section className="space-y-3">
@@ -201,11 +191,13 @@ export function IndicadoresDesempeno() {
             decimales={0}
             etiquetaMeta="Meta"
             formula="Evaluaciones respondidas ÷ evaluaciones esperadas × 100"
-            fuente={`Nexus · ${calculo.vigente?.nombre ?? "sin ciclo vigente"} · ${calculo.n} personas`}
+            fuente={`Nexus · ${calculo.ciclo?.nombre ?? "sin ciclo seleccionado"} · ${calculo.n} personas`}
             fechaCorte={hoy}
             nota={
               calculo.cobertura === null ? (
-                <p className="text-[12px] text-cota">No hay ciclo vigente con evaluaciones generadas.</p>
+                <p className="text-[12px] text-cota">
+                  Este ciclo todavía no tiene evaluaciones generadas.
+                </p>
               ) : undefined
             }
           />
@@ -218,7 +210,7 @@ export function IndicadoresDesempeno() {
             decimales={2}
             etiquetaMeta="Meta"
             formula="Promedio de (nivel observado − nivel meta) en puestos con perfil validado"
-            fuente={`Nexus · ${calculo.cerrado?.nombre ?? "sin ciclo cerrado"} · ${calculo.brechaMuestra} respuestas`}
+            fuente={`Nexus · ${calculo.ciclo?.nombre ?? "sin ciclo seleccionado"} · ${calculo.brechaMuestra} respuestas`}
             fechaCorte={hoy}
             nota={
               calculo.brecha === null || calculo.sinValidar > 0 ? (
@@ -243,7 +235,7 @@ export function IndicadoresDesempeno() {
             decimales={0}
             etiquetaMeta="Meta"
             formula="Personas con al menos un objetivo tipo ESG ÷ población × 100"
-            fuente={`Nexus · ${calculo.cicloObjetivos?.nombre ?? "sin objetivos"} · ${calculo.n} personas`}
+            fuente={`Nexus · ${calculo.ciclo?.nombre ?? "sin ciclo seleccionado"} · ${calculo.n} personas`}
             fechaCorte={hoy}
           />
           <TarjetaIndicador
@@ -256,7 +248,7 @@ export function IndicadoresDesempeno() {
             decimales={0}
             etiquetaMeta="Meta"
             formula="Personas con calibración registrada ÷ población × 100"
-            fuente={`Nexus · ${calculo.cicloMapeo?.nombre ?? "sin mapeo"} · ${calculo.n} personas`}
+            fuente={`Nexus · ${calculo.ciclo?.nombre ?? "sin ciclo seleccionado"} · ${calculo.n} personas`}
             fechaCorte={hoy}
           />
         </div>

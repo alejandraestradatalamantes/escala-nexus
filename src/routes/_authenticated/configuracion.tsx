@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useSesion, type Rol } from "@/hooks/use-sesion";
 import { ETIQUETA_ROL, ROLES, fechaCorta } from "@/lib/nexus/formato";
 import { ImportarComportamientos } from "@/components/nexus/desempeno/importar-comportamientos";
+import { UsuariosAccesos } from "@/components/nexus/configuracion/usuarios-accesos";
 import { toast } from "sonner";
 
 const ETIQUETA_SUPUESTO: Record<string, string> = {
@@ -35,6 +36,7 @@ function Configuracion() {
   const { sesion, roles, tiene } = useSesion();
   const admin = tiene("direccion_talento", "ti_sistema");
   const esTalento = tiene("direccion_talento");
+  const veAccesos = tiene("direccion_talento", "direccion_general", "ti_sistema");
   const puedeCapturar = tiene("direccion_talento", "direccion_general", "finanzas_auditoria");
   const queryClient = useQueryClient();
   const [edicion, setEdicion] = useState<Record<string, { valor: string; fuente: string }>>({});
@@ -302,6 +304,8 @@ function Configuracion() {
           </div>
         </div>
       </section>
+
+      {veAccesos ? <UsuariosAccesos usuarioId={sesion?.userId ?? null} /> : null}
 
       {esTalento ? <ImportarComportamientos /> : null}
     </div>

@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { numero } from "@/lib/nexus/formato";
 
@@ -11,6 +12,21 @@ export interface BandaLineaBaseProps {
   etiquetaMeta?: string;
   decimales?: number;
   className?: string;
+}
+
+const EASE_ENTRADA = "cubic-bezier(0.22, 1, 0.36, 1)";
+
+function usePrefiereMovimientoReducido() {
+  const [reducido, setReducido] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducido(mq.matches);
+    const escuchar = (e: MediaQueryListEvent) => setReducido(e.matches);
+    mq.addEventListener?.("change", escuchar);
+    return () => mq.removeEventListener?.("change", escuchar);
+  }, []);
+  return reducido;
 }
 
 /**
@@ -29,6 +45,23 @@ export function BandaLineaBase({
   decimales = 1,
   className,
 }: BandaLineaBaseProps) {
+  const reducido = usePrefiereMovimientoReducido();
+  const [entrado, setEntrado] = useState(false);
+  const yaMontado = useRef(false);
+
+  useEffect(() => {
+    if (yaMontado.current) return;
+    yaMontado.current = true;
+    if (reducido) {
+      setEntrado(true);
+      return;
+    }
+    const id = requestAnimationFrame(() => setEntrado(true));
+    return () => cancelAnimationFrame(id);
+    // Solo debe ejecutarse una vez al montar.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const rango = max - min || 1;
   const pos = (v: number) => Math.min(100, Math.max(0, ((v - min) / rango) * 100));
   const pValor = pos(valor);
@@ -36,8 +69,15 @@ export function BandaLineaBase({
   const cumple = sentido === "mayorEsMejor" ? valor >= meta : valor <= meta;
   const desviacion = valor - meta;
   const signo = desviacion > 0 ? "+" : desviacion < 0 ? "−" : "±";
-  const izq = Math.min(pValor, pMeta);
-  const ancho = Math.abs(pValor - pMeta);
+
+  // Antes de entrar (primer cuadro), marcador y tramo parten de la posición de meta.
+  const pValorMostrado = entrado ? pValor : pMeta;
+  const izq = Math.min(pValorMostrado, pMeta);
+  const ancho = Math.abs(pValorMostrado - pMeta);
+
+  const transicionEntrada = reducido
+    ? undefined
+    : `left 500ms ${EASE_ENTRADA}, width 500ms ${EASE_ENTRADA}`;
 
   return (
     <div className={cn("w-full", className)}>
@@ -47,10 +87,10 @@ export function BandaLineaBase({
         {/* tramo de desviación */}
         <div
           className={cn(
-            "absolute top-1/2 h-[3px] -translate-y-1/2 transition-all duration-150",
+            "absolute top-1/2 h-[3px] -translate-y-1/2",
             cumple ? "bg-linea" : "bg-desviacion",
           )}
-          style={{ left: `${izq}%`, width: `${ancho}%` }}
+          style={{ left: `${izq}%`, width: `${ancho}%`, transition: transicionEntrada }}
         />
         {/* marca de meta */}
         <div
@@ -61,10 +101,10 @@ export function BandaLineaBase({
         {/* marcador del valor real */}
         <div
           className={cn(
-            "absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 border-2 border-card transition-all duration-150",
+            "absolute top-1/2 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 border-2 border-card",
             cumple ? "bg-linea" : "bg-desviacion",
           )}
-          style={{ left: `${pValor}%` }}
+          style={{ left: `${pValorMostrado}%`, transition: transicionEntrada }}
           aria-hidden
         />
       </div>

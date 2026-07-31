@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { ChevronLeft, ChevronRight, MessageSquareText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GuiaSbi } from "@/components/nexus/desempeno/guia-sbi";
+import { useSesion } from "@/hooks/use-sesion";
 import { leerPerfil } from "@/lib/nexus/desempeno";
 import {
   AVISO_CONFIDENCIAL,
@@ -25,6 +27,8 @@ interface Respuesta {
 
 export function MiEvaluacion({ colaboradorId }: { colaboradorId: string | null }) {
   const queryClient = useQueryClient();
+  const { tiene } = useSesion();
+  const puedeVincular = tiene("direccion_talento", "direccion_general", "ti_sistema");
   const [evaluacionId, setEvaluacionId] = useState<string | null>(null);
   const [paso, setPaso] = useState(0);
   const [borrador, setBorrador] = useState<Record<string, Respuesta>>({});
@@ -178,10 +182,32 @@ export function MiEvaluacion({ colaboradorId }: { colaboradorId: string | null }
 
   if (!colaboradorId) {
     return (
-      <p className="border border-dashed border-border p-6 text-center text-[13px] text-cota">
-        Tu usuario aún no está ligado a un expediente de colaborador. Pide a Dirección de Talento que
-        lo vincule para poder evaluar.
-      </p>
+      <div className="space-y-2 border border-dashed border-border p-6 text-center text-[13px] text-cota">
+        <p className="text-grafito">
+          Tu cuenta todavía no está vinculada a un expediente de colaborador.
+        </p>
+        <p>
+          Intentamos vincularla automáticamente por correo y no encontramos una sola coincidencia
+          exacta en el directorio activo.
+        </p>
+        {puedeVincular ? (
+          <p>
+            Vincúlala en{" "}
+            <Link
+              to="/configuracion"
+              hash="usuarios-accesos"
+              className="text-grafito underline underline-offset-2"
+            >
+              Configuración → Usuarios y accesos
+            </Link>
+            .
+          </p>
+        ) : (
+          <p>
+            Solicita a Dirección de Talento que la vincule desde Configuración → Usuarios y accesos.
+          </p>
+        )}
+      </div>
     );
   }
 
