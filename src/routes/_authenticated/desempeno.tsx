@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ETIQUETA_ESTATUS_CICLO } from "@/lib/nexus/evaluacion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Sheet,
@@ -340,13 +341,13 @@ function Desempeno() {
               <Skeleton className="h-10 w-52 rounded-none" />
             ) : (
               <Select value={cicloActivo} onValueChange={setCicloId}>
-                <SelectTrigger id="ciclo-modulo" className="h-10 w-52 rounded-none">
+                <SelectTrigger id="ciclo-modulo" className="h-10 w-[22rem] max-w-full rounded-none">
                   <SelectValue placeholder="Sin ciclos" />
                 </SelectTrigger>
                 <SelectContent className="rounded-none">
                   {(ciclos ?? []).map((c) => (
                     <SelectItem key={c.id} value={c.id} className="rounded-none">
-                      {c.nombre} · {c.estatus}
+                      {c.nombre} · {(ETIQUETA_ESTATUS_CICLO[c.estatus] ?? c.estatus).toLowerCase()}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -358,8 +359,9 @@ function Desempeno() {
       </header>
 
       {!cargandoCiclos && cicloElegido ? (
-        <p className="cifra text-[11px] uppercase tracking-wide text-cota">
-          Todo lo que sigue corresponde al ciclo {cicloElegido.nombre} ({cicloElegido.estatus}).
+        <p className="text-[12px] text-cota">
+          Todo lo que sigue corresponde al ciclo {cicloElegido.nombre} (
+          {(ETIQUETA_ESTATUS_CICLO[cicloElegido.estatus] ?? cicloElegido.estatus).toLowerCase()}).
         </p>
       ) : null}
 

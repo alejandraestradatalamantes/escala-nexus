@@ -6,6 +6,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
@@ -19,7 +26,7 @@ import { BandaLineaBase } from "@/components/nexus/banda-linea-base";
 import { fechaCorta } from "@/lib/nexus/formato";
 import { ETIQUETA_ESTATUS_CICLO, TIPOS_CICLO } from "@/lib/nexus/evaluacion";
 
-const selectCls = "h-10 w-full border border-border bg-card px-2 text-[13px] text-grafito";
+const selectCls = "h-10 w-full rounded-none";
 
 interface Colaborador {
   id: string;
@@ -234,13 +241,18 @@ export function PanelCiclos({ esTalento }: { esTalento: boolean }) {
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="c_tipo">Tipo</Label>
-                <select id="c_tipo" name="tipo" className={selectCls} defaultValue="180">
-                  {TIPOS_CICLO.map((t) => (
-                    <option key={t} value={t}>
-                      {t}
-                    </option>
-                  ))}
-                </select>
+                <Select name="tipo" defaultValue="180">
+                  <SelectTrigger id="c_tipo" className={selectCls}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-none">
+                    {TIPOS_CICLO.map((t) => (
+                      <SelectItem key={t} value={t} className="rounded-none">
+                        {t}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="c_inicio">Inicio</Label>
@@ -264,49 +276,52 @@ export function PanelCiclos({ esTalento }: { esTalento: boolean }) {
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="c_criterio">Población por</Label>
-                <select
-                  id="c_criterio"
-                  className={selectCls}
+                <Select
                   value={criterio}
-                  onChange={(e) => {
-                    setCriterio(e.target.value as typeof criterio);
+                  onValueChange={(v) => {
+                    setCriterio(v as typeof criterio);
                     setValorCriterio("");
                   }}
                 >
-                  <option value="todos">Toda la plantilla activa</option>
-                  <option value="area">Área</option>
-                  <option value="ubicacion">Ubicación</option>
-                  <option value="proyecto">Proyecto</option>
-                </select>
+                  <SelectTrigger id="c_criterio" className={selectCls}>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-none">
+                    <SelectItem value="todos" className="rounded-none">
+                      Toda la plantilla activa
+                    </SelectItem>
+                    <SelectItem value="area" className="rounded-none">
+                      Área
+                    </SelectItem>
+                    <SelectItem value="ubicacion" className="rounded-none">
+                      Ubicación
+                    </SelectItem>
+                    <SelectItem value="proyecto" className="rounded-none">
+                      Proyecto
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               {criterio !== "todos" ? (
                 <div className="space-y-1.5 sm:col-span-2">
                   <Label htmlFor="c_valor">Selección</Label>
-                  <select
-                    id="c_valor"
-                    className={selectCls}
-                    value={valorCriterio}
-                    onChange={(e) => setValorCriterio(e.target.value)}
-                  >
-                    <option value="">Selecciona…</option>
-                    {criterio === "area"
-                      ? areas.map((a) => (
-                          <option key={a} value={a}>
-                            {a}
-                          </option>
-                        ))
-                      : criterio === "ubicacion"
-                        ? ["corporativo", "campo"].map((u) => (
-                            <option key={u} value={u}>
-                              {u}
-                            </option>
-                          ))
-                        : (data?.proyectos ?? []).map((p) => (
-                            <option key={p.id} value={p.id}>
-                              {p.nombre}
-                            </option>
-                          ))}
-                  </select>
+                  <Select value={valorCriterio || undefined} onValueChange={setValorCriterio}>
+                    <SelectTrigger id="c_valor" className={selectCls}>
+                      <SelectValue placeholder="Selecciona…" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-none">
+                      {(criterio === "area"
+                        ? areas.map((a) => ({ v: a, t: a }))
+                        : criterio === "ubicacion"
+                          ? ["corporativo", "campo"].map((u) => ({ v: u, t: u }))
+                          : (data?.proyectos ?? []).map((p) => ({ v: p.id, t: p.nombre }))
+                      ).map((o) => (
+                        <SelectItem key={o.v} value={o.v} className="rounded-none">
+                          {o.t}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               ) : null}
               <p className="cifra sm:col-span-2 text-[11px] uppercase tracking-wide text-cota">

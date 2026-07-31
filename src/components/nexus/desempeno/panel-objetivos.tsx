@@ -6,6 +6,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
@@ -26,7 +33,7 @@ import {
   sumaPesos,
 } from "@/lib/nexus/evaluacion";
 
-const selectCls = "h-10 w-full border border-border bg-card px-2 text-[13px] text-grafito";
+const selectCls = "h-10 w-full rounded-none";
 
 export function PanelObjetivos({
   esTalento,
@@ -166,13 +173,18 @@ export function PanelObjetivos({
               >
                 <div className="space-y-1.5 sm:col-span-2">
                   <Label htmlFor="o_colab">Colaborador</Label>
-                  <select id="o_colab" name="colaborador_id" required className={selectCls}>
-                    {capturables.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.nombre}
-                      </option>
-                    ))}
-                  </select>
+                  <Select name="colaborador_id" required>
+                    <SelectTrigger id="o_colab" className={selectCls}>
+                      <SelectValue placeholder="Selecciona…" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-none">
+                      {capturables.map((c) => (
+                        <SelectItem key={c.id} value={c.id} className="rounded-none">
+                          {c.nombre}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-1.5 sm:col-span-2">
                   <Label htmlFor="o_desc">Descripción</Label>
@@ -180,13 +192,18 @@ export function PanelObjetivos({
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="o_tipo">Tipo</Label>
-                  <select id="o_tipo" name="tipo" className={selectCls} defaultValue="proyecto">
-                    {TIPOS_OBJETIVO.map((t) => (
-                      <option key={t} value={t}>
-                        {ETIQUETA_TIPO_OBJETIVO[t]}
-                      </option>
-                    ))}
-                  </select>
+                  <Select name="tipo" defaultValue="proyecto">
+                    <SelectTrigger id="o_tipo" className={selectCls}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-none">
+                      {TIPOS_OBJETIVO.map((t) => (
+                        <SelectItem key={t} value={t} className="rounded-none">
+                          {ETIQUETA_TIPO_OBJETIVO[t]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="o_peso">Peso (%)</Label>
@@ -232,16 +249,22 @@ export function PanelObjetivos({
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="o_estatus">Estatus</Label>
-                  <select
-                    id="o_estatus"
-                    name="estatus"
-                    className={selectCls}
-                    defaultValue="en_curso"
-                  >
-                    <option value="en_curso">En curso</option>
-                    <option value="parcial">Parcial</option>
-                    <option value="cumplido">Cumplido</option>
-                  </select>
+                  <Select name="estatus" defaultValue="en_curso">
+                    <SelectTrigger id="o_estatus" className={selectCls}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-none">
+                      <SelectItem value="en_curso" className="rounded-none">
+                        En curso
+                      </SelectItem>
+                      <SelectItem value="parcial" className="rounded-none">
+                        Parcial
+                      </SelectItem>
+                      <SelectItem value="cumplido" className="rounded-none">
+                        Cumplido
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </form>
               <DialogFooter>
