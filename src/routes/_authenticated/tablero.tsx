@@ -6,6 +6,7 @@ import { EsqueletoIndicadores } from "@/components/nexus/esqueletos";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSesion } from "@/hooks/use-sesion";
 import { antiguedadAnios, ETIQUETA_ROL, fechaCorta } from "@/lib/nexus/formato";
+import { esCertificacionVigente } from "@/lib/nexus/desarrollo";
 
 export const Route = createFileRoute("/_authenticated/tablero")({
   head: () => ({
@@ -35,8 +36,10 @@ function Tablero() {
       ]);
       const colaboradores = cols.data ?? [];
       const certificaciones = certs.data ?? [];
-      const vigentes = certificaciones.filter(
-        (c) => c.fecha_vencimiento && new Date(c.fecha_vencimiento) >= new Date(),
+      // Vigente = vence en la fecha de corte o después. Sin holgura de 90 días:
+      // ese criterio más estricto vive en Desarrollo › "Certificaciones con holgura".
+      const vigentes = certificaciones.filter((c) =>
+        esCertificacionVigente(c.fecha_vencimiento),
       ).length;
       return {
         plantilla: colaboradores.length,
@@ -47,6 +50,7 @@ function Tablero() {
             : 0,
         certPct: certificaciones.length ? (vigentes / certificaciones.length) * 100 : 0,
         certTotal: certificaciones.length,
+        certVigentes: vigentes,
         plantillaAutorizada: supuesto.data?.valor ?? null,
       };
     },
@@ -153,7 +157,7 @@ function Tablero() {
             sentido="mayorEsMejor"
             etiquetaMeta="Meta"
             formula="Certificaciones con vencimiento ≥ fecha de corte ÷ total de certificaciones × 100"
-            fuente={`Tabla certificaciones (${data.certTotal} registros)`}
+            fuente={`Tabla certificaciones · criterio: vencimiento ≥ fecha de corte (${data.certVigentes} de ${data.certTotal} registros)`}
             fechaCorte={hoy}
           />
         </div>

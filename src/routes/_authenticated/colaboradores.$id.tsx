@@ -22,6 +22,7 @@ import { HistorialDesempeno } from "@/components/nexus/desempeno/historial-desem
 import { useSesion } from "@/hooks/use-sesion";
 import { toast } from "sonner";
 import { SelectorBuscador } from "@/components/nexus/selector-buscador";
+import { esCertificacionVigente } from "@/lib/nexus/desarrollo";
 import {
   Select,
   SelectContent,
@@ -159,8 +160,8 @@ function Expediente() {
     );
 
   const proyecto = data.proyectos.find((p) => p.id === c.proyecto_actual_id);
-  const vigentes = data.certificaciones.filter(
-    (x) => x.fecha_vencimiento && new Date(x.fecha_vencimiento) >= new Date(),
+  const vigentes = data.certificaciones.filter((x) =>
+    esCertificacionVigente(x.fecha_vencimiento),
   ).length;
   return (
     <div className="space-y-5">
@@ -441,7 +442,7 @@ function Expediente() {
           ) : (
             <ul className="divide-y divide-border text-[13px]">
               {data.certificaciones.map((x) => {
-                const vigente = x.fecha_vencimiento && new Date(x.fecha_vencimiento) >= new Date();
+                const vigente = esCertificacionVigente(x.fecha_vencimiento);
                 return (
                   <li key={x.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-2">
                     <div className="min-w-0">

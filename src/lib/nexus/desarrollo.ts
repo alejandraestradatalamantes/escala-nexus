@@ -100,10 +100,23 @@ export const ETIQUETA_SEMAFORO: Record<Semaforo, string> = {
 
 export const DIAS_AVISO_VENCIMIENTO = 90;
 
+/** Día calendario local, sin hora, para comparar vencimientos contra la fecha de corte. */
+function aDia(fecha: Date) {
+  return new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate()).getTime();
+}
+
+/**
+ * Criterio de vigencia del Tablero: la certificación vence en la fecha de corte o después.
+ * No aplica holgura: una certificación que vence mañana sigue siendo vigente hoy.
+ */
+export function esCertificacionVigente(vencimiento: string | null, hoy = new Date()): boolean {
+  if (!vencimiento) return false;
+  return aDia(new Date(`${vencimiento}T00:00:00`)) >= aDia(hoy);
+}
+
 export function semaforoCertificacion(vencimiento: string | null, hoy = new Date()): Semaforo {
   if (!vencimiento) return "sin_fecha";
-  const fin = new Date(`${vencimiento}T00:00:00`);
-  const dias = Math.floor((fin.getTime() - hoy.getTime()) / 86_400_000);
+  const dias = Math.round((aDia(new Date(`${vencimiento}T00:00:00`)) - aDia(hoy)) / 86_400_000);
   if (dias < 0) return "vencida";
   if (dias <= DIAS_AVISO_VENCIMIENTO) return "por_vencer";
   return "vigente";

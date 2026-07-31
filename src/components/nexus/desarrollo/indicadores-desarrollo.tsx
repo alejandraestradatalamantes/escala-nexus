@@ -102,7 +102,7 @@ export function IndicadoresDesarrollo({ ciclo = CICLO_ACTUAL }: { ciclo?: string
         }
       />
       <TarjetaIndicador
-        titulo="Certificaciones vigentes"
+        titulo="Certificaciones con holgura"
         valor={pctVigentes ?? 0}
         meta={100}
         min={0}
@@ -110,8 +110,8 @@ export function IndicadoresDesarrollo({ ciclo = CICLO_ACTUAL }: { ciclo?: string
         unidad="%"
         decimales={0}
         etiquetaMeta="Meta"
-        formula="Certificaciones con vencimiento a más de 90 días ÷ certificaciones registradas × 100"
-        fuente={`Nexus · ${certs.length} certificaciones registradas`}
+        formula="Certificaciones que vencen a más de 90 días ÷ certificaciones registradas × 100"
+        fuente={`Tabla certificaciones · criterio: holgura mayor a 90 días para programar la renovación, más estricto que la vigencia del Tablero (${vigentes.length} de ${certs.length} registros)`}
         fechaCorte={hoy}
         nota={
           pctVigentes === null ? (
