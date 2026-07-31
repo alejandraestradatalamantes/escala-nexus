@@ -17,18 +17,31 @@ function easeOut(t: number) {
 }
 
 function useConteo(valorFinal: number) {
-  const [valor, setValor] = useState(0);
-  const yaMontado = useRef(false);
+  // El estado por defecto siempre es el valor final: si la animación no puede
+  // correr, la cifra visible es la real, nunca un cero falso.
+  const [valor, setValor] = useState(valorFinal);
+  const anterior = useRef<number | null>(null);
 
   useEffect(() => {
-    if (yaMontado.current) return;
-    yaMontado.current = true;
+    if (!Number.isFinite(valorFinal)) {
+      setValor(valorFinal);
+      return;
+    }
 
     const reducido =
       typeof window !== "undefined" &&
       window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
-    if (reducido || !Number.isFinite(valorFinal)) {
+    if (reducido || typeof requestAnimationFrame === "undefined") {
+      setValor(valorFinal);
+      anterior.current = valorFinal;
+      return;
+    }
+
+    const desde = anterior.current ?? 0;
+    anterior.current = valorFinal;
+
+    if (desde === valorFinal) {
       setValor(valorFinal);
       return;
     }
@@ -37,8 +50,8 @@ function useConteo(valorFinal: number) {
     const inicio = performance.now();
     const paso = (ahora: number) => {
       const t = Math.min(1, (ahora - inicio) / DURACION_CONTEO_MS);
-      setValor(valorFinal * easeOut(t));
       if (t < 1) {
+        setValor(desde + (valorFinal - desde) * easeOut(t));
         id = requestAnimationFrame(paso);
       } else {
         setValor(valorFinal);
@@ -46,9 +59,7 @@ function useConteo(valorFinal: number) {
     };
     id = requestAnimationFrame(paso);
     return () => cancelAnimationFrame(id);
-    // Solo se ejecuta una vez al montar.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [valorFinal]);
 
   return valor;
 }
