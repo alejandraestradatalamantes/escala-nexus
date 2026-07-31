@@ -3,6 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { TarjetaIndicador } from "@/components/nexus/tarjeta-indicador";
 import { EsqueletoIndicadores } from "@/components/nexus/esqueletos";
 import { leerPerfil } from "@/lib/nexus/desempeno";
@@ -13,7 +20,8 @@ import {
 } from "@/lib/nexus/evaluacion";
 import { fechaCorta } from "@/lib/nexus/formato";
 
-const selectCls = "h-10 w-full border border-border bg-card px-2 text-[13px] text-grafito";
+const selectCls = "h-10 w-56 rounded-none";
+const TODAS = "__todas__";
 
 export function IndicadoresDesempeno({ cicloId }: { cicloId: string }) {
   const [area, setArea] = useState("");
@@ -148,35 +156,45 @@ export function IndicadoresDesempeno({ cicloId }: { cicloId: string }) {
       <div className="flex flex-wrap items-end gap-3">
         <div className="space-y-1.5">
           <Label htmlFor="filtro-area">Área</Label>
-          <select
-            id="filtro-area"
-            className={selectCls}
-            value={area}
-            onChange={(e) => setArea(e.target.value)}
+          <Select
+            value={area || TODAS}
+            onValueChange={(v) => setArea(v === TODAS ? "" : v)}
           >
-            <option value="">Todas</option>
-            {areas.map((a) => (
-              <option key={a} value={a}>
-                {a}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger id="filtro-area" className={selectCls}>
+              <SelectValue placeholder="Todas" />
+            </SelectTrigger>
+            <SelectContent className="rounded-none">
+              <SelectItem value={TODAS} className="rounded-none">
+                Todas
+              </SelectItem>
+              {areas.map((a) => (
+                <SelectItem key={a} value={a} className="rounded-none">
+                  {a}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="filtro-proyecto">Proyecto</Label>
-          <select
-            id="filtro-proyecto"
-            className={selectCls}
-            value={proyecto}
-            onChange={(e) => setProyecto(e.target.value)}
+          <Select
+            value={proyecto || TODAS}
+            onValueChange={(v) => setProyecto(v === TODAS ? "" : v)}
           >
-            <option value="">Todos</option>
-            {(data?.proyectos ?? []).map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.nombre}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger id="filtro-proyecto" className={selectCls}>
+              <SelectValue placeholder="Todos" />
+            </SelectTrigger>
+            <SelectContent className="rounded-none">
+              <SelectItem value={TODAS} className="rounded-none">
+                Todos
+              </SelectItem>
+              {(data?.proyectos ?? []).map((p) => (
+                <SelectItem key={p.id} value={p.id} className="rounded-none">
+                  {p.nombre}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
