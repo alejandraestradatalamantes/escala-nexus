@@ -23,6 +23,7 @@ import { Route as AuthenticatedComunicacionRouteImport } from './routes/_authent
 import { Route as AuthenticatedBienestarRouteImport } from './routes/_authenticated/bienestar'
 import { Route as AuthenticatedAnaliticaRouteImport } from './routes/_authenticated/analitica'
 import { Route as AuthenticatedColaboradoresIndexRouteImport } from './routes/_authenticated/colaboradores.index'
+import { Route as AuthenticatedAtraccionIndexRouteImport } from './routes/_authenticated/atraccion.index'
 import { Route as AuthenticatedColaboradoresIdRouteImport } from './routes/_authenticated/colaboradores.$id'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -97,6 +98,12 @@ const AuthenticatedColaboradoresIndexRoute =
     path: '/colaboradores/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAtraccionIndexRoute =
+  AuthenticatedAtraccionIndexRouteImport.update({
+    id: '/atraccion/',
+    path: '/atraccion/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedColaboradoresIdRoute =
   AuthenticatedColaboradoresIdRouteImport.update({
     id: '/colaboradores/$id',
@@ -118,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/tablero': typeof AuthenticatedTableroRoute
   '/tiempo': typeof AuthenticatedTiempoRoute
   '/colaboradores/$id': typeof AuthenticatedColaboradoresIdRoute
+  '/atraccion/': typeof AuthenticatedAtraccionIndexRoute
   '/colaboradores/': typeof AuthenticatedColaboradoresIndexRoute
 }
 export interface FileRoutesByTo {
@@ -134,6 +142,7 @@ export interface FileRoutesByTo {
   '/tablero': typeof AuthenticatedTableroRoute
   '/tiempo': typeof AuthenticatedTiempoRoute
   '/colaboradores/$id': typeof AuthenticatedColaboradoresIdRoute
+  '/atraccion': typeof AuthenticatedAtraccionIndexRoute
   '/colaboradores': typeof AuthenticatedColaboradoresIndexRoute
 }
 export interface FileRoutesById {
@@ -152,6 +161,7 @@ export interface FileRoutesById {
   '/_authenticated/tablero': typeof AuthenticatedTableroRoute
   '/_authenticated/tiempo': typeof AuthenticatedTiempoRoute
   '/_authenticated/colaboradores/$id': typeof AuthenticatedColaboradoresIdRoute
+  '/_authenticated/atraccion/': typeof AuthenticatedAtraccionIndexRoute
   '/_authenticated/colaboradores/': typeof AuthenticatedColaboradoresIndexRoute
 }
 export interface FileRouteTypes {
@@ -170,6 +180,7 @@ export interface FileRouteTypes {
     | '/tablero'
     | '/tiempo'
     | '/colaboradores/$id'
+    | '/atraccion/'
     | '/colaboradores/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -186,6 +197,7 @@ export interface FileRouteTypes {
     | '/tablero'
     | '/tiempo'
     | '/colaboradores/$id'
+    | '/atraccion'
     | '/colaboradores'
   id:
     | '__root__'
@@ -203,6 +215,7 @@ export interface FileRouteTypes {
     | '/_authenticated/tablero'
     | '/_authenticated/tiempo'
     | '/_authenticated/colaboradores/$id'
+    | '/_authenticated/atraccion/'
     | '/_authenticated/colaboradores/'
   fileRoutesById: FileRoutesById
 }
@@ -313,6 +326,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedColaboradoresIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/atraccion/': {
+      id: '/_authenticated/atraccion/'
+      path: '/atraccion'
+      fullPath: '/atraccion/'
+      preLoaderRoute: typeof AuthenticatedAtraccionIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/colaboradores/$id': {
       id: '/_authenticated/colaboradores/$id'
       path: '/colaboradores/$id'
@@ -334,6 +354,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTableroRoute: typeof AuthenticatedTableroRoute
   AuthenticatedTiempoRoute: typeof AuthenticatedTiempoRoute
   AuthenticatedColaboradoresIdRoute: typeof AuthenticatedColaboradoresIdRoute
+  AuthenticatedAtraccionIndexRoute: typeof AuthenticatedAtraccionIndexRoute
   AuthenticatedColaboradoresIndexRoute: typeof AuthenticatedColaboradoresIndexRoute
 }
 
@@ -348,6 +369,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTableroRoute: AuthenticatedTableroRoute,
   AuthenticatedTiempoRoute: AuthenticatedTiempoRoute,
   AuthenticatedColaboradoresIdRoute: AuthenticatedColaboradoresIdRoute,
+  AuthenticatedAtraccionIndexRoute: AuthenticatedAtraccionIndexRoute,
   AuthenticatedColaboradoresIndexRoute: AuthenticatedColaboradoresIndexRoute,
 }
 
