@@ -465,6 +465,33 @@ function Desempeno() {
                 ? "Haz clic en una celda para ajustarlo; cada cambio queda en la bitácora."
                 : "Solo Dirección de Talento puede editar estos niveles."}
             </p>
+            {esTalento && pendientes.length > 0 ? (
+              <div className="flex flex-wrap items-center gap-3 border border-border bg-card px-3 py-2">
+                <Checkbox
+                  id="seleccionar-pendientes"
+                  className="rounded-none"
+                  checked={seleccionados.length === pendientes.length && pendientes.length > 0}
+                  onCheckedChange={(v) =>
+                    setSeleccion(v === true ? pendientes.map((p) => p.id) : [])
+                  }
+                />
+                <Label htmlFor="seleccionar-pendientes" className="text-[13px] text-grafito">
+                  Seleccionar los {pendientes.length} perfiles propuestos
+                </Label>
+                <span className="cifra text-[12px] text-cota">
+                  {seleccionados.length} seleccionados
+                </span>
+                <Button
+                  className="ml-auto h-10 rounded-none"
+                  disabled={seleccionados.length === 0 || validandoLote}
+                  onClick={validarLote}
+                >
+                  {validandoLote
+                    ? "Validando…"
+                    : `Validar ${seleccionados.length || ""} perfiles`.trim()}
+                </Button>
+              </div>
+            ) : null}
             {isLoading ? (
               <div className="space-y-2">
                 {Array.from({ length: 8 }).map((_, i) => (
@@ -482,6 +509,11 @@ function Desempeno() {
                   <table className="w-full min-w-[900px] text-left text-[13px]">
                     <thead className="bg-grafito text-cal">
                       <tr>
+                        {esTalento ? (
+                          <th className="w-10 px-3 py-2">
+                            <span className="sr-only">Seleccionar</span>
+                          </th>
+                        ) : null}
                         <th className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide">
                           Puesto
                         </th>
@@ -503,7 +535,19 @@ function Desempeno() {
                       {puestos.map((p) => {
                         const perfil = leerPerfil(p.perfil_competencias);
                         return (
-                          <tr key={p.id} className="border-t border-border">
+                          <tr key={p.id} className="fila-tabla border-t border-border">
+                            {esTalento ? (
+                              <td className="px-3 py-2">
+                                {perfil.validado ? null : (
+                                  <Checkbox
+                                    className="rounded-none"
+                                    aria-label={`Seleccionar el perfil de ${p.nombre}`}
+                                    checked={seleccion.includes(p.id)}
+                                    onCheckedChange={(v) => alternar(p.id, v === true)}
+                                  />
+                                )}
+                              </td>
+                            ) : null}
                             <td className="px-3 py-2">
                               <span className="text-grafito">{p.nombre}</span>
                               <span className="cifra block text-[11px] text-cota">
