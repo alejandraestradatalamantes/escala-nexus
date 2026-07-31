@@ -51,11 +51,19 @@ export function TableroFlujo({ fases, candidatos, puedeMover, onMover, onDescart
 
   return (
     <>
-      <div className="flex gap-3 overflow-x-auto pb-2">
+      <p className="cifra mb-2 flex items-center gap-1 text-[11px] uppercase tracking-wide text-cota lg:hidden">
+        Desliza para ver las {fases.length} fases <span aria-hidden>→</span>
+      </p>
+      <div className="relative">
+        <div
+          className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-background to-transparent"
+          aria-hidden
+        />
+      <div className="flex gap-2 overflow-x-auto pb-2">
         {fases.map((fase) => {
           const enFase = candidatos.filter((c) => c.fase_id === fase.id);
           return (
-            <section key={fase.id} className="w-[300px] shrink-0 border border-border bg-card">
+            <section key={fase.id} className="w-[236px] shrink-0 border border-border bg-card">
               <header className="border-b border-border bg-grafito px-3 py-2 text-cal">
                 <h3 className="truncate text-[12px] font-semibold uppercase tracking-wide">{fase.nombre}</h3>
                 <p className="cifra mt-0.5 text-[11px] text-cal/70">
@@ -135,6 +143,7 @@ export function TableroFlujo({ fases, candidatos, puedeMover, onMover, onDescart
             </section>
           );
         })}
+      </div>
       </div>
 
       <Dialog open={descarte !== null} onOpenChange={(v) => !v && setDescarte(null)}>

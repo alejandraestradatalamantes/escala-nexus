@@ -13,6 +13,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthCallbackRouteImport } from './routes/auth_.callback'
 import { Route as AuthenticatedTiempoRouteImport } from './routes/_authenticated/tiempo'
 import { Route as AuthenticatedTableroRouteImport } from './routes/_authenticated/tablero'
 import { Route as AuthenticatedSeguridadRouteImport } from './routes/_authenticated/seguridad'
@@ -44,6 +45,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth_/callback',
+  path: '/auth/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedTiempoRoute = AuthenticatedTiempoRouteImport.update({
@@ -131,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/seguridad': typeof AuthenticatedSeguridadRoute
   '/tablero': typeof AuthenticatedTableroRoute
   '/tiempo': typeof AuthenticatedTiempoRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/atraccion/$id': typeof AuthenticatedAtraccionIdRoute
   '/colaboradores/$id': typeof AuthenticatedColaboradoresIdRoute
   '/atraccion/': typeof AuthenticatedAtraccionIndexRoute
@@ -149,6 +156,7 @@ export interface FileRoutesByTo {
   '/seguridad': typeof AuthenticatedSeguridadRoute
   '/tablero': typeof AuthenticatedTableroRoute
   '/tiempo': typeof AuthenticatedTiempoRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/atraccion/$id': typeof AuthenticatedAtraccionIdRoute
   '/colaboradores/$id': typeof AuthenticatedColaboradoresIdRoute
   '/atraccion': typeof AuthenticatedAtraccionIndexRoute
@@ -169,6 +177,7 @@ export interface FileRoutesById {
   '/_authenticated/seguridad': typeof AuthenticatedSeguridadRoute
   '/_authenticated/tablero': typeof AuthenticatedTableroRoute
   '/_authenticated/tiempo': typeof AuthenticatedTiempoRoute
+  '/auth_/callback': typeof AuthCallbackRoute
   '/_authenticated/atraccion/$id': typeof AuthenticatedAtraccionIdRoute
   '/_authenticated/colaboradores/$id': typeof AuthenticatedColaboradoresIdRoute
   '/_authenticated/atraccion/': typeof AuthenticatedAtraccionIndexRoute
@@ -189,6 +198,7 @@ export interface FileRouteTypes {
     | '/seguridad'
     | '/tablero'
     | '/tiempo'
+    | '/auth/callback'
     | '/atraccion/$id'
     | '/colaboradores/$id'
     | '/atraccion/'
@@ -207,6 +217,7 @@ export interface FileRouteTypes {
     | '/seguridad'
     | '/tablero'
     | '/tiempo'
+    | '/auth/callback'
     | '/atraccion/$id'
     | '/colaboradores/$id'
     | '/atraccion'
@@ -226,6 +237,7 @@ export interface FileRouteTypes {
     | '/_authenticated/seguridad'
     | '/_authenticated/tablero'
     | '/_authenticated/tiempo'
+    | '/auth_/callback'
     | '/_authenticated/atraccion/$id'
     | '/_authenticated/colaboradores/$id'
     | '/_authenticated/atraccion/'
@@ -237,6 +249,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -267,6 +280,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth_/callback': {
+      id: '/auth_/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/tiempo': {
@@ -403,6 +423,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

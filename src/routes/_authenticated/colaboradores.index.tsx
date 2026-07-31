@@ -15,6 +15,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { fechaCorta, iniciales } from "@/lib/nexus/formato";
+import { EsqueletoTabla } from "@/components/nexus/esqueletos";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useSesion } from "@/hooks/use-sesion";
 import { toast } from "sonner";
 
@@ -106,7 +108,13 @@ function Directorio() {
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 sm:flex sm:justify-between">
         <div className="min-w-0">
           <h1 className="truncate text-2xl text-grafito">Colaboradores</h1>
-          <p className="cifra mt-1 text-[12px] text-cota">{filtrados.length} de {colaboradores?.length ?? 0}</p>
+          {isLoading ? (
+            <Skeleton className="mt-1 h-3 w-24 rounded-none" />
+          ) : (
+            <p className="cifra mt-1 text-[12px] text-cota">
+              {filtrados.length} de {colaboradores?.length ?? 0}
+            </p>
+          )}
         </div>
         {puedeEditar && (
           <Dialog open={abierto} onOpenChange={setAbierto}>
@@ -215,7 +223,7 @@ function Directorio() {
       </div>
 
       {isLoading ? (
-        <p className="text-[13px] text-cota">Cargando directorio…</p>
+        <EsqueletoTabla filas={8} columnas={6} />
       ) : filtrados.length === 0 ? (
         <div className="border border-dashed border-border bg-card p-8 text-center">
           <p className="text-[13px] text-cota">

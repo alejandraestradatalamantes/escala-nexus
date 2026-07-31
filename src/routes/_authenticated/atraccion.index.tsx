@@ -323,7 +323,7 @@ function Atraccion() {
             sentido="menorEsMejor"
             etiquetaMeta="Meta"
             formula="Suma de (días abierta × costo por día de vacancia) de las vacantes abiertas"
-            fuente="Tabla vacantes · costo_vacante_dia"
+            fuente="Tabla vacantes · campo costo_vacante_dia capturado por vacante (no el supuesto global costo_vacante_dia)"
             fechaCorte={hoy}
             nota={
               indicadores.sinCosto > 0 ? (

@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TarjetaIndicador } from "@/components/nexus/tarjeta-indicador";
+import { EsqueletoIndicadores } from "@/components/nexus/esqueletos";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useSesion } from "@/hooks/use-sesion";
 import { antiguedadAnios, ETIQUETA_ROL, fechaCorta } from "@/lib/nexus/formato";
 
@@ -19,11 +21,12 @@ export const Route = createFileRoute("/_authenticated/tablero")({
 });
 
 function Tablero() {
-  const { sesion, roles } = useSesion();
+  const { sesion, roles, cargando } = useSesion();
   const hoy = fechaCorta(new Date());
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ["tablero-indicadores"],
+    retry: 3,
     queryFn: async () => {
       const [cols, certs, supuesto] = await Promise.all([
         supabase.from("colaboradores").select("id, fecha_ingreso, ubicacion").eq("estatus", "activo"),
@@ -55,10 +58,20 @@ function Tablero() {
     <div className="space-y-6">
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:flex sm:justify-between">
         <div className="min-w-0">
-          <h1 className="text-2xl text-grafito">Hola, {sesion?.nombre?.split(" ")[0]}</h1>
-          <p className="mt-1 text-[13px] text-cota">
-            {roles.map((r) => ETIQUETA_ROL[r]).join(" · ") || "Sin rol asignado. Pide acceso a Dirección de Talento."}
-          </p>
+          {cargando ? (
+            <div className="space-y-2">
+              <Skeleton className="h-7 w-52 rounded-none" />
+              <Skeleton className="h-3 w-40 rounded-none" />
+            </div>
+          ) : (
+            <>
+              <h1 className="text-2xl text-grafito">Hola, {sesion?.nombre?.split(" ")[0]}</h1>
+              <p className="mt-1 text-[13px] text-cota">
+                {roles.map((r) => ETIQUETA_ROL[r]).join(" · ") ||
+                  "Sin rol asignado. Pide acceso a Dirección de Talento."}
+              </p>
+            </>
+          )}
         </div>
         <p className="cifra shrink-0 text-[11px] uppercase tracking-widest text-cota">Corte {hoy}</p>
       </header>
@@ -67,13 +80,45 @@ function Tablero() {
         <h2 id="ind" className="text-[13px] font-semibold uppercase tracking-wide text-cota">
           Indicadores de plantilla
         </h2>
+        {isLoading || !data ? (
+          <EsqueletoIndicadores />
+        ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {autorizada === null ? (
+            <article className="flex flex-col gap-3 border border-border bg-card p-4">
+              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-cota">
+                Plantilla activa vs. autorizada
+              </h3>
+              <p className="cifra text-3xl leading-none text-grafito">
+                {data.plantilla}
+                <span className="ml-1 text-base text-cota"> personas activas</span>
+              </p>
+              <p className="cifra border-l-2 border-casco bg-casco/10 px-2 py-1.5 text-[11px] text-grafito">
+                Indicador no calculable: falta la plantilla autorizada. No se asume línea base. Captúrala en
+                Configuración › Supuestos financieros.
+              </p>
+              <dl className="mt-1 space-y-1 border-t border-border pt-2 text-[11px] text-cota">
+                <div className="flex gap-2">
+                  <dt className="shrink-0 font-semibold">Fórmula</dt>
+                  <dd className="min-w-0">Colaboradores con estatus activo ÷ plantilla autorizada</dd>
+                </div>
+                <div className="flex gap-2">
+                  <dt className="shrink-0 font-semibold">Fuente</dt>
+                  <dd className="min-w-0">Tabla colaboradores · supuestos_financieros.plantilla_autorizada</dd>
+                </div>
+                <div className="flex gap-2">
+                  <dt className="shrink-0 font-semibold">Corte</dt>
+                  <dd className="cifra min-w-0">{hoy}</dd>
+                </div>
+              </dl>
+            </article>
+          ) : (
           <TarjetaIndicador
             titulo="Plantilla activa vs. autorizada"
-            valor={data?.plantilla ?? 0}
-            meta={autorizada ?? data?.plantilla ?? 0}
+            valor={data.plantilla}
+            meta={autorizada}
             min={0}
-            max={Math.max(autorizada ?? 0, (data?.plantilla ?? 0) + 10)}
+            max={Math.max(autorizada, data.plantilla + 10)}
             unidad=" personas"
             decimales={0}
             sentido="mayorEsMejor"
@@ -81,17 +126,11 @@ function Tablero() {
             formula="Colaboradores con estatus activo ÷ plantilla autorizada"
             fuente="Tabla colaboradores · supuestos_financieros.plantilla_autorizada"
             fechaCorte={hoy}
-            nota={
-              autorizada === null ? (
-                <p className="cifra border-l-2 border-casco bg-casco/10 px-2 py-1.5 text-[11px] text-grafito">
-                  Plantilla autorizada: [Dato Requerido de Escala] — captúralo en Configuración › Supuestos.
-                </p>
-              ) : undefined
-            }
           />
+          )}
           <TarjetaIndicador
             titulo="Antigüedad promedio"
-            valor={data?.antiguedad ?? 0}
+            valor={data.antiguedad}
             meta={4}
             min={0}
             max={10}
@@ -105,7 +144,7 @@ function Tablero() {
           />
           <TarjetaIndicador
             titulo="Certificaciones vigentes"
-            valor={data?.certPct ?? 0}
+            valor={data.certPct}
             meta={90}
             min={0}
             max={100}
@@ -114,17 +153,22 @@ function Tablero() {
             sentido="mayorEsMejor"
             etiquetaMeta="Meta"
             formula="Certificaciones con vencimiento ≥ fecha de corte ÷ total de certificaciones × 100"
-            fuente={`Tabla certificaciones (${data?.certTotal ?? 0} registros)`}
+            fuente={`Tabla certificaciones (${data.certTotal} registros)`}
             fechaCorte={hoy}
           />
         </div>
+        )}
       </section>
 
       <section className="border border-border bg-card p-4">
         <h2 className="text-[13px] font-semibold uppercase tracking-wide text-cota">Distribución</h2>
-        <p className="cifra mt-2 text-sm text-grafito">
-          {data?.campo ?? 0} en campo · {(data?.plantilla ?? 0) - (data?.campo ?? 0)} en corporativo
-        </p>
+        {isLoading || !data ? (
+          <Skeleton className="mt-2 h-4 w-56 rounded-none" />
+        ) : (
+          <p className="cifra mt-2 text-sm text-grafito">
+            {data.campo} en campo · {data.plantilla - data.campo} en corporativo
+          </p>
+        )}
         <p className="mt-2 text-[13px] text-cota">
           Nexus administra el talento con la misma metodología con la que Escala administra proyectos: cada
           número trae fórmula, fuente y fecha de corte.
