@@ -1,0 +1,11 @@
+REVOKE EXECUTE ON FUNCTION public.responder_encuesta(uuid, jsonb) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.ya_respondi(uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.encuesta_avance(uuid) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.clima_grupos(uuid, text) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.clima_reactivos(uuid, text) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.clima_enps(uuid, text) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.animo_firma(date, date) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.animo_serie_firma(date, date) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.animo_equipo(date, date) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.animo_comentarios(date, date) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.participacion_reconocimientos(date, date) FROM PUBLIC, anon;
