@@ -2240,6 +2240,10 @@ export type Database = {
     }
     Functions: {
       agenda_de_prioridad: { Args: { _prioridad: string }; Returns: string }
+      aplicar_saldo_vacaciones: {
+        Args: { _colaborador: string; _dias: number }
+        Returns: undefined
+      }
       es: {
         Args: { _rol: Database["public"]["Enums"]["rol_usuario"] }
         Returns: boolean
