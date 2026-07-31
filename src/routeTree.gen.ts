@@ -21,7 +21,6 @@ import { Route as AuthenticatedDesarrolloRouteImport } from './routes/_authentic
 import { Route as AuthenticatedConfiguracionRouteImport } from './routes/_authenticated/configuracion'
 import { Route as AuthenticatedComunicacionRouteImport } from './routes/_authenticated/comunicacion'
 import { Route as AuthenticatedBienestarRouteImport } from './routes/_authenticated/bienestar'
-import { Route as AuthenticatedAtraccionRouteImport } from './routes/_authenticated/atraccion'
 import { Route as AuthenticatedAnaliticaRouteImport } from './routes/_authenticated/analitica'
 import { Route as AuthenticatedColaboradoresIndexRouteImport } from './routes/_authenticated/colaboradores.index'
 import { Route as AuthenticatedColaboradoresIdRouteImport } from './routes/_authenticated/colaboradores.$id'
@@ -87,11 +86,6 @@ const AuthenticatedBienestarRoute = AuthenticatedBienestarRouteImport.update({
   path: '/bienestar',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedAtraccionRoute = AuthenticatedAtraccionRouteImport.update({
-  id: '/atraccion',
-  path: '/atraccion',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedAnaliticaRoute = AuthenticatedAnaliticaRouteImport.update({
   id: '/analitica',
   path: '/analitica',
@@ -115,7 +109,6 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/analitica': typeof AuthenticatedAnaliticaRoute
-  '/atraccion': typeof AuthenticatedAtraccionRoute
   '/bienestar': typeof AuthenticatedBienestarRoute
   '/comunicacion': typeof AuthenticatedComunicacionRoute
   '/configuracion': typeof AuthenticatedConfiguracionRoute
@@ -132,7 +125,6 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/analitica': typeof AuthenticatedAnaliticaRoute
-  '/atraccion': typeof AuthenticatedAtraccionRoute
   '/bienestar': typeof AuthenticatedBienestarRoute
   '/comunicacion': typeof AuthenticatedComunicacionRoute
   '/configuracion': typeof AuthenticatedConfiguracionRoute
@@ -151,7 +143,6 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/analitica': typeof AuthenticatedAnaliticaRoute
-  '/_authenticated/atraccion': typeof AuthenticatedAtraccionRoute
   '/_authenticated/bienestar': typeof AuthenticatedBienestarRoute
   '/_authenticated/comunicacion': typeof AuthenticatedComunicacionRoute
   '/_authenticated/configuracion': typeof AuthenticatedConfiguracionRoute
@@ -170,7 +161,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/analitica'
-    | '/atraccion'
     | '/bienestar'
     | '/comunicacion'
     | '/configuracion'
@@ -187,7 +177,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/analitica'
-    | '/atraccion'
     | '/bienestar'
     | '/comunicacion'
     | '/configuracion'
@@ -205,7 +194,6 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/_authenticated/analitica'
-    | '/_authenticated/atraccion'
     | '/_authenticated/bienestar'
     | '/_authenticated/comunicacion'
     | '/_authenticated/configuracion'
@@ -311,13 +299,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBienestarRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/atraccion': {
-      id: '/_authenticated/atraccion'
-      path: '/atraccion'
-      fullPath: '/atraccion'
-      preLoaderRoute: typeof AuthenticatedAtraccionRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/analitica': {
       id: '/_authenticated/analitica'
       path: '/analitica'
@@ -344,7 +325,6 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAnaliticaRoute: typeof AuthenticatedAnaliticaRoute
-  AuthenticatedAtraccionRoute: typeof AuthenticatedAtraccionRoute
   AuthenticatedBienestarRoute: typeof AuthenticatedBienestarRoute
   AuthenticatedComunicacionRoute: typeof AuthenticatedComunicacionRoute
   AuthenticatedConfiguracionRoute: typeof AuthenticatedConfiguracionRoute
@@ -359,7 +339,6 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAnaliticaRoute: AuthenticatedAnaliticaRoute,
-  AuthenticatedAtraccionRoute: AuthenticatedAtraccionRoute,
   AuthenticatedBienestarRoute: AuthenticatedBienestarRoute,
   AuthenticatedComunicacionRoute: AuthenticatedComunicacionRoute,
   AuthenticatedConfiguracionRoute: AuthenticatedConfiguracionRoute,
