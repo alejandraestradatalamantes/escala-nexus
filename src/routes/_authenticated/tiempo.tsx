@@ -34,7 +34,6 @@ function Tiempo() {
     "finanzas_auditoria",
   );
   const apruebaOTal = tiene("direccion_talento", "lider_proyecto", "direccion_general");
-  const veUbicacion = tiene("direccion_talento", "lider_proyecto") || true;
 
   return (
     <div className="space-y-5">
@@ -89,10 +88,8 @@ function Tiempo() {
         </TabsContent>
 
         <TabsContent value="jornada" className="mt-4">
-          <RegistroJornada
-            colaboradorId={sesion?.colaboradorId ?? null}
-            puedeVerUbicacion={veUbicacion}
-          />
+          {/* Solo se listan los registros propios, de modo que la ubicación siempre es visible aquí. */}
+          <RegistroJornada colaboradorId={sesion?.colaboradorId ?? null} puedeVerUbicacion />
         </TabsContent>
       </Tabs>
     </div>
