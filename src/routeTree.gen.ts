@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as ProbeConteoRouteImport } from './routes/probe-conteo'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -31,6 +32,11 @@ import { Route as AuthenticatedAtraccionIdRouteImport } from './routes/_authenti
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProbeConteoRoute = ProbeConteoRouteImport.update({
+  id: '/probe-conteo',
+  path: '/probe-conteo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -127,6 +133,7 @@ const AuthenticatedAtraccionIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/probe-conteo': typeof ProbeConteoRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/analitica': typeof AuthenticatedAnaliticaRoute
   '/bienestar': typeof AuthenticatedBienestarRoute
@@ -146,6 +153,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/probe-conteo': typeof ProbeConteoRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/analitica': typeof AuthenticatedAnaliticaRoute
   '/bienestar': typeof AuthenticatedBienestarRoute
@@ -167,6 +175,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/probe-conteo': typeof ProbeConteoRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/analitica': typeof AuthenticatedAnaliticaRoute
   '/_authenticated/bienestar': typeof AuthenticatedBienestarRoute
@@ -188,6 +197,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/probe-conteo'
     | '/sitemap.xml'
     | '/analitica'
     | '/bienestar'
@@ -207,6 +217,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/probe-conteo'
     | '/sitemap.xml'
     | '/analitica'
     | '/bienestar'
@@ -227,6 +238,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/probe-conteo'
     | '/sitemap.xml'
     | '/_authenticated/analitica'
     | '/_authenticated/bienestar'
@@ -248,6 +260,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ProbeConteoRoute: typeof ProbeConteoRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
 }
@@ -259,6 +272,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/probe-conteo': {
+      id: '/probe-conteo'
+      path: '/probe-conteo'
+      fullPath: '/probe-conteo'
+      preLoaderRoute: typeof ProbeConteoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -422,6 +442,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ProbeConteoRoute: ProbeConteoRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   AuthCallbackRoute: AuthCallbackRoute,
 }
