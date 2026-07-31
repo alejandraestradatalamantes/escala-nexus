@@ -52,16 +52,22 @@ export function PorAprobar({ miColaboradorId }: Props) {
         supabase.from("colaboradores").select("id, nombre, proyecto_actual_id"),
         supabase.from("proyectos").select("id, nombre"),
       ]);
-      const supuestos = await supabase
-        .from("supuestos_financieros")
-        .select("clave, valor")
-        .eq("clave", "dias_habiles_respuesta_solicitud")
-        .maybeSingle();
+      const [supuestos, saldos] = await Promise.all([
+        supabase
+          .from("supuestos_financieros")
+          .select("clave, valor")
+          .eq("clave", "dias_habiles_respuesta_solicitud")
+          .maybeSingle(),
+        supabase
+          .from("saldos_vacaciones")
+          .select("colaborador_id, dias_disponibles, dias_ley, dias_adicionales, anio_servicio"),
+      ]);
       return {
         solicitudes: sols.data ?? [],
         personas: (cols.data ?? []) as Persona[],
         proyectos: proys.data ?? [],
         umbral: supuestos.data?.valor ?? UMBRAL_POR_OMISION,
+        saldos: saldos.data ?? [],
       };
     },
   });
@@ -76,7 +82,17 @@ export function PorAprobar({ miColaboradorId }: Props) {
       estatus: "aprobada" | "rechazada";
       razon?: string;
     }) => {
-      const { error } = await supabase
+      const { data: antes, error: errAntes } = await supabase
+        .from("solicitudes")
+        .select("*")
+        .eq("id", id)
+        .maybeSingle();
+      if (errAntes) throw errAntes;
+      if (!antes) throw new Error("La solicitud ya no existe.");
+      if (antes.estatus !== "pendiente")
+        throw new Error("La solicitud ya fue resuelta por alguien más.");
+
+      const { data: despues, error } = await supabase
         .from("solicitudes")
         .update({
           estatus,
@@ -84,8 +100,36 @@ export function PorAprobar({ miColaboradorId }: Props) {
           fecha_resolucion: new Date().toISOString(),
           ...(razon ? { motivo: razon } : {}),
         })
-        .eq("id", id);
+        .eq("id", id)
+        .eq("estatus", "pendiente")
+        .select("*")
+        .maybeSingle();
       if (error) throw error;
+      if (!despues) throw new Error("La solicitud ya fue resuelta por alguien más.");
+
+      const { data: sesion } = await supabase.auth.getUser();
+      await supabase.from("bitacora_auditoria").insert({
+        usuario_id: sesion.user?.id ?? null,
+        accion: estatus === "aprobada" ? "autorizar_solicitud" : "rechazar_solicitud",
+        tabla: "solicitudes",
+        registro_id: id,
+        antes: {
+          estatus: antes.estatus,
+          motivo: antes.motivo,
+          aprobador_id: antes.aprobador_id,
+          fecha_resolucion: antes.fecha_resolucion,
+        },
+        despues: {
+          estatus: despues.estatus,
+          motivo: despues.motivo,
+          aprobador_id: despues.aprobador_id,
+          fecha_resolucion: despues.fecha_resolucion,
+          tipo: despues.tipo,
+          dias: despues.dias,
+          colaborador_id: despues.colaborador_id,
+          ...(razon ? { motivo_rechazo: razon } : {}),
+        },
+      });
     },
     onSuccess: (_d, v) => {
       toast.success(v.estatus === "aprobada" ? "Solicitud autorizada" : "Solicitud rechazada");
@@ -96,13 +140,18 @@ export function PorAprobar({ miColaboradorId }: Props) {
       queryClient.invalidateQueries({ queryKey: ["tiempo-cobertura"] });
       queryClient.invalidateQueries({ queryKey: ["tiempo-indicadores"] });
     },
-    onError: () =>
-      toast.error("No se pudo resolver la solicitud. Solo el líder directo o Talento pueden."),
+    onError: (e: Error) =>
+      toast.error(
+        e.message?.includes("ya fue resuelta") || e.message?.includes("ya no existe")
+          ? e.message
+          : "No se pudo resolver la solicitud. Solo el líder directo o Talento pueden.",
+      ),
   });
 
   if (isLoading || !data) return <EsqueletoTabla filas={6} columnas={6} />;
 
   const persona = (id: string) => data.personas.find((p) => p.id === id);
+  const saldoDe = (id: string) => data.saldos.find((s) => s.colaborador_id === id);
   const proyecto = (id: string | null | undefined) =>
     data.proyectos.find((p) => p.id === id)?.nombre ?? "Sin proyecto";
   const aprobadas = data.solicitudes.filter((s) => s.estatus === "aprobada");
@@ -121,6 +170,9 @@ export function PorAprobar({ miColaboradorId }: Props) {
       {pendientes.map((s) => {
         const quien = persona(s.colaborador_id);
         const esperando = diasHabilesDesde(s.fecha_solicitud);
+        const saldo = s.tipo === "vacaciones" ? saldoDe(s.colaborador_id) : undefined;
+        const disponibles = saldo ? Number(saldo.dias_disponibles) : null;
+        const remanente = disponibles === null ? null : disponibles - Number(s.dias);
         const traslapes = aprobadas.filter((a) => {
           if (a.colaborador_id === s.colaborador_id) return false;
           const otra = persona(a.colaborador_id);
@@ -145,6 +197,32 @@ export function PorAprobar({ miColaboradorId }: Props) {
                 {esperando} día(s) hábil(es) esperando · umbral {data.umbral}
               </p>
             </div>
+
+            {s.tipo === "vacaciones" ? (
+              <p className="cifra mt-2 text-[12px] text-cota">
+                {remanente === null ? (
+                  "Sin saldo de vacaciones calculado para esta persona: no es posible anticipar el remanente."
+                ) : (
+                  <>
+                    Si autorizas, le quedan{" "}
+                    <span
+                      className={cn(
+                        "font-semibold",
+                        remanente < 0
+                          ? "text-desviacion"
+                          : remanente <= 3
+                            ? "text-casco"
+                            : "text-grafito",
+                      )}
+                    >
+                      {numero(remanente, 1)}
+                    </span>{" "}
+                    de {numero(disponibles, 1)} día(s) disponibles
+                    {remanente < 0 ? " · excede el saldo, quedaría en números rojos" : ""}
+                  </>
+                )}
+              </p>
+            ) : null}
 
             {traslapes.length > 0 ? (
               <div className="mt-3 border-l-2 border-desviacion bg-desviacion/10 px-3 py-2 text-[12px] text-grafito">

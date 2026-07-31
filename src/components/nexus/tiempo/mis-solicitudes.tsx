@@ -78,6 +78,8 @@ export function MisSolicitudes({ colaboradorId, esTalento }: Props) {
   const diasSolicitados = useMemo(() => diasHabiles(inicio, fin), [inicio, fin]);
   const disponibles = Number(data?.saldo?.dias_disponibles ?? 0);
   const excedeSaldo = consumeSaldo(tipo) && diasSolicitados > disponibles;
+  /** La excepción de Talento exige motivo escrito; nadie más puede rebasar el saldo. */
+  const faltaMotivoExcepcion = excedeSaldo && esTalento && motivo.trim().length < 5;
 
   const crear = useMutation({
     mutationFn: async () => {
@@ -86,6 +88,7 @@ export function MisSolicitudes({ colaboradorId, esTalento }: Props) {
       if (fin < inicio) throw new Error("rango inválido");
       if (diasSolicitados < 1) throw new Error("sin días hábiles");
       if (excedeSaldo && !esTalento) throw new Error("excede el saldo");
+      if (faltaMotivoExcepcion) throw new Error("falta motivo de excepción");
       const { error } = await supabase.from("solicitudes").insert({
         colaborador_id: colaboradorId,
         tipo,
@@ -111,9 +114,11 @@ export function MisSolicitudes({ colaboradorId, esTalento }: Props) {
       toast.error(
         e.message === "excede el saldo"
           ? "Los días solicitados exceden tu saldo disponible."
-          : e.message === "sin días hábiles"
-            ? "El rango no contiene días hábiles."
-            : "No se pudo enviar la solicitud. Revisa las fechas.",
+          : e.message === "falta motivo de excepción"
+            ? "Escribe el motivo de la excepción antes de registrarla."
+            : e.message === "sin días hábiles"
+              ? "El rango no contiene días hábiles."
+              : "No se pudo enviar la solicitud. Revisa las fechas.",
       ),
   });
 
@@ -253,7 +258,13 @@ export function MisSolicitudes({ colaboradorId, esTalento }: Props) {
           <div className="flex items-end">
             <Button
               onClick={() => crear.mutate()}
-              disabled={crear.isPending || !inicio || !fin || (excedeSaldo && !esTalento)}
+              disabled={
+                crear.isPending ||
+                !inicio ||
+                !fin ||
+                (excedeSaldo && !esTalento) ||
+                faltaMotivoExcepcion
+              }
               className="h-10 w-full rounded-none text-[13px]"
             >
               Enviar solicitud
@@ -264,7 +275,11 @@ export function MisSolicitudes({ colaboradorId, esTalento }: Props) {
           value={motivo}
           onChange={(e) => setMotivo(e.target.value)}
           maxLength={500}
-          placeholder="Motivo (opcional)"
+          placeholder={
+            excedeSaldo && esTalento
+              ? "Motivo de la excepción (obligatorio)"
+              : "Motivo (opcional)"
+          }
           aria-label="Motivo de la solicitud"
           className="mt-3 min-h-[64px] rounded-none text-[13px]"
         />
@@ -277,7 +292,7 @@ export function MisSolicitudes({ colaboradorId, esTalento }: Props) {
           <p className="mt-2 border-l-2 border-desviacion bg-desviacion/10 px-3 py-2 text-[12px] text-grafito">
             Los {diasSolicitados} días exceden tu saldo de {numero(disponibles, 1)} días.
             {esTalento
-              ? " Como Dirección de Talento puedes registrarla de todos modos; quedará documentada como excepción."
+              ? " Como Dirección de Talento puedes registrarla de todos modos, pero el motivo es obligatorio: quedará documentada como excepción."
               : " Ajusta las fechas o solicita una excepción a Dirección de Talento."}
           </p>
         ) : null}
