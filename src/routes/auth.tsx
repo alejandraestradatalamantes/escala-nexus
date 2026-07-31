@@ -36,6 +36,15 @@ function Acceso() {
     });
   }, [navigate]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const err = params.get("error");
+    if (err) {
+      setError(err);
+      window.history.replaceState(null, "", "/auth");
+    }
+  }, []);
+
   async function enviar(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
@@ -72,7 +81,7 @@ function Acceso() {
   async function conGoogle() {
     setError(null);
     const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+      redirect_uri: `${window.location.origin}/auth/callback`,
     });
     if (result.error) {
       setError("No se completó el acceso con Google. Intenta de nuevo o usa tu correo.");

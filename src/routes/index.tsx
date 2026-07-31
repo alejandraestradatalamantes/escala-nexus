@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -20,6 +22,18 @@ export const Route = createFileRoute("/")({
 });
 
 function Portada() {
+  const [conSesion, setConSesion] = useState(false);
+
+  useEffect(() => {
+    let vivo = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (vivo) setConSesion(Boolean(data.session));
+    });
+    return () => {
+      vivo = false;
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-grafito text-cal">
       <header className="flex items-center gap-2 border-b border-white/10 px-6 py-4">
@@ -38,7 +52,7 @@ function Portada() {
         </p>
         <div className="flex flex-wrap gap-3">
           <Link
-            to="/auth"
+            to={conSesion ? "/tablero" : "/auth"}
             className="inline-flex min-h-12 items-center bg-plomada px-6 text-sm font-semibold text-cal transition-colors duration-150 hover:bg-plomada/85"
           >
             Entrar a Nexus
