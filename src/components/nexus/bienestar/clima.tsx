@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { CloudSun, Thermometer } from "lucide-react";
 import { SelectorBuscador } from "@/components/nexus/selector-buscador";
 import { EsqueletoTabla } from "@/components/nexus/esqueletos";
+import { BannerAviso } from "@/components/nexus/banner-aviso";
 import { Label } from "@/components/ui/label";
 import { fechaCorta, numero } from "@/lib/nexus/formato";
 import { cn } from "@/lib/utils";
@@ -64,9 +66,7 @@ export function Clima() {
 
   if (conRespuestas.length === 0)
     return (
-      <p className="border border-border bg-card p-4 text-[13px] text-cota">
-        Ninguna encuesta tiene respuestas todavía.
-      </p>
+      <BannerAviso tono="info">Ninguna encuesta tiene respuestas todavía.</BannerAviso>
     );
 
   const encuesta = conRespuestas.find((e) => e.id === encuestaId) ?? null;
@@ -102,31 +102,40 @@ export function Clima() {
         </div>
       </div>
 
-      <p className="text-[11px] text-cota">
+      <BannerAviso tono="confidencial" ojoTachado titulo="Datos agregados, nunca individuales">
         {AVISO_ANONIMATO} Los cortes con menos de {MINIMO_AGREGACION} respondientes no se despliegan.
         {encuesta?.fecha_fin ? ` Levantamiento cerrado al ${fechaCorta(encuesta.fecha_fin)}.` : ""}
-      </p>
+      </BannerAviso>
 
       <section className="space-y-3">
-        <h2 className="text-[13px] font-semibold uppercase tracking-wide text-cota">
+        <h2 className="flex items-center gap-2 text-[13px] font-semibold uppercase tracking-wide text-cota">
+          <CloudSun className="h-4 w-4 text-info" aria-hidden />
           eNPS por {CORTES.find((c) => c.valor === corte)?.etiqueta.toLowerCase()}
         </h2>
         <div className="grid gap-3 md:grid-cols-2">
           {(enps ?? []).map((g) => (
-            <article key={g.grupo} className="border border-border bg-card p-4">
+            <article
+              key={g.grupo}
+              className="rounded-2xl bg-card p-5 shadow-[var(--shadow-tarjeta)]"
+            >
               <div className="flex items-baseline justify-between gap-3">
-                <h3 className="text-[13px] text-grafito">{g.grupo}</h3>
+                <h3 className="text-[13px] font-semibold text-grafito">{g.grupo}</h3>
                 <span className="cifra text-[11px] text-cota">{g.personas} respondientes</span>
               </div>
               {g.suprimido || g.enps === null ? (
-                <p className="cifra mt-2 border-l-2 border-casco bg-casco/10 px-2 py-1.5 text-[11px] text-grafito">
+                <BannerAviso tono="alerta" className="mt-3">
                   {AVISO_SUPRIMIDO}
-                </p>
+                </BannerAviso>
               ) : (
                 <>
-                  <p className="cifra mt-2 text-[32px] leading-none text-grafito">
+                  <p
+                    className={cn(
+                      "cifra mt-2 text-[38px] font-bold leading-none tracking-tight",
+                      Number(g.enps) >= 0 ? "text-exito" : "text-riesgo",
+                    )}
+                  >
                     {numero(Number(g.enps), 1)}
-                    <span className="ml-1 text-base text-cota">pts</span>
+                    <span className="ml-1 text-base font-medium text-cota">pts</span>
                   </p>
                   <Desglose
                     promotores={g.promotores ?? 0}
@@ -141,17 +150,21 @@ export function Clima() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-[13px] font-semibold uppercase tracking-wide text-cota">
+        <h2 className="flex items-center gap-2 text-[13px] font-semibold uppercase tracking-wide text-cota">
+          <Thermometer className="h-4 w-4 text-alerta" aria-hidden />
           Dimensiones (escala 1 a 5)
         </h2>
         {visibles.length === 0 ? (
-          <p className="border border-border bg-card p-4 text-[13px] text-cota">{AVISO_SUPRIMIDO}</p>
+          <BannerAviso tono="alerta">{AVISO_SUPRIMIDO}</BannerAviso>
         ) : (
           <div className="space-y-4">
             {visibles.map((g) => (
-              <article key={g.grupo} className="border border-border bg-card p-4">
+              <article
+                key={g.grupo}
+                className="rounded-2xl bg-card p-5 shadow-[var(--shadow-tarjeta)]"
+              >
                 <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="text-[13px] text-grafito">{g.grupo}</h3>
+                  <h3 className="text-[13px] font-semibold text-grafito">{g.grupo}</h3>
                   <span className="cifra text-[11px] text-cota">{g.personas} respondientes</span>
                 </div>
                 <ul className="mt-3 space-y-2.5">
@@ -170,11 +183,15 @@ export function Clima() {
                               {numero(Number(r.promedio), 2)}
                             </span>
                           </div>
-                          <div className="mt-1 h-[3px] w-full bg-cota/20">
+                          <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-muted">
                             <div
                               className={cn(
-                                "h-[3px]",
-                                Number(r.promedio) >= 4 ? "bg-linea" : "bg-desviacion",
+                                "h-2 rounded-full bg-linear-to-r transition-[width] duration-500",
+                                Number(r.promedio) >= 4
+                                  ? "from-exito/60 to-exito"
+                                  : Number(r.promedio) >= 3
+                                    ? "from-alerta/60 to-alerta"
+                                    : "from-riesgo/60 to-riesgo",
                               )}
                               style={{ width: `${Math.max(0, Math.min(100, pct))}%` }}
                             />
@@ -212,10 +229,10 @@ function Desglose({
   const pct = (n: number) => (n / total) * 100;
   return (
     <div className="mt-3">
-      <div className="flex h-2.5 w-full overflow-hidden">
-        <div className="bg-linea" style={{ width: `${pct(promotores)}%` }} aria-hidden />
+      <div className="flex h-2.5 w-full overflow-hidden rounded-full">
+        <div className="bg-exito" style={{ width: `${pct(promotores)}%` }} aria-hidden />
         <div className="bg-cota/40" style={{ width: `${pct(pasivos)}%` }} aria-hidden />
-        <div className="bg-desviacion" style={{ width: `${pct(detractores)}%` }} aria-hidden />
+        <div className="bg-riesgo" style={{ width: `${pct(detractores)}%` }} aria-hidden />
       </div>
       <p className="cifra mt-1.5 text-[11px] text-cota">
         {promotores} promotores (9–10) · {pasivos} pasivos (7–8) · {detractores} detractores (0–6)
