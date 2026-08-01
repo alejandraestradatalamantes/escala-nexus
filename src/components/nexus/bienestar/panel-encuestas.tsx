@@ -2,12 +2,14 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { SelectorBuscador } from "@/components/nexus/selector-buscador";
 import { EsqueletoTabla } from "@/components/nexus/esqueletos";
+import { BannerAviso } from "@/components/nexus/banner-aviso";
 import { fechaCorta, numero } from "@/lib/nexus/formato";
 import { AVISO_ANONIMATO } from "@/lib/nexus/bienestar";
 import { useEncuestas } from "./datos";
@@ -87,12 +89,17 @@ export function PanelEncuestas({ userId }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="max-w-3xl text-[12px] text-cota">{AVISO_ANONIMATO}</p>
+        <BannerAviso tono="confidencial" ojoTachado className="max-w-3xl flex-1">
+          {AVISO_ANONIMATO}
+        </BannerAviso>
         <Dialog open={abierto} onOpenChange={setAbierto}>
           <DialogTrigger asChild>
-            <Button className="rounded-none">Abrir encuesta</Button>
+            <Button className="rounded-xl">
+              <ClipboardList className="h-4 w-4" aria-hidden />
+              Abrir encuesta
+            </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg rounded-none">
+          <DialogContent className="max-w-lg rounded-2xl">
             <DialogHeader>
               <DialogTitle className="text-base">Abrir encuesta</DialogTitle>
             </DialogHeader>
@@ -152,7 +159,7 @@ export function PanelEncuestas({ userId }: Props) {
                 />
               </div>
               <Button
-                className="w-full rounded-none"
+                className="w-full rounded-xl"
                 disabled={crear.isPending}
                 onClick={() => crear.mutate()}
               >
@@ -163,7 +170,7 @@ export function PanelEncuestas({ userId }: Props) {
         </Dialog>
       </div>
 
-      <div className="overflow-x-auto border border-border bg-card">
+      <div className="overflow-x-auto rounded-2xl bg-card shadow-[var(--shadow-tarjeta)]">
         <table className="w-full min-w-[52rem] text-[13px]">
           <thead>
             <tr className="bg-grafito text-left text-cal">
@@ -189,8 +196,8 @@ export function PanelEncuestas({ userId }: Props) {
                     <span
                       className={
                         e.estatus === "vigente"
-                          ? "cifra border border-linea bg-linea/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-grafito"
-                          : "cifra border border-border px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-cota"
+                          ? "cifra rounded-full bg-exito-suave px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-exito"
+                          : "cifra rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-cota"
                       }
                     >
                       {e.estatus}
@@ -210,7 +217,7 @@ export function PanelEncuestas({ userId }: Props) {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="rounded-none"
+                        className="rounded-lg"
                         disabled={cerrar.isPending}
                         onClick={() => cerrar.mutate(e.id)}
                       >

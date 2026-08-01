@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Lock, Medal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
@@ -9,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { SelectorBuscador } from "@/components/nexus/selector-buscador";
 import { EsqueletoTabla } from "@/components/nexus/esqueletos";
+import { BannerAviso } from "@/components/nexus/banner-aviso";
 import { fechaCorta, iniciales } from "@/lib/nexus/formato";
 import { cn } from "@/lib/utils";
 
@@ -128,11 +130,12 @@ export function MuroReconocimientos({ colaboradorId }: Props) {
         </div>
         <Dialog open={abierto} onOpenChange={setAbierto}>
           <DialogTrigger asChild>
-            <Button className="rounded-none" disabled={!colaboradorId}>
+            <Button className="rounded-xl" disabled={!colaboradorId}>
+              <Medal className="h-4 w-4" aria-hidden />
               Reconocer a alguien
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-h-[85vh] max-w-lg overflow-y-auto rounded-none">
+          <DialogContent className="max-h-[85vh] max-w-lg overflow-y-auto rounded-2xl">
             <DialogHeader>
               <DialogTitle className="text-base">Reconocer a alguien</DialogTitle>
             </DialogHeader>
@@ -174,13 +177,13 @@ export function MuroReconocimientos({ colaboradorId }: Props) {
                   value={mensaje}
                   onChange={(e) => setMensaje(e.target.value)}
                   placeholder="El hecho concreto, no el adjetivo. «Detuvo la maniobra hasta que el arnés quedó bien anclado», no «es muy responsable»."
-                  className="mt-1 min-h-28 rounded-none"
+                  className="mt-1 min-h-28 rounded-xl"
                 />
                 <p className="mt-1 text-[10px] text-cota">
                   {mensaje.trim().length} de {MENSAJE_MINIMO} caracteres mínimos.
                 </p>
               </div>
-              <div className="flex items-center justify-between border border-border px-3 py-2">
+              <div className="flex items-center justify-between rounded-xl bg-muted px-3 py-2.5">
                 <div>
                   <p className="text-[13px] text-grafito">Publicar en el muro</p>
                   <p className="text-[11px] text-cota">
@@ -190,7 +193,7 @@ export function MuroReconocimientos({ colaboradorId }: Props) {
                 <Switch checked={publico} onCheckedChange={setPublico} />
               </div>
               <Button
-                className="w-full rounded-none"
+                className="w-full rounded-xl"
                 disabled={enviar.isPending}
                 onClick={() => enviar.mutate()}
               >
@@ -204,15 +207,16 @@ export function MuroReconocimientos({ colaboradorId }: Props) {
       {isLoading ? (
         <EsqueletoTabla filas={5} columnas={3} />
       ) : lista.length === 0 ? (
-        <p className="border border-border bg-card p-4 text-[13px] text-cota">
-          Todavía no hay reconocimientos con ese filtro.
-        </p>
+        <BannerAviso tono="info">Todavía no hay reconocimientos con ese filtro.</BannerAviso>
       ) : (
         <ul className="grid gap-3 md:grid-cols-2">
           {lista.map((r) => (
-            <li key={r.id} className="flex gap-3 border border-border bg-card p-4">
+            <li
+              key={r.id}
+              className="flex gap-3 rounded-2xl bg-card p-4 shadow-[var(--shadow-tarjeta)] transition-shadow hover:shadow-[var(--shadow-tarjeta-alta)]"
+            >
               <span
-                className="cifra flex h-9 w-9 shrink-0 items-center justify-center bg-grafito text-[12px] text-cal"
+                className="cifra flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-plomada to-grafito text-[12px] font-semibold text-cal"
                 aria-hidden
               >
                 {iniciales(nombreDe(r.para_id))}
@@ -224,12 +228,20 @@ export function MuroReconocimientos({ colaboradorId }: Props) {
                 </p>
                 <p className="mt-1 text-[13px] text-grafito">{r.mensaje}</p>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <span className="cifra border border-casco bg-casco/15 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-grafito">
+                  <span className="cifra inline-flex items-center gap-1 rounded-full bg-alerta-suave px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-alerta">
+                    <Medal className="h-3 w-3" aria-hidden />
                     {etiquetaValor(r.valor_asociado)}
                   </span>
                   <span className="cifra text-[11px] text-cota">{fechaCorta(r.fecha)}</span>
                   {!r.publico ? (
-                    <span className={cn("cifra text-[11px] text-cota")}>Privado</span>
+                    <span
+                      className={cn(
+                        "cifra inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] text-cota",
+                      )}
+                    >
+                      <Lock className="h-3 w-3" aria-hidden />
+                      Privado
+                    </span>
                   ) : null}
                 </div>
               </div>
