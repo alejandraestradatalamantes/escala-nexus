@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import { Gauge } from "lucide-react";
-import type { BandaLineaBaseProps } from "./banda-linea-base";
-import { AnilloProgreso } from "./anillo-progreso";
+import { BandaLineaBase, type BandaLineaBaseProps } from "./banda-linea-base";
 import { InsigniaDelta } from "./insignia-delta";
-import { DetalleMetrica } from "./detalle-metrica";
+import { PieTrazabilidad } from "./pie-trazabilidad";
 import { numero } from "@/lib/nexus/formato";
 import { cn } from "@/lib/utils";
 import { TONO, estadoDe } from "@/lib/nexus/estado-indicador";
@@ -89,15 +88,6 @@ export function TarjetaIndicador({
   const tono = TONO[estado];
   const desviacion = banda.valor - banda.meta;
 
-  const progreso =
-    sentido === "mayorEsMejor"
-      ? banda.meta - banda.min === 0
-        ? 1
-        : (banda.valor - banda.min) / (banda.meta - banda.min)
-      : banda.valor === 0
-        ? 1
-        : banda.meta / banda.valor;
-
   return (
     <article className="relative overflow-hidden rounded-2xl bg-card shadow-[var(--shadow-tarjeta)] transition-shadow duration-200 hover:shadow-[var(--shadow-tarjeta-alta)]">
       <span className={cn("absolute inset-x-0 top-0 h-1", tono.acento)} aria-hidden />
@@ -116,30 +106,26 @@ export function TarjetaIndicador({
           <h3 className="min-w-0 flex-1 pt-1.5 text-[13px] font-semibold leading-tight text-grafito">
             {titulo}
           </h3>
-          <DetalleMetrica formula={formula} fuente={fuente} fechaCorte={fechaCorte} />
         </div>
 
-        <div className="flex items-center justify-between gap-4">
-          <div className="min-w-0">
+        <div>
             <p className="cifra text-[40px] font-bold leading-none tracking-tight text-grafito md:text-[48px]">
               {numero(valorMostrado, decimales)}
               <span className="ml-1 text-base font-medium text-cota">{banda.unidad}</span>
             </p>
-            <div className="mt-2.5 flex flex-wrap items-center gap-2">
+          <div className="mt-2.5 flex flex-wrap items-center gap-2">
               <InsigniaDelta
                 delta={desviacion}
                 unidad={banda.unidad}
                 decimales={decimales}
                 estado={estado}
               />
-              <span className="cifra text-[11px] text-cota">
-                {banda.etiquetaMeta ?? "Línea base"} {numero(banda.meta, decimales)}
-                {banda.unidad}
-              </span>
-            </div>
           </div>
-          <AnilloProgreso progreso={progreso} estado={estado} />
         </div>
+
+        <BandaLineaBase {...banda} sentido={sentido} decimales={decimales} />
+
+        <PieTrazabilidad formula={formula} fuente={fuente} fechaCorte={fechaCorte} />
 
         {nota ? <div className="border-t border-border/60 pt-3 text-[11px]">{nota}</div> : null}
       </div>
