@@ -786,6 +786,32 @@ export type Database = {
           },
         ]
       }
+      encuesta_grupos_reporte: {
+        Row: {
+          congelado_en: string
+          definicion: Json
+          encuesta_id: string
+        }
+        Insert: {
+          congelado_en?: string
+          definicion: Json
+          encuesta_id: string
+        }
+        Update: {
+          congelado_en?: string
+          definicion?: Json
+          encuesta_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "encuesta_grupos_reporte_encuesta_id_fkey"
+            columns: ["encuesta_id"]
+            isOneToOne: true
+            referencedRelation: "encuestas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       encuestas: {
         Row: {
           cerrada_en: string | null
@@ -1080,6 +1106,42 @@ export type Database = {
           orden?: number
           sla_dias?: number | null
           tipo?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      grupos_reporte: {
+        Row: {
+          activo: boolean
+          areas: string[]
+          creado_por: string | null
+          created_at: string
+          descripcion: string | null
+          es_demo: boolean
+          id: string
+          nombre: string
+          updated_at: string
+        }
+        Insert: {
+          activo?: boolean
+          areas?: string[]
+          creado_por?: string | null
+          created_at?: string
+          descripcion?: string | null
+          es_demo?: boolean
+          id?: string
+          nombre: string
+          updated_at?: string
+        }
+        Update: {
+          activo?: boolean
+          areas?: string[]
+          creado_por?: string | null
+          created_at?: string
+          descripcion?: string | null
+          es_demo?: boolean
+          id?: string
+          nombre?: string
           updated_at?: string
         }
         Relationships: []
@@ -1508,6 +1570,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      parametros_bienestar: {
+        Row: {
+          actualizado_por: string | null
+          created_at: string
+          id: number
+          umbral_agregacion: number
+          updated_at: string
+        }
+        Insert: {
+          actualizado_por?: string | null
+          created_at?: string
+          id?: number
+          umbral_agregacion?: number
+          updated_at?: string
+        }
+        Update: {
+          actualizado_por?: string | null
+          created_at?: string
+          id?: number
+          umbral_agregacion?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       prioridades_desarrollo: {
         Row: {
@@ -2378,6 +2464,14 @@ export type Database = {
           respuestas: number
         }[]
       }
+      definicion_grupos_actual: { Args: never; Returns: Json }
+      definicion_grupos_encuesta: {
+        Args: { _encuesta: string }
+        Returns: {
+          congelado_en: string
+          difiere: boolean
+        }[]
+      }
       encuesta_avance: { Args: { _encuesta: string }; Returns: number }
       es: {
         Args: { _rol: Database["public"]["Enums"]["rol_usuario"] }
@@ -2396,6 +2490,13 @@ export type Database = {
           id: string
           nombre: string
           roles: Database["public"]["Enums"]["rol_usuario"][]
+        }[]
+      }
+      mapa_grupos_encuesta: {
+        Args: { _encuesta: string }
+        Returns: {
+          area: string
+          grupo: string
         }[]
       }
       mi_colaborador_id: { Args: never; Returns: string }
@@ -2423,6 +2524,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      umbral_agregacion: { Args: never; Returns: number }
       ya_respondi: { Args: { _encuesta: string }; Returns: boolean }
     }
     Enums: {
