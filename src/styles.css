@@ -17,6 +17,17 @@
   --color-casco: oklch(0.756 0.13 74.6);
   --color-desviacion: oklch(0.545 0.145 30.5);
   --color-linea: oklch(0.503 0.066 176.6);
+  /* Acentos semánticos del rediseño: estado de cada indicador. */
+  --color-exito: oklch(0.58 0.128 158.2);
+  --color-exito-suave: oklch(0.951 0.038 156.8);
+  --color-alerta: oklch(0.72 0.152 72.4);
+  --color-alerta-suave: oklch(0.962 0.043 82.6);
+  --color-riesgo: oklch(0.564 0.183 24.8);
+  --color-riesgo-suave: oklch(0.955 0.028 22.4);
+  --color-info: oklch(0.556 0.148 253.6);
+  --color-info-suave: oklch(0.958 0.026 254.1);
+  --shadow-tarjeta: 0 1px 2px oklch(0.204 0.014 258.4 / 6%), 0 6px 20px -8px oklch(0.204 0.014 258.4 / 12%);
+  --shadow-tarjeta-alta: 0 2px 4px oklch(0.204 0.014 258.4 / 8%), 0 14px 32px -12px oklch(0.204 0.014 258.4 / 18%);
   --font-display: "Archivo", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
