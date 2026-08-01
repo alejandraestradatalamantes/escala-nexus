@@ -1,10 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { EsqueletoTabla } from "@/components/nexus/esqueletos";
-import { AVISO_COMENTARIOS_TALENTO, etiquetaAnimo, haceDias, iso } from "@/lib/nexus/bienestar";
+import {
+  avisoComentariosTalento,
+  etiquetaAnimo,
+  haceDias,
+  iso,
+  leyendaUmbral,
+} from "@/lib/nexus/bienestar";
+import { useUmbralAgregacion } from "@/hooks/use-umbral";
 
 /** Comentarios del pulso, desligados de la persona. Solo Dirección de Talento. */
 export function ComentariosAnimo() {
+  const { umbral } = useUmbralAgregacion();
   const desde = iso(haceDias(90));
   const hasta = iso(new Date());
   const { data, isLoading } = useQuery({
@@ -20,7 +28,7 @@ export function ComentariosAnimo() {
       <h2 className="text-[13px] font-semibold uppercase tracking-wide text-cota">
         Comentarios del pulso
       </h2>
-      <p className="mt-1 text-[11px] text-cota">{AVISO_COMENTARIOS_TALENTO}</p>
+      <p className="mt-1 text-[11px] text-cota">{avisoComentariosTalento(umbral)}</p>
       {isLoading ? (
         <div className="mt-3">
           <EsqueletoTabla filas={4} columnas={2} />
@@ -42,6 +50,9 @@ export function ComentariosAnimo() {
           ))}
         </ul>
       )}
+      <p className="mt-3 border-t border-border pt-2 text-[11px] text-cota">
+        {leyendaUmbral(umbral)}
+      </p>
     </section>
   );
 }

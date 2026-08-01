@@ -9,17 +9,19 @@ import { Label } from "@/components/ui/label";
 import { fechaCorta, numero } from "@/lib/nexus/formato";
 import { cn } from "@/lib/utils";
 import {
-  AVISO_ANONIMATO,
-  AVISO_SUPRIMIDO,
+  avisoAnonimato,
+  avisoSuprimido,
   CORTES,
-  MINIMO_AGREGACION,
+  leyendaUmbral,
   reactivoDe,
   type Corte,
 } from "@/lib/nexus/bienestar";
+import { useUmbralAgregacion } from "@/hooks/use-umbral";
 import { useEncuestas } from "./datos";
 
 export function Clima() {
   const { data, isLoading } = useEncuestas();
+  const { umbral } = useUmbralAgregacion();
   const [encuestaId, setEncuestaId] = useState("");
   const [corte, setCorte] = useState<Corte>("firma");
 
@@ -33,7 +35,10 @@ export function Clima() {
     queryKey: ["clima-enps", encuestaId, corte],
     enabled: !!encuestaId,
     queryFn: async () => {
-      const { data: r } = await supabase.rpc("clima_enps", { _encuesta: encuestaId, _corte: corte });
+      const { data: r } = await supabase.rpc("clima_enps", {
+        _encuesta: encuestaId,
+        _corte: corte,
+      });
       return r ?? [];
     },
   });
@@ -62,12 +67,21 @@ export function Clima() {
     },
   });
 
+  const { data: definicion } = useQuery({
+    queryKey: ["clima-definicion-grupos", encuestaId],
+    enabled: !!encuestaId,
+    queryFn: async () => {
+      const { data: r } = await supabase.rpc("definicion_grupos_encuesta", {
+        _encuesta: encuestaId,
+      });
+      return r?.[0] ?? null;
+    },
+  });
+
   if (isLoading) return <EsqueletoTabla filas={6} columnas={4} />;
 
   if (conRespuestas.length === 0)
-    return (
-      <BannerAviso tono="info">Ninguna encuesta tiene respuestas todavía.</BannerAviso>
-    );
+    return <BannerAviso tono="info">Ninguna encuesta tiene respuestas todavía.</BannerAviso>;
 
   const encuesta = conRespuestas.find((e) => e.id === encuestaId) ?? null;
   const visibles = (grupos ?? []).filter((g) => !g.suprimido);
@@ -103,9 +117,29 @@ export function Clima() {
       </div>
 
       <BannerAviso tono="confidencial" ojoTachado titulo="Datos agregados, nunca individuales">
-        {AVISO_ANONIMATO} Los cortes con menos de {MINIMO_AGREGACION} respondientes no se despliegan.
+        {avisoAnonimato(umbral)} {leyendaUmbral(umbral)}
         {encuesta?.fecha_fin ? ` Levantamiento cerrado al ${fechaCorta(encuesta.fecha_fin)}.` : ""}
       </BannerAviso>
+
+      {corte === "grupo" ? (
+        definicion ? (
+          <BannerAviso
+            tono={definicion.difiere ? "alerta" : "info"}
+            titulo="Definición de grupos de reporte"
+          >
+            Estos resultados se calculan con la definición congelada al abrir la encuesta (
+            {fechaCorta(definicion.congelado_en)}).
+            {definicion.difiere
+              ? " La definición vigente del catálogo difiere de esta: reacomodar grupos no altera encuestas ya abiertas."
+              : " Coincide con la definición vigente del catálogo."}
+          </BannerAviso>
+        ) : (
+          <BannerAviso tono="alerta">
+            Esta encuesta no tiene una definición congelada de grupos: se reporta con el catálogo
+            vigente de Configuración › Grupos de reporte.
+          </BannerAviso>
+        )
+      ) : null}
 
       <section className="space-y-3">
         <h2 className="flex items-center gap-2 text-[13px] font-semibold uppercase tracking-wide text-cota">
@@ -124,7 +158,7 @@ export function Clima() {
               </div>
               {g.suprimido || g.enps === null ? (
                 <BannerAviso tono="alerta" className="mt-3">
-                  {AVISO_SUPRIMIDO}
+                  {avisoSuprimido(umbral)}
                 </BannerAviso>
               ) : (
                 <>
@@ -155,7 +189,7 @@ export function Clima() {
           Dimensiones (escala 1 a 5)
         </h2>
         {visibles.length === 0 ? (
-          <BannerAviso tono="alerta">{AVISO_SUPRIMIDO}</BannerAviso>
+          <BannerAviso tono="alerta">{avisoSuprimido(umbral)}</BannerAviso>
         ) : (
           <div className="space-y-4">
             {visibles.map((g) => (
@@ -207,10 +241,11 @@ export function Clima() {
         )}
         {suprimidos.length > 0 ? (
           <p className="text-[11px] text-cota">
-            Cortes suprimidos por tener menos de {MINIMO_AGREGACION} respondientes:{" "}
+            Cortes suprimidos por debajo de {umbral} respondientes:{" "}
             {suprimidos.map((g) => `${g.grupo} (${g.personas})`).join(", ")}.
           </p>
         ) : null}
+        <p className="cifra text-[11px] text-cota">{leyendaUmbral(umbral)}</p>
       </section>
     </div>
   );

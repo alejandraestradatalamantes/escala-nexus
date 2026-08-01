@@ -6,12 +6,19 @@ import { ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { SelectorBuscador } from "@/components/nexus/selector-buscador";
 import { EsqueletoTabla } from "@/components/nexus/esqueletos";
 import { BannerAviso } from "@/components/nexus/banner-aviso";
 import { fechaCorta, numero } from "@/lib/nexus/formato";
-import { AVISO_ANONIMATO } from "@/lib/nexus/bienestar";
+import { avisoAnonimato } from "@/lib/nexus/bienestar";
+import { useUmbralAgregacion } from "@/hooks/use-umbral";
 import { useEncuestas } from "./datos";
 
 const TIPOS = [
@@ -27,6 +34,7 @@ interface Props {
 /** Administración de encuestas: avance en vivo, cuántas van, nunca quiénes. */
 export function PanelEncuestas({ userId }: Props) {
   const qc = useQueryClient();
+  const { umbral } = useUmbralAgregacion();
   const { data, isLoading } = useEncuestas();
   const [abierto, setAbierto] = useState(false);
   const [nombre, setNombre] = useState("");
@@ -90,7 +98,7 @@ export function PanelEncuestas({ userId }: Props) {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <BannerAviso tono="confidencial" ojoTachado className="max-w-3xl flex-1">
-          {AVISO_ANONIMATO}
+          {avisoAnonimato(umbral)}
         </BannerAviso>
         <Dialog open={abierto} onOpenChange={setAbierto}>
           <DialogTrigger asChild>
@@ -105,7 +113,9 @@ export function PanelEncuestas({ userId }: Props) {
             </DialogHeader>
             <div className="space-y-3">
               <div>
-                <Label className="cifra text-[11px] uppercase tracking-wide text-cota">Nombre</Label>
+                <Label className="cifra text-[11px] uppercase tracking-wide text-cota">
+                  Nombre
+                </Label>
                 <Input
                   className="mt-1 rounded-none"
                   value={nombre}

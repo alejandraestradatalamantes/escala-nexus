@@ -6,6 +6,7 @@ import { TarjetaNoCalculable } from "@/components/nexus/tarjeta-no-calculable";
 import { EsqueletoIndicadores } from "@/components/nexus/esqueletos";
 import { fechaCorta, numero } from "@/lib/nexus/formato";
 import { haceDias, iso } from "@/lib/nexus/bienestar";
+import { useUmbralAgregacion } from "@/hooks/use-umbral";
 import {
   PERIODO_ANIMO_DIAS,
   PERIODO_RECONOCIMIENTOS_DIAS,
@@ -47,8 +48,9 @@ function useAnimoEquipo(activo: boolean) {
   });
 }
 
-/** Indicadores de Bienestar. Ninguno se despliega con menos de cinco personas detrás. */
+/** Indicadores de Bienestar. Ninguno se despliega por debajo del umbral vigente de agregación. */
 export function IndicadoresBienestar({ veAgregadoFirma, esLider }: Props) {
+  const { umbral } = useUmbralAgregacion();
   const corte = fechaCorta(new Date());
   const inicioPeriodo = fechaCorta(haceDias(PERIODO_ANIMO_DIAS));
 
@@ -88,11 +90,11 @@ export function IndicadoresBienestar({ veAgregadoFirma, esLider }: Props) {
               !encuestaEnps
                 ? "Ninguna encuesta tiene respuestas todavía."
                 : enps?.suprimido
-                  ? "Menos de cinco respondientes: desplegarlo comprometería el anonimato."
+                  ? `Menos de ${umbral} respondientes: desplegarlo comprometería el anonimato.`
                   : "Falta la meta de eNPS en Configuración › Supuestos (clave enps_meta)."
             }
             formula="% promotores (9 y 10) − % detractores (0 a 6)"
-            fuente="Respuestas de encuesta, reactivo de recomendación · agregado con mínimo de cinco personas"
+            fuente={`Respuestas de encuesta, reactivo de recomendación · agregado con mínimo de ${umbral} personas`}
             fechaCorte={corte}
           />
         ) : (
@@ -130,11 +132,11 @@ export function IndicadoresBienestar({ veAgregadoFirma, esLider }: Props) {
             icono={Smile}
             razon={
               animo?.suprimido
-                ? "Menos de cinco personas registraron pulso en el periodo. No se despliega."
+                ? `Menos de ${umbral} personas registraron pulso en el periodo. No se despliega.`
                 : "Falta la meta de ánimo en Configuración › Supuestos (clave animo_meta)."
             }
             formula="Promedio de los pulsos registrados en los últimos 30 días (escala 1 a 5)"
-            fuente="Pulsos de ánimo · agregado con mínimo de cinco personas"
+            fuente={`Pulsos de ánimo · agregado con mínimo de ${umbral} personas`}
             fechaCorte={corte}
           />
         ) : (
@@ -166,9 +168,9 @@ export function IndicadoresBienestar({ veAgregadoFirma, esLider }: Props) {
           <TarjetaNoCalculable
             titulo="Ánimo de tu equipo"
             icono={Smile}
-            razon="Tu equipo tiene menos de cinco personas con pulso registrado en el periodo. No se despliega, y el pulso individual nunca se muestra."
+            razon={`Tu equipo tiene menos de ${umbral} personas con pulso registrado en el periodo. No se despliega, y el pulso individual nunca se muestra.`}
             formula="Promedio de los pulsos de tu equipo directo en los últimos 30 días (escala 1 a 5)"
-            fuente="Pulsos de ánimo · agregado con mínimo de cinco personas"
+            fuente={`Pulsos de ánimo · agregado con mínimo de ${umbral} personas`}
             fechaCorte={corte}
           />
         ) : (

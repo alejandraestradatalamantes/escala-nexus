@@ -11,6 +11,9 @@ import { ImportarComportamientos } from "@/components/nexus/desempeno/importar-c
 import { UsuariosAccesos } from "@/components/nexus/configuracion/usuarios-accesos";
 import { CatalogoVacaciones } from "@/components/nexus/configuracion/catalogo-vacaciones";
 import { CatalogoValores } from "@/components/nexus/configuracion/catalogo-valores";
+import { UmbralAgregacion } from "@/components/nexus/configuracion/umbral-agregacion";
+import { GruposReporte } from "@/components/nexus/configuracion/grupos-reporte";
+import { useUmbralAgregacion } from "@/hooks/use-umbral";
 import { toast } from "sonner";
 
 const ETIQUETA_SUPUESTO: Record<string, string> = {
@@ -39,7 +42,9 @@ export const Route = createFileRoute("/_authenticated/configuracion")({
 
 function Configuracion() {
   const { sesion, roles, tiene } = useSesion();
+  const { umbral } = useUmbralAgregacion();
   const admin = tiene("direccion_talento", "ti_sistema");
+  const puedeUmbral = tiene("direccion_talento", "direccion_general");
   const esTalento = tiene("direccion_talento");
   const veAccesos = tiene("direccion_talento", "direccion_general", "ti_sistema");
   const puedeCapturar = tiene("direccion_talento", "direccion_general", "finanzas_auditoria");
@@ -305,6 +310,10 @@ function Configuracion() {
 
       <CatalogoValores puedeEditar={esTalento} usuarioId={sesion?.userId ?? null} />
 
+      <UmbralAgregacion puedeEditar={puedeUmbral} usuarioId={sesion?.userId ?? null} />
+
+      <GruposReporte puedeEditar={esTalento} usuarioId={sesion?.userId ?? null} />
+
       <section className="border border-border bg-card p-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
@@ -313,8 +322,8 @@ function Configuracion() {
             </h2>
             <p className="mt-1 max-w-2xl text-[13px] text-cota">
               Los resultados individuales de evaluación solo son accesibles para el colaborador, su
-              líder directo y Dirección de Talento. Las vistas agregadas requieren un mínimo de
-              cinco personas para desplegarse.
+              líder directo y Dirección de Talento. Las vistas agregadas de Bienestar requieren un
+              mínimo de {umbral} personas para desplegarse.
             </p>
           </div>
           <div className="flex shrink-0 flex-col items-start gap-1">
