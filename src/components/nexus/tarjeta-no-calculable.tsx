@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { CircleDashed, type LucideIcon } from "lucide-react";
-import { DetalleMetrica } from "./detalle-metrica";
+import { PieTrazabilidad } from "./pie-trazabilidad";
 import { BannerAviso } from "./banner-aviso";
 
 interface Props {
@@ -38,7 +38,6 @@ export function TarjetaNoCalculable({
           <h3 className="min-w-0 flex-1 pt-1.5 text-[13px] font-semibold leading-tight text-grafito">
             {titulo}
           </h3>
-          <DetalleMetrica formula={formula} fuente={fuente} fechaCorte={fechaCorte} />
         </div>
         {cifra ? (
           <p className="cifra text-[40px] font-bold leading-none tracking-tight text-grafito md:text-[48px]">
@@ -48,6 +47,7 @@ export function TarjetaNoCalculable({
           <p className="cifra text-[26px] font-semibold leading-none text-cota">No calculable</p>
         )}
         <BannerAviso tono="alerta">{razon}</BannerAviso>
+        <PieTrazabilidad formula={formula} fuente={fuente} fechaCorte={fechaCorte} />
       </div>
     </article>
   );
