@@ -7,6 +7,8 @@ import { MuroReconocimientos } from "@/components/nexus/bienestar/muro-reconocim
 import { Clima } from "@/components/nexus/bienestar/clima";
 import { PanelEncuestas } from "@/components/nexus/bienestar/panel-encuestas";
 import { ComentariosAnimo } from "@/components/nexus/bienestar/comentarios-animo";
+import { BannerAviso } from "@/components/nexus/banner-aviso";
+import { HeartPulse } from "lucide-react";
 import { useSesion } from "@/hooks/use-sesion";
 import { fechaCorta } from "@/lib/nexus/formato";
 import { MINIMO_AGREGACION } from "@/lib/nexus/bienestar";
@@ -35,20 +37,28 @@ function Bienestar() {
   return (
     <div className="space-y-5">
       <header className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl text-grafito">Bienestar</h1>
-          <p className="cifra mt-1 text-[12px] uppercase tracking-wide text-cota">
-            Pulso de ánimo · reconocimientos · clima · encuestas anónimas
-          </p>
+        <div className="flex min-w-0 items-center gap-3">
+          <span
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-riesgo-suave text-riesgo"
+            aria-hidden
+          >
+            <HeartPulse className="h-5 w-5" />
+          </span>
+          <div className="min-w-0">
+            <h1 className="text-2xl text-grafito">Bienestar</h1>
+            <p className="cifra mt-1 text-[12px] uppercase tracking-wide text-cota">
+              Pulso de ánimo · reconocimientos · clima · encuestas anónimas
+            </p>
+          </div>
         </div>
         <span className="cifra pt-1 text-[12px] text-cota">Corte {fechaCorta(new Date())}</span>
       </header>
 
-      <p className="text-[13px] text-cota">
+      <BannerAviso tono="confidencial" titulo="Cómo se mide aquí">
         Medir el ánimo de la gente solo sirve si la gente confía en cómo se mide. Aquí nadie ve el
         pulso ni la respuesta de una persona identificable: todo se despliega agregado y con un
         mínimo de {MINIMO_AGREGACION} personas por corte.
-      </p>
+      </BannerAviso>
 
       {veAgregadoFirma || esLider ? (
         <IndicadoresBienestar veAgregadoFirma={veAgregadoFirma} esLider={esLider} />

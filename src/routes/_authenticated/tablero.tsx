@@ -2,7 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { TarjetaIndicador } from "@/components/nexus/tarjeta-indicador";
+import { TarjetaNoCalculable } from "@/components/nexus/tarjeta-no-calculable";
 import { EsqueletoIndicadores } from "@/components/nexus/esqueletos";
+import { Award, BadgeCheck, CalendarClock, HardHat, Users } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSesion } from "@/hooks/use-sesion";
 import { antiguedadAnios, ETIQUETA_ROL, fechaCorta } from "@/lib/nexus/formato";
@@ -89,36 +91,24 @@ function Tablero() {
         ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {autorizada === null ? (
-            <article className="flex flex-col gap-3 border border-border bg-card p-4">
-              <h3 className="text-[13px] font-semibold uppercase tracking-wide text-cota">
-                Plantilla activa vs. autorizada
-              </h3>
-              <p className="cifra text-3xl leading-none text-grafito">
-                {data.plantilla}
-                <span className="ml-1 text-base text-cota"> personas activas</span>
-              </p>
-              <p className="cifra border-l-2 border-casco bg-casco/10 px-2 py-1.5 text-[11px] text-grafito">
-                Indicador no calculable: falta la plantilla autorizada. No se asume línea base. Captúrala en
-                Configuración › Supuestos financieros.
-              </p>
-              <dl className="mt-1 space-y-1 border-t border-border pt-2 text-[11px] text-cota">
-                <div className="flex gap-2">
-                  <dt className="shrink-0 font-semibold">Fórmula</dt>
-                  <dd className="min-w-0">Colaboradores con estatus activo ÷ plantilla autorizada</dd>
-                </div>
-                <div className="flex gap-2">
-                  <dt className="shrink-0 font-semibold">Fuente</dt>
-                  <dd className="min-w-0">Tabla colaboradores · supuestos_financieros.plantilla_autorizada</dd>
-                </div>
-                <div className="flex gap-2">
-                  <dt className="shrink-0 font-semibold">Corte</dt>
-                  <dd className="cifra min-w-0">{hoy}</dd>
-                </div>
-              </dl>
-            </article>
+            <TarjetaNoCalculable
+              titulo="Plantilla activa vs. autorizada"
+              icono={Users}
+              cifra={
+                <>
+                  {data.plantilla}
+                  <span className="ml-1 text-base font-medium text-cota">personas activas</span>
+                </>
+              }
+              razon="Falta la plantilla autorizada. No se asume línea base: captúrala en Configuración › Supuestos financieros."
+              formula="Colaboradores con estatus activo ÷ plantilla autorizada"
+              fuente="Tabla colaboradores · supuestos_financieros.plantilla_autorizada"
+              fechaCorte={hoy}
+            />
           ) : (
           <TarjetaIndicador
             titulo="Plantilla activa vs. autorizada"
+            icono={Users}
             valor={data.plantilla}
             meta={autorizada}
             min={0}
@@ -134,6 +124,7 @@ function Tablero() {
           )}
           <TarjetaIndicador
             titulo="Antigüedad promedio"
+            icono={CalendarClock}
             valor={data.antiguedad}
             meta={4}
             min={0}
@@ -148,6 +139,7 @@ function Tablero() {
           />
           <TarjetaIndicador
             titulo="Certificaciones vigentes"
+            icono={BadgeCheck}
             valor={data.certPct}
             meta={90}
             min={0}
@@ -164,14 +156,24 @@ function Tablero() {
         )}
       </section>
 
-      <section className="border border-border bg-card p-4">
-        <h2 className="text-[13px] font-semibold uppercase tracking-wide text-cota">Distribución</h2>
+      <section className="rounded-2xl bg-card p-5 shadow-[var(--shadow-tarjeta)]">
+        <h2 className="flex items-center gap-2 text-[13px] font-semibold uppercase tracking-wide text-cota">
+          <HardHat className="h-4 w-4 text-info" aria-hidden />
+          Distribución
+        </h2>
         {isLoading || !data ? (
           <Skeleton className="mt-2 h-4 w-56 rounded-none" />
         ) : (
-          <p className="cifra mt-2 text-sm text-grafito">
-            {data.campo} en campo · {data.plantilla - data.campo} en corporativo
-          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <span className="cifra inline-flex items-center gap-1.5 rounded-full bg-info-suave px-3 py-1 text-[12px] font-semibold text-info">
+              <HardHat className="h-3.5 w-3.5" aria-hidden />
+              {data.campo} en campo
+            </span>
+            <span className="cifra inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-[12px] font-semibold text-grafito">
+              <Award className="h-3.5 w-3.5" aria-hidden />
+              {data.plantilla - data.campo} en corporativo
+            </span>
+          </div>
         )}
         <p className="mt-2 text-[13px] text-cota">
           Nexus administra el talento con la misma metodología con la que Escala administra proyectos: cada

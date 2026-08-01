@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { ClipboardList, Gauge, Medal, Smile } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { TarjetaIndicador } from "@/components/nexus/tarjeta-indicador";
 import { TarjetaNoCalculable } from "@/components/nexus/tarjeta-no-calculable";
@@ -82,6 +83,7 @@ export function IndicadoresBienestar({ veAgregadoFirma, esLider }: Props) {
         !encuestaEnps || !enps || enps.suprimido || enps.enps === null || metaEnps === null ? (
           <TarjetaNoCalculable
             titulo="eNPS del periodo"
+            icono={Gauge}
             razon={
               !encuestaEnps
                 ? "Ninguna encuesta tiene respuestas todavía."
@@ -96,6 +98,7 @@ export function IndicadoresBienestar({ veAgregadoFirma, esLider }: Props) {
         ) : (
           <TarjetaIndicador
             titulo="eNPS del periodo"
+            icono={Gauge}
             valor={Number(enps.enps)}
             meta={Number(metaEnps)}
             min={-100}
@@ -124,6 +127,7 @@ export function IndicadoresBienestar({ veAgregadoFirma, esLider }: Props) {
         !animo || animo.suprimido || animo.promedio === null || sup?.animoMeta == null ? (
           <TarjetaNoCalculable
             titulo="Ánimo promedio del periodo"
+            icono={Smile}
             razon={
               animo?.suprimido
                 ? "Menos de cinco personas registraron pulso en el periodo. No se despliega."
@@ -136,6 +140,7 @@ export function IndicadoresBienestar({ veAgregadoFirma, esLider }: Props) {
         ) : (
           <TarjetaIndicador
             titulo="Ánimo promedio del periodo"
+            icono={Smile}
             valor={Number(animo.promedio)}
             meta={Number(sup.animoMeta)}
             min={1}
@@ -160,6 +165,7 @@ export function IndicadoresBienestar({ veAgregadoFirma, esLider }: Props) {
         !equipo || equipo.suprimido || equipo.promedio === null ? (
           <TarjetaNoCalculable
             titulo="Ánimo de tu equipo"
+            icono={Smile}
             razon="Tu equipo tiene menos de cinco personas con pulso registrado en el periodo. No se despliega, y el pulso individual nunca se muestra."
             formula="Promedio de los pulsos de tu equipo directo en los últimos 30 días (escala 1 a 5)"
             fuente="Pulsos de ánimo · agregado con mínimo de cinco personas"
@@ -168,6 +174,7 @@ export function IndicadoresBienestar({ veAgregadoFirma, esLider }: Props) {
         ) : (
           <TarjetaIndicador
             titulo="Ánimo de tu equipo"
+            icono={Smile}
             valor={Number(equipo.promedio)}
             meta={Number(sup?.animoMeta ?? 4)}
             min={1}
@@ -192,6 +199,7 @@ export function IndicadoresBienestar({ veAgregadoFirma, esLider }: Props) {
       {pctParticipacion === null || sup?.participacionMeta == null ? (
         <TarjetaNoCalculable
           titulo="Participación en reconocimientos"
+          icono={Medal}
           razon={
             pctParticipacion === null
               ? "No hay plantilla activa registrada."
@@ -204,6 +212,7 @@ export function IndicadoresBienestar({ veAgregadoFirma, esLider }: Props) {
       ) : (
         <TarjetaIndicador
           titulo="Participación en reconocimientos"
+          icono={Medal}
           valor={pctParticipacion}
           meta={Number(sup.participacionMeta)}
           min={0}
@@ -222,6 +231,7 @@ export function IndicadoresBienestar({ veAgregadoFirma, esLider }: Props) {
         cobertura === null || !vigente ? (
           <TarjetaNoCalculable
             titulo="Cobertura de la encuesta vigente"
+            icono={ClipboardList}
             razon={
               vigente
                 ? "No hay plantilla activa registrada para formar el denominador."
@@ -234,6 +244,7 @@ export function IndicadoresBienestar({ veAgregadoFirma, esLider }: Props) {
         ) : (
           <TarjetaIndicador
             titulo="Cobertura de la encuesta vigente"
+            icono={ClipboardList}
             valor={cobertura}
             meta={Number(vigente.cobertura_objetivo ?? 80)}
             min={0}

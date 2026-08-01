@@ -8,14 +8,20 @@ export function EsqueletoIndicadores({ cantidad = 3 }: { cantidad?: number }) {
   return (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {Array.from({ length: cantidad }).map((_, i) => (
-        <div key={i} className="flex flex-col gap-3 border border-border bg-card p-4">
-          <Skeleton className="h-3 w-40 rounded-none" />
-          <Skeleton className="h-8 w-28 rounded-none" />
-          <Skeleton className="h-6 w-full rounded-none" />
-          <div className="space-y-1 border-t border-border pt-2">
-            <Skeleton className="h-2.5 w-full rounded-none" />
-            <Skeleton className="h-2.5 w-3/4 rounded-none" />
-            <Skeleton className="h-2.5 w-1/2 rounded-none" />
+        <div
+          key={i}
+          className="flex flex-col gap-4 rounded-2xl bg-card p-5 shadow-[var(--shadow-tarjeta)]"
+        >
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-9 w-9 rounded-xl" />
+            <Skeleton className="h-3 w-40 rounded-full" />
+          </div>
+          <div className="flex items-center justify-between gap-4">
+            <div className="space-y-2">
+              <Skeleton className="h-10 w-32 rounded-lg" />
+              <Skeleton className="h-4 w-24 rounded-full" />
+            </div>
+            <Skeleton className="h-[68px] w-[68px] rounded-full" />
           </div>
         </div>
       ))}
