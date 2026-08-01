@@ -1,19 +1,28 @@
-import { MINIMO_AGREGADO } from "./evaluacion";
+/**
+ * El umbral de agregación vive en Configuración (tabla `parametros_bienestar`).
+ * Esta constante es únicamente el respaldo si el catálogo no responde: nunca la fuente de verdad.
+ */
+export const UMBRAL_RESPALDO = 5;
 
-/** Ninguna vista agregada de Bienestar se despliega con menos de cinco personas. */
-export const MINIMO_AGREGACION = MINIMO_AGREGADO;
+/** Rango permitido del umbral. Con menos de 3 el resultado es la respuesta individual. */
+export const UMBRAL_MINIMO = 3;
+export const UMBRAL_MAXIMO = 10;
 
-export const AVISO_ANONIMATO =
-  "Las respuestas de encuesta se guardan con un identificador irreversible, no con tu nombre. Nadie —ni Dirección de Talento, ni Dirección General, ni Sistemas— puede leerlas persona por persona: solo se consultan agregadas y con un mínimo de cinco respondientes por corte.";
+export const avisoAnonimato = (umbral: number) =>
+  `Las respuestas de encuesta se guardan con un identificador irreversible, no con tu nombre. Nadie —ni Dirección de Talento, ni Dirección General, ni Sistemas— puede leerlas persona por persona: solo se consultan agregadas y con un mínimo de ${umbral} respondientes por corte.`;
 
-export const AVISO_PULSO =
-  "Tu pulso y tu comentario son tuyos. Tu líder no los ve: solo el promedio de su equipo, y únicamente si el equipo llega a cinco personas con registro.";
+export const avisoPulso = (umbral: number) =>
+  `Tu pulso y tu comentario son tuyos. Tu líder no los ve: solo el promedio de su equipo, y únicamente si el equipo llega a ${umbral} personas con registro.`;
 
-export const AVISO_COMENTARIOS_TALENTO =
-  "Comentarios desligados de la persona y en orden aleatorio. Se muestran solo cuando hay al menos cinco comentarios distintos en el periodo.";
+export const avisoComentariosTalento = (umbral: number) =>
+  `Comentarios desligados de la persona y en orden aleatorio. Se muestran solo cuando hay al menos ${umbral} comentarios distintos en el periodo.`;
 
-export const AVISO_SUPRIMIDO =
-  "Corte suprimido: menos de cinco respondientes. Desplegarlo comprometería el anonimato.";
+export const avisoSuprimido = (umbral: number) =>
+  `Corte suprimido: menos de ${umbral} respondientes. Desplegarlo comprometería el anonimato.`;
+
+/** Leyenda de trazabilidad para imprimir junto a cualquier resultado agregado. */
+export const leyendaUmbral = (umbral: number) =>
+  `Cortes suprimidos por debajo de ${umbral} respondientes (umbral vigente en Configuración).`;
 
 export interface Reactivo {
   clave: string;
@@ -93,6 +102,7 @@ export const CORTES = [
   { valor: "firma", etiqueta: "Firma completa" },
   { valor: "ubicacion", etiqueta: "Ubicación" },
   { valor: "area", etiqueta: "Área" },
+  { valor: "grupo", etiqueta: "Grupo de reporte" },
 ] as const;
 
 export type Corte = (typeof CORTES)[number]["valor"];
