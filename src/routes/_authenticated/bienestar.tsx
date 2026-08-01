@@ -11,7 +11,7 @@ import { BannerAviso } from "@/components/nexus/banner-aviso";
 import { HeartPulse } from "lucide-react";
 import { useSesion } from "@/hooks/use-sesion";
 import { fechaCorta } from "@/lib/nexus/formato";
-import { MINIMO_AGREGACION } from "@/lib/nexus/bienestar";
+import { useUmbralAgregacion } from "@/hooks/use-umbral";
 
 export const Route = createFileRoute("/_authenticated/bienestar")({
   head: () => ({
@@ -28,6 +28,7 @@ export const Route = createFileRoute("/_authenticated/bienestar")({
 
 function Bienestar() {
   const { sesion, tiene } = useSesion();
+  const { umbral } = useUmbralAgregacion();
   const [pestana, setPestana] = useState("mi-bienestar");
 
   const esTalento = tiene("direccion_talento");
@@ -57,7 +58,7 @@ function Bienestar() {
       <BannerAviso tono="confidencial" titulo="Cómo se mide aquí">
         Medir el ánimo de la gente solo sirve si la gente confía en cómo se mide. Aquí nadie ve el
         pulso ni la respuesta de una persona identificable: todo se despliega agregado y con un
-        mínimo de {MINIMO_AGREGACION} personas por corte.
+        mínimo de {umbral} personas por corte. El umbral vive en Configuración › Umbral de agregación.
       </BannerAviso>
 
       {veAgregadoFirma || esLider ? (

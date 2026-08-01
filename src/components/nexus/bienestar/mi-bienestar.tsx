@@ -12,8 +12,8 @@ import { BannerAviso } from "@/components/nexus/banner-aviso";
 import { fechaCorta } from "@/lib/nexus/formato";
 import { cn } from "@/lib/utils";
 import {
-  AVISO_ANONIMATO,
-  AVISO_PULSO,
+  avisoAnonimato,
+  avisoPulso,
   ESCALA_ANIMO,
   ETIQUETA_ACUERDO,
   REACTIVOS,
@@ -21,6 +21,7 @@ import {
   haceDias,
   iso,
 } from "@/lib/nexus/bienestar";
+import { useUmbralAgregacion } from "@/hooks/use-umbral";
 import { useEncuestas } from "./datos";
 
 interface Props {
@@ -37,6 +38,7 @@ const PULSO: Record<number, { emoji: string; activo: string; pasivo: string }> =
 
 export function MiBienestar({ colaboradorId }: Props) {
   const qc = useQueryClient();
+  const { umbral } = useUmbralAgregacion();
   const hoy = iso(new Date());
   const [valor, setValor] = useState<number | null>(null);
   const [comentario, setComentario] = useState("");
@@ -106,7 +108,7 @@ export function MiBienestar({ colaboradorId }: Props) {
           ¿Cómo te fue hoy?
         </h2>
         <BannerAviso tono="confidencial" titulo="Solo tú lo ves" className="mt-3">
-          {AVISO_PULSO}
+          {avisoPulso(umbral)}
         </BannerAviso>
         {pulsoHoy ? (
           <BannerAviso tono="exito" className="mt-2">
@@ -210,7 +212,7 @@ export function MiBienestar({ colaboradorId }: Props) {
       </section>
 
       <BannerAviso tono="confidencial" ojoTachado titulo="Anonimato de encuestas">
-        {AVISO_ANONIMATO}
+        {avisoAnonimato(umbral)}
       </BannerAviso>
     </div>
   );
@@ -218,6 +220,7 @@ export function MiBienestar({ colaboradorId }: Props) {
 
 function EncuestaVigente() {
   const qc = useQueryClient();
+  const { umbral } = useUmbralAgregacion();
   const [abierto, setAbierto] = useState(false);
   const [respuestas, setRespuestas] = useState<Record<string, number>>({});
   const { data } = useEncuestas();
@@ -268,7 +271,7 @@ function EncuestaVigente() {
         Abierta del {fechaCorta(vigente.fecha_inicio)} al {fechaCorta(vigente.fecha_fin)}
       </p>
       <BannerAviso tono="confidencial" ojoTachado className="mt-3">
-        {AVISO_ANONIMATO}
+        {avisoAnonimato(umbral)}
       </BannerAviso>
       {yaRespondi ? (
         <BannerAviso tono="exito" className="mt-2">
@@ -286,7 +289,7 @@ function EncuestaVigente() {
           <DialogHeader>
             <DialogTitle className="text-base">{vigente.nombre}</DialogTitle>
           </DialogHeader>
-          <p className="text-[12px] text-cota">{AVISO_ANONIMATO}</p>
+          <p className="text-[12px] text-cota">{avisoAnonimato(umbral)}</p>
           <div className="space-y-5">
             {REACTIVOS.map((r) => (
               <fieldset key={r.clave}>
