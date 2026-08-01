@@ -22,7 +22,9 @@ export function useEncuestas() {
       const [enc, cols] = await Promise.all([
         supabase
           .from("encuestas")
-          .select("id, nombre, tipo, estatus, fecha_inicio, fecha_fin, cobertura_objetivo, cerrada_en")
+          .select(
+            "id, nombre, tipo, estatus, fecha_inicio, fecha_fin, cobertura_objetivo, cerrada_en",
+          )
           .order("fecha_inicio", { ascending: false }),
         supabase.from("colaboradores").select("id").eq("estatus", "activo"),
       ]);

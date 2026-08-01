@@ -7,7 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { SelectorBuscador } from "@/components/nexus/selector-buscador";
 import { EsqueletoTabla } from "@/components/nexus/esqueletos";
 import { BannerAviso } from "@/components/nexus/banner-aviso";
@@ -152,7 +158,11 @@ export function MuroReconocimientos({ colaboradorId }: Props) {
                   placeholder="Elige a la persona"
                   opciones={(personas ?? [])
                     .filter((p) => p.id !== colaboradorId)
-                    .map((p) => ({ valor: p.id, etiqueta: p.nombre, detalle: p.area ?? undefined }))}
+                    .map((p) => ({
+                      valor: p.id,
+                      etiqueta: p.nombre,
+                      detalle: p.area ?? undefined,
+                    }))}
                 />
               </div>
               <div>

@@ -69,9 +69,9 @@ export function UmbralAgregacion({ puedeEditar, usuarioId }: Props) {
         Umbral de agregación de Bienestar
       </h2>
       <p className="mt-1 max-w-3xl text-[13px] text-cota">
-        Número mínimo de respondientes para desplegar cualquier corte de clima, ánimo o
-        comentarios. Las funciones de base leen este valor: cambiarlo aquí cambia de inmediato qué
-        cortes se suprimen, sin tocar código.
+        Número mínimo de respondientes para desplegar cualquier corte de clima, ánimo o comentarios.
+        Las funciones de base leen este valor: cambiarlo aquí cambia de inmediato qué cortes se
+        suprimen, sin tocar código.
       </p>
 
       {cargando ? (

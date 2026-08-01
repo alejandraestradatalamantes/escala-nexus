@@ -6,7 +6,13 @@ import { ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { SelectorBuscador } from "@/components/nexus/selector-buscador";
 import { EsqueletoTabla } from "@/components/nexus/esqueletos";
 import { BannerAviso } from "@/components/nexus/banner-aviso";
@@ -107,7 +113,9 @@ export function PanelEncuestas({ userId }: Props) {
             </DialogHeader>
             <div className="space-y-3">
               <div>
-                <Label className="cifra text-[11px] uppercase tracking-wide text-cota">Nombre</Label>
+                <Label className="cifra text-[11px] uppercase tracking-wide text-cota">
+                  Nombre
+                </Label>
                 <Input
                   className="mt-1 rounded-none"
                   value={nombre}

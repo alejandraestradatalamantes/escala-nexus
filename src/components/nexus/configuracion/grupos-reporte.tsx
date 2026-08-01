@@ -46,8 +46,7 @@ export function GruposReporte({ puedeEditar, usuarioId }: Props) {
   const { data: grupos, isLoading } = useQuery({
     queryKey: ["grupos-reporte"],
     queryFn: async () =>
-      ((await supabase.from("grupos_reporte").select("*").order("nombre")).data ??
-        []) as Grupo[],
+      ((await supabase.from("grupos_reporte").select("*").order("nombre")).data ?? []) as Grupo[],
   });
 
   const { data: areasDisponibles } = useQuery({
@@ -98,9 +97,7 @@ export function GruposReporte({ puedeEditar, usuarioId }: Props) {
   });
 
   const asignadasEnOtros = new Set(
-    (grupos ?? [])
-      .filter((g) => g.id !== editando?.id)
-      .flatMap((g) => g.areas),
+    (grupos ?? []).filter((g) => g.id !== editando?.id).flatMap((g) => g.areas),
   );
 
   return (

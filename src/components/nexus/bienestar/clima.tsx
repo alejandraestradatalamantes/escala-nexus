@@ -35,7 +35,10 @@ export function Clima() {
     queryKey: ["clima-enps", encuestaId, corte],
     enabled: !!encuestaId,
     queryFn: async () => {
-      const { data: r } = await supabase.rpc("clima_enps", { _encuesta: encuestaId, _corte: corte });
+      const { data: r } = await supabase.rpc("clima_enps", {
+        _encuesta: encuestaId,
+        _corte: corte,
+      });
       return r ?? [];
     },
   });
@@ -78,9 +81,7 @@ export function Clima() {
   if (isLoading) return <EsqueletoTabla filas={6} columnas={4} />;
 
   if (conRespuestas.length === 0)
-    return (
-      <BannerAviso tono="info">Ninguna encuesta tiene respuestas todavía.</BannerAviso>
-    );
+    return <BannerAviso tono="info">Ninguna encuesta tiene respuestas todavía.</BannerAviso>;
 
   const encuesta = conRespuestas.find((e) => e.id === encuestaId) ?? null;
   const visibles = (grupos ?? []).filter((g) => !g.suprimido);

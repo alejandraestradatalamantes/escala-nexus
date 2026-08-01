@@ -1,12 +1,26 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { ClipboardList, HeartPulse, LineChart as LineChartIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { EsqueletoTabla } from "@/components/nexus/esqueletos";
 import { BannerAviso } from "@/components/nexus/banner-aviso";
 import { fechaCorta } from "@/lib/nexus/formato";
@@ -29,11 +43,31 @@ interface Props {
 }
 
 const PULSO: Record<number, { emoji: string; activo: string; pasivo: string }> = {
-  1: { emoji: "😞", activo: "bg-riesgo text-white shadow-[var(--shadow-tarjeta-alta)]", pasivo: "bg-riesgo-suave text-riesgo hover:bg-riesgo/15" },
-  2: { emoji: "😕", activo: "bg-alerta text-grafito shadow-[var(--shadow-tarjeta-alta)]", pasivo: "bg-alerta-suave text-alerta hover:bg-alerta/15" },
-  3: { emoji: "😐", activo: "bg-cota text-white shadow-[var(--shadow-tarjeta-alta)]", pasivo: "bg-muted text-cota hover:bg-cota/15" },
-  4: { emoji: "🙂", activo: "bg-exito/80 text-white shadow-[var(--shadow-tarjeta-alta)]", pasivo: "bg-exito-suave text-exito hover:bg-exito/15" },
-  5: { emoji: "😄", activo: "bg-exito text-white shadow-[var(--shadow-tarjeta-alta)]", pasivo: "bg-exito-suave text-exito hover:bg-exito/15" },
+  1: {
+    emoji: "😞",
+    activo: "bg-riesgo text-white shadow-[var(--shadow-tarjeta-alta)]",
+    pasivo: "bg-riesgo-suave text-riesgo hover:bg-riesgo/15",
+  },
+  2: {
+    emoji: "😕",
+    activo: "bg-alerta text-grafito shadow-[var(--shadow-tarjeta-alta)]",
+    pasivo: "bg-alerta-suave text-alerta hover:bg-alerta/15",
+  },
+  3: {
+    emoji: "😐",
+    activo: "bg-cota text-white shadow-[var(--shadow-tarjeta-alta)]",
+    pasivo: "bg-muted text-cota hover:bg-cota/15",
+  },
+  4: {
+    emoji: "🙂",
+    activo: "bg-exito/80 text-white shadow-[var(--shadow-tarjeta-alta)]",
+    pasivo: "bg-exito-suave text-exito hover:bg-exito/15",
+  },
+  5: {
+    emoji: "😄",
+    activo: "bg-exito text-white shadow-[var(--shadow-tarjeta-alta)]",
+    pasivo: "bg-exito-suave text-exito hover:bg-exito/15",
+  },
 };
 
 export function MiBienestar({ colaboradorId }: Props) {
@@ -102,7 +136,10 @@ export function MiBienestar({ colaboradorId }: Props) {
     <div className="space-y-5">
       <section className="rounded-2xl bg-card p-5 shadow-[var(--shadow-tarjeta)]">
         <h2 className="flex items-center gap-2 text-[15px] font-semibold text-grafito">
-          <span className="grid h-8 w-8 place-items-center rounded-xl bg-riesgo-suave text-riesgo" aria-hidden>
+          <span
+            className="grid h-8 w-8 place-items-center rounded-xl bg-riesgo-suave text-riesgo"
+            aria-hidden
+          >
             <HeartPulse className="h-4 w-4" />
           </span>
           ¿Cómo te fue hoy?
@@ -165,7 +202,10 @@ export function MiBienestar({ colaboradorId }: Props) {
 
       <section className="rounded-2xl bg-card p-5 shadow-[var(--shadow-tarjeta)]">
         <h2 className="flex items-center gap-2 text-[15px] font-semibold text-grafito">
-          <span className="grid h-8 w-8 place-items-center rounded-xl bg-info-suave text-info" aria-hidden>
+          <span
+            className="grid h-8 w-8 place-items-center rounded-xl bg-info-suave text-info"
+            aria-hidden
+          >
             <LineChartIcon className="h-4 w-4" />
           </span>
           Mi histórico
@@ -186,7 +226,12 @@ export function MiBienestar({ colaboradorId }: Props) {
                 <LineChart data={serie} margin={{ top: 8, right: 8, bottom: 0, left: -24 }}>
                   <CartesianGrid strokeDasharray="2 4" vertical={false} />
                   <XAxis dataKey="fecha" tick={{ fontSize: 10 }} tickLine={false} />
-                  <YAxis domain={[1, 5]} ticks={[1, 2, 3, 4, 5]} tick={{ fontSize: 10 }} tickLine={false} />
+                  <YAxis
+                    domain={[1, 5]}
+                    ticks={[1, 2, 3, 4, 5]}
+                    tick={{ fontSize: 10 }}
+                    tickLine={false}
+                  />
                   <Tooltip />
                   <Line
                     type="monotone"
@@ -261,7 +306,10 @@ function EncuestaVigente() {
   return (
     <section className="rounded-2xl bg-card p-5 shadow-[var(--shadow-tarjeta)]">
       <h2 className="flex items-center gap-2 text-[15px] font-semibold text-grafito">
-        <span className="grid h-8 w-8 place-items-center rounded-xl bg-alerta-suave text-alerta" aria-hidden>
+        <span
+          className="grid h-8 w-8 place-items-center rounded-xl bg-alerta-suave text-alerta"
+          aria-hidden
+        >
           <ClipboardList className="h-4 w-4" />
         </span>
         Encuesta vigente

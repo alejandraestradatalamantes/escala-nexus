@@ -1,7 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { EsqueletoTabla } from "@/components/nexus/esqueletos";
-import { avisoComentariosTalento, etiquetaAnimo, haceDias, iso, leyendaUmbral } from "@/lib/nexus/bienestar";
+import {
+  avisoComentariosTalento,
+  etiquetaAnimo,
+  haceDias,
+  iso,
+  leyendaUmbral,
+} from "@/lib/nexus/bienestar";
 import { useUmbralAgregacion } from "@/hooks/use-umbral";
 
 /** Comentarios del pulso, desligados de la persona. Solo Dirección de Talento. */
@@ -44,7 +50,9 @@ export function ComentariosAnimo() {
           ))}
         </ul>
       )}
-      <p className="mt-3 border-t border-border pt-2 text-[11px] text-cota">{leyendaUmbral(umbral)}</p>
+      <p className="mt-3 border-t border-border pt-2 text-[11px] text-cota">
+        {leyendaUmbral(umbral)}
+      </p>
     </section>
   );
 }
